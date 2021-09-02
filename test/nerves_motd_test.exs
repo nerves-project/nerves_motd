@@ -20,6 +20,8 @@ defmodule NervesMOTDTest do
   test "print" do
     IO.puts("")
     assert :ok = NervesMOTD.print()
+    IO.puts("---")
+    assert :ok = NervesMOTD.print(logo: false)
   end
 
   test "uptime" do

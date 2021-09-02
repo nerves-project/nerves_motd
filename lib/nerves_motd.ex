@@ -4,7 +4,9 @@ defmodule NervesMOTD do
   """
 
   @spec print :: :ok
-  def print do
+  def print(opts \\ []) do
+    show_logo = Keyword.get(opts, :logo, true)
+
     fmt_col_fun = fn str -> String.pad_trailing(str, 20, " ") end
 
     applications_text =
@@ -23,13 +25,17 @@ defmodule NervesMOTD do
 
     load_average_text = load_average()
 
-    IO.puts("""
-    \e[34m████▄▖    \e[36m▐███
-    \e[34m█▌  ▀▜█▙▄▖  \e[36m▐█
-    \e[34m█▌ \e[36m▐█▄▖\e[34m▝▀█▌ \e[36m▐█   \e[39mN  E  R  V  E  S
-    \e[34m█▌   \e[36m▝▀█▙▄▖ ▐█
-    \e[34m███▌    \e[36m▀▜████\e[0m
+    if show_logo do
+      IO.puts("""
+      \e[34m████▄▖    \e[36m▐███
+      \e[34m█▌  ▀▜█▙▄▖  \e[36m▐█
+      \e[34m█▌ \e[36m▐█▄▖\e[34m▝▀█▌ \e[36m▐█   \e[39mN  E  R  V  E  S
+      \e[34m█▌   \e[36m▝▀█▙▄▖ ▐█
+      \e[34m███▌    \e[36m▀▜████\e[0m
+      """)
+    end
 
+    IO.puts("""
     #{fw_product()} #{fw_version()} (#{fw_uuid()}) #{fw_architecture()}
 
       Uptime : #{uptime()}
