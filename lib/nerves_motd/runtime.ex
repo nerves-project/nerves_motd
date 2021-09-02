@@ -1,23 +1,23 @@
-defmodule NervesMotd.Runtime do
+defmodule NervesMOTD.Runtime do
   @moduledoc false
   @callback validate_firmware :: :ok | {:error, any}
 end
 
-defmodule NervesMotd.Runtime.Prod do
+defmodule NervesMOTD.Runtime.Prod do
   @moduledoc false
-  @behaviour NervesMotd.Runtime
+  @behaviour NervesMOTD.Runtime
 
-  @impl NervesMotd.Runtime
+  @impl NervesMOTD.Runtime
   def validate_firmware do
     Nerves.Runtime.validate_firmware()
   end
 end
 
-defmodule NervesMotd.Runtime.Test do
+defmodule NervesMOTD.Runtime.Test do
   @moduledoc false
-  @behaviour NervesMotd.Runtime
+  @behaviour NervesMOTD.Runtime
 
-  @impl NervesMotd.Runtime
+  @impl NervesMOTD.Runtime
   def validate_firmware do
     :ok
   end

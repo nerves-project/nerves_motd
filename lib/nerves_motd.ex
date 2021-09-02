@@ -1,6 +1,6 @@
-defmodule NervesMotd do
+defmodule NervesMOTD do
   @moduledoc """
-  Documentation for `NervesMotd`.
+  Documentation for `NervesMOTD`.
   """
 
   @spec print :: :ok
@@ -125,14 +125,14 @@ defmodule NervesMotd do
   end
 
   defp runtime_mod() do
-    Application.get_env(:nerves_motd, :runtime_mod, NervesMotd.Runtime.Prod)
+    Application.get_env(:nerves_motd, :runtime_mod, NervesMOTD.Runtime.Prod)
   end
 
   defp runtime_kv_mod() do
-    Application.get_env(:nerves_motd, :runtime_kv_mod, NervesMotd.RuntimeKV.Prod)
+    Application.get_env(:nerves_motd, :runtime_kv_mod, NervesMOTD.RuntimeKV.Prod)
   end
 
   defp linux_mod() do
-    Application.get_env(:nerves_motd, :linux_mod, NervesMotd.Linux.Prod)
+    Application.get_env(:nerves_motd, :linux_mod, NervesMOTD.Linux.Prod)
   end
 end

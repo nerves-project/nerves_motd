@@ -1,34 +1,34 @@
-defmodule NervesMotd.RuntimeKV do
+defmodule NervesMOTD.RuntimeKV do
   @moduledoc false
   @callback get(binary) :: any
   @callback get_active(binary) :: any
 end
 
-defmodule NervesMotd.RuntimeKV.Prod do
+defmodule NervesMOTD.RuntimeKV.Prod do
   @moduledoc false
-  @behaviour NervesMotd.RuntimeKV
+  @behaviour NervesMOTD.RuntimeKV
 
-  @impl NervesMotd.RuntimeKV
+  @impl NervesMOTD.RuntimeKV
   def get(key) do
     Nerves.Runtime.KV.get(key)
   end
 
-  @impl NervesMotd.RuntimeKV
+  @impl NervesMOTD.RuntimeKV
   def get_active(key) do
     Nerves.Runtime.KV.get_active(key)
   end
 end
 
-defmodule NervesMotd.RuntimeKV.Test do
+defmodule NervesMOTD.RuntimeKV.Test do
   @moduledoc false
-  @behaviour NervesMotd.RuntimeKV
+  @behaviour NervesMOTD.RuntimeKV
 
-  @impl NervesMotd.RuntimeKV
+  @impl NervesMOTD.RuntimeKV
   def get(key) do
     fake_kv()[key]
   end
 
-  @impl NervesMotd.RuntimeKV
+  @impl NervesMOTD.RuntimeKV
   def get_active(key) do
     get("a.#{key}")
   end

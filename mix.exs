@@ -1,4 +1,4 @@
-defmodule NervesMotd.MixProject do
+defmodule NervesMOTD.MixProject do
   use Mix.Project
 
   def project do

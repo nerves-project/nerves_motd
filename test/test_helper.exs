@@ -4,13 +4,13 @@ if Version.match?(System.version(), "~> 1.10") do
 end
 
 # Define dynamic mocks
-Mox.defmock(NervesMotd.MockRuntime, for: NervesMotd.Runtime)
-Mox.defmock(NervesMotd.MockRuntimeKV, for: NervesMotd.RuntimeKV)
-Mox.defmock(NervesMotd.MockLinux, for: NervesMotd.Linux)
+Mox.defmock(NervesMOTD.MockRuntime, for: NervesMOTD.Runtime)
+Mox.defmock(NervesMOTD.MockRuntimeKV, for: NervesMOTD.RuntimeKV)
+Mox.defmock(NervesMOTD.MockLinux, for: NervesMOTD.Linux)
 
 # Override the config settings
-Application.put_env(:nerves_motd, :runtime_mod, NervesMotd.MockRuntime)
-Application.put_env(:nerves_motd, :runtime_kv_mod, NervesMotd.MockRuntimeKV)
-Application.put_env(:nerves_motd, :linux_mod, NervesMotd.MockLinux)
+Application.put_env(:nerves_motd, :runtime_mod, NervesMOTD.MockRuntime)
+Application.put_env(:nerves_motd, :runtime_kv_mod, NervesMOTD.MockRuntimeKV)
+Application.put_env(:nerves_motd, :linux_mod, NervesMOTD.MockLinux)
 
 ExUnit.start()
