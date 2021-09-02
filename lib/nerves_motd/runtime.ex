@@ -1,6 +1,6 @@
 defmodule NervesMOTD.Runtime do
   @moduledoc false
-  @callback validate_firmware :: :ok | {:error, any}
+  @callback firmware_valid? :: boolean
 end
 
 defmodule NervesMOTD.Runtime.Prod do
@@ -8,8 +8,8 @@ defmodule NervesMOTD.Runtime.Prod do
   @behaviour NervesMOTD.Runtime
 
   @impl NervesMOTD.Runtime
-  def validate_firmware do
-    Nerves.Runtime.validate_firmware()
+  def firmware_valid? do
+    Nerves.Runtime.firmware_valid?()
   end
 end
 
@@ -18,7 +18,7 @@ defmodule NervesMOTD.Runtime.Test do
   @behaviour NervesMOTD.Runtime
 
   @impl NervesMOTD.Runtime
-  def validate_firmware do
-    :ok
+  def firmware_valid? do
+    true
   end
 end

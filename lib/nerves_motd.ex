@@ -12,18 +12,16 @@ defmodule NervesMOTD do
     applications_text =
       "#{length(Application.started_applications())} / #{length(Application.loaded_applications())}"
 
-    firmware_text = "#{validate_firmware()} (#{String.upcase(fw_active())})"
+    firmware_text =
+      if(firmware_valid?(), do: "valid", else: "invalid") <>
+        " (#{String.upcase(fw_active())})"
 
-    networks_text = network_names() |> Enum.join(", ")
+    networks_text = Enum.join(network_names(), ", ")
 
     [memory_usage_total, memory_usage_used | _] = memory_usage()
 
     memory_usage_text =
       "#{memory_usage_used} kB (#{trunc(memory_usage_used / memory_usage_total * 100)}%)"
-
-    hostname_text = :inet.gethostname() |> elem(1) |> to_string()
-
-    load_average_text = load_average()
 
     if show_logo do
       IO.puts("""
@@ -42,8 +40,8 @@ defmodule NervesMOTD do
       Clock  : #{clock()}
 
       Firmware     : #{fmt_col_fun.(firmware_text)}\tMemory usage : #{fmt_col_fun.(memory_usage_text)}
-      Applications : #{fmt_col_fun.(applications_text)}\tLoad average : #{fmt_col_fun.(load_average_text)}
-      Hostname     : #{fmt_col_fun.(hostname_text)}\tNetworks     : #{fmt_col_fun.(networks_text)}
+      Applications : #{fmt_col_fun.(applications_text)}\tLoad average : #{fmt_col_fun.(load_average())}
+      Hostname     : #{fmt_col_fun.(hostname())}\tNetworks     : #{fmt_col_fun.(networks_text)}
 
     Nerves CLI help: https://hexdocs.pm/nerves/nerves_cli.html
     """)
@@ -100,16 +98,9 @@ defmodule NervesMOTD do
     runtime_kv_mod().get_active("nerves_fw_uuid")
   end
 
-  @spec validate_firmware :: :ok | any
-  def validate_firmware do
-    runtime_mod().validate_firmware()
-  catch
-    :error, :undef ->
-      # Fall back to the old Nerves way
-      case System.cmd("fw_setenv", ["nerves_fw_validated", "1"]) do
-        {_, 0} -> :ok
-        {reason, _} -> reason
-      end
+  @spec firmware_valid? :: boolean
+  def firmware_valid? do
+    runtime_mod().firmware_valid?()
   end
 
   @spec network_names :: list
@@ -128,6 +119,11 @@ defmodule NervesMOTD do
   @spec load_average :: binary
   def load_average do
     linux_mod().load_average()
+  end
+
+  @spec hostname :: binary
+  def hostname do
+    :inet.gethostname() |> elem(1) |> to_string()
   end
 
   defp runtime_mod() do

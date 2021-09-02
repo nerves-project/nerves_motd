@@ -56,8 +56,8 @@ defmodule NervesMOTDTest do
     assert NervesMOTD.fw_uuid() == "0540f0cd-f95a-5596-d152-221a70c078a9"
   end
 
-  test "validate_firmware" do
-    assert NervesMOTD.validate_firmware() == :ok
+  test "firmware_valid?" do
+    assert NervesMOTD.firmware_valid?() == true
   end
 
   test "network_names" do
