@@ -70,32 +70,32 @@ defmodule NervesMOTD do
 
   @spec fw_active :: binary
   def fw_active do
-    runtime_kv_mod().get("nerves_fw_active")
+    Nerves.Runtime.KV.get("nerves_fw_active")
   end
 
   @spec fw_architecture :: binary
   def fw_architecture do
-    runtime_kv_mod().get_active("nerves_fw_architecture")
+    Nerves.Runtime.KV.get_active("nerves_fw_architecture")
   end
 
   @spec fw_platform :: binary
   def fw_platform do
-    runtime_kv_mod().get_active("nerves_fw_platform")
+    Nerves.Runtime.KV.get_active("nerves_fw_platform")
   end
 
   @spec fw_product :: binary
   def fw_product do
-    runtime_kv_mod().get_active("nerves_fw_product")
+    Nerves.Runtime.KV.get_active("nerves_fw_product")
   end
 
   @spec fw_version :: binary
   def fw_version do
-    runtime_kv_mod().get_active("nerves_fw_version")
+    Nerves.Runtime.KV.get_active("nerves_fw_version")
   end
 
   @spec fw_uuid :: binary
   def fw_uuid do
-    runtime_kv_mod().get_active("nerves_fw_uuid")
+    Nerves.Runtime.KV.get_active("nerves_fw_uuid")
   end
 
   @spec firmware_valid? :: boolean
@@ -128,10 +128,6 @@ defmodule NervesMOTD do
 
   defp runtime_mod() do
     Application.get_env(:nerves_motd, :runtime_mod, NervesMOTD.Runtime.Prod)
-  end
-
-  defp runtime_kv_mod() do
-    Application.get_env(:nerves_motd, :runtime_kv_mod, NervesMOTD.RuntimeKV.Prod)
   end
 
   defp linux_mod() do

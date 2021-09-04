@@ -5,12 +5,10 @@ end
 
 # Define dynamic mocks
 Mox.defmock(NervesMOTD.MockRuntime, for: NervesMOTD.Runtime)
-Mox.defmock(NervesMOTD.MockRuntimeKV, for: NervesMOTD.RuntimeKV)
 Mox.defmock(NervesMOTD.MockLinux, for: NervesMOTD.Linux)
 
 # Override the config settings
 Application.put_env(:nerves_motd, :runtime_mod, NervesMOTD.MockRuntime)
-Application.put_env(:nerves_motd, :runtime_kv_mod, NervesMOTD.MockRuntimeKV)
 Application.put_env(:nerves_motd, :linux_mod, NervesMOTD.MockLinux)
 
 ExUnit.start()
