@@ -2,6 +2,7 @@ defmodule NervesMOTDTest do
   use ExUnit.Case
   doctest NervesMOTD
 
+  import ExUnit.CaptureIO
   import Mox
 
   # https://hexdocs.pm/mox/Mox.html#module-global-mode
@@ -19,16 +20,19 @@ defmodule NervesMOTDTest do
   test "print" do
     IO.puts("")
     assert :ok = NervesMOTD.print()
-    IO.puts("---")
-    assert :ok = NervesMOTD.print(logo: false)
+
+    logo_regex = ~r/\e\[34m████▄▖    \e\[36m▐███\n/
+    assert capture_io(fn -> NervesMOTD.print() end) =~ logo_regex
+    assert capture_io(fn -> NervesMOTD.print(logo: true) end) =~ logo_regex
+    refute capture_io(fn -> NervesMOTD.print(logo: false) end) =~ logo_regex
   end
 
   test "uptime" do
-    assert String.match?(NervesMOTD.uptime(), ~r/\d{0,2} seconds\z/)
+    assert NervesMOTD.uptime() =~ ~r/\d{0,2} seconds\z/
   end
 
   test "clock" do
-    assert String.match?(NervesMOTD.clock(), ~r/\A\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2} UTC\z/)
+    assert NervesMOTD.clock() =~ ~r/\A\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2} UTC\z/
   end
 
   test "fw_active" do
