@@ -113,12 +113,12 @@ defmodule NervesMOTD do
 
   @spec memory_usage :: [integer]
   def memory_usage do
-    [_total, _used, _free, _shared, _buff, _available] = linux_mod().memory_usage()
+    [_total, _used, _free, _shared, _buff, _available] = runtime_mod().memory_usage()
   end
 
   @spec load_average :: binary
   def load_average do
-    linux_mod().load_average()
+    runtime_mod().load_average()
   end
 
   @spec hostname :: binary
@@ -127,10 +127,6 @@ defmodule NervesMOTD do
   end
 
   defp runtime_mod() do
-    Application.get_env(:nerves_motd, :runtime_mod, NervesMOTD.Runtime.Prod)
-  end
-
-  defp linux_mod() do
-    Application.get_env(:nerves_motd, :linux_mod, NervesMOTD.Linux.Prod)
+    Application.get_env(:nerves_motd, :runtime_mod, NervesMOTD.Runtime.Target)
   end
 end

@@ -12,8 +12,7 @@ defmodule NervesMOTDTest do
 
   setup do
     {:ok, _kv} = Nerves.Runtime.KV.start_link([])
-    Mox.stub_with(NervesMOTD.MockRuntime, NervesMOTD.Runtime.Test)
-    Mox.stub_with(NervesMOTD.MockLinux, NervesMOTD.Linux.Test)
+    Mox.stub_with(NervesMOTD.MockRuntime, NervesMOTD.Runtime.Host)
     :ok
   end
 
