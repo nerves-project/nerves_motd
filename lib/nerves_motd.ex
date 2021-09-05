@@ -3,6 +3,14 @@ defmodule NervesMOTD do
   Documentation for `NervesMOTD`.
   """
 
+  @logo """
+  \e[34m████▄▖    \e[36m▐███
+  \e[34m█▌  ▀▜█▙▄▖  \e[36m▐█
+  \e[34m█▌ \e[36m▐█▄▖\e[34m▝▀█▌ \e[36m▐█   \e[39mN  E  R  V  E  S
+  \e[34m█▌   \e[36m▝▀█▙▄▖ ▐█
+  \e[34m███▌    \e[36m▀▜████\e[0m
+  """
+
   @spec print :: :ok
   def print(opts \\ []) do
     show_logo = Keyword.get(opts, :logo, true)
@@ -23,15 +31,7 @@ defmodule NervesMOTD do
     memory_usage_text =
       "#{memory_usage_used} kB (#{trunc(memory_usage_used / memory_usage_total * 100)}%)"
 
-    if show_logo do
-      IO.puts("""
-      \e[34m████▄▖    \e[36m▐███
-      \e[34m█▌  ▀▜█▙▄▖  \e[36m▐█
-      \e[34m█▌ \e[36m▐█▄▖\e[34m▝▀█▌ \e[36m▐█   \e[39mN  E  R  V  E  S
-      \e[34m█▌   \e[36m▝▀█▙▄▖ ▐█
-      \e[34m███▌    \e[36m▀▜████\e[0m
-      """)
-    end
+    if show_logo, do: IO.puts(@logo)
 
     IO.puts("""
     #{fw_product()} #{fw_version()} (#{fw_uuid()}) #{fw_architecture()}
