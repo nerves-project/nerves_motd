@@ -1,6 +1,6 @@
 defmodule NervesMOTD do
   @moduledoc """
-  Documentation for `NervesMOTD`.
+  `NervesMOTD` prints a "message of the day" (MOTD) for Nerves-based projects.
   """
 
   @logo """
@@ -15,22 +15,6 @@ defmodule NervesMOTD do
   def print(opts \\ []) do
     show_logo = Keyword.get(opts, :logo, true)
 
-    fmt_col_fun = fn str -> String.pad_trailing(str, 20, " ") end
-
-    applications_text =
-      "#{length(Application.started_applications())} / #{length(Application.loaded_applications())}"
-
-    firmware_text =
-      if(firmware_valid?(), do: "valid", else: "invalid") <>
-        " (#{String.upcase(fw_active())})"
-
-    networks_text = Enum.join(network_names(), ", ")
-
-    [memory_usage_total, memory_usage_used | _] = memory_usage()
-
-    memory_usage_text =
-      "#{memory_usage_used} kB (#{trunc(memory_usage_used / memory_usage_total * 100)}%)"
-
     if show_logo, do: IO.puts(@logo)
 
     IO.puts("""
@@ -39,12 +23,47 @@ defmodule NervesMOTD do
       Uptime : #{uptime()}
       Clock  : #{clock()}
 
-      Firmware     : #{fmt_col_fun.(firmware_text)}\tMemory usage : #{fmt_col_fun.(memory_usage_text)}
-      Applications : #{fmt_col_fun.(applications_text)}\tLoad average : #{fmt_col_fun.(load_average())}
-      Hostname     : #{fmt_col_fun.(hostname())}\tNetworks     : #{fmt_col_fun.(networks_text)}
+      Firmware     : #{String.pad_trailing(firmware_text(), 20, " ")}\tMemory usage : #{memory_usage_text()}
+      Applications : #{String.pad_trailing(application_text(), 20, " ")}\tLoad average : #{load_average_text()}
+      Hostname     : #{String.pad_trailing(hostname_text(), 20, " ")}\tNetworks     : #{networks_text()}
 
     Nerves CLI help: https://hexdocs.pm/nerves/using-the-cli.html
     """)
+  end
+
+  defp firmware_text do
+    if(firmware_valid?(),
+      do: IO.ANSI.green() <> "Valid (#{String.upcase(fw_active())})",
+      else: IO.ANSI.red() <> "Invalid (#{String.upcase(fw_active())})"
+    ) <> IO.ANSI.reset()
+  end
+
+  defp application_text do
+    started = length(Application.started_applications())
+    loaded = length(Application.loaded_applications())
+
+    if(started == loaded, do: IO.ANSI.green(), else: IO.ANSI.red()) <>
+      "#{length(Application.started_applications())} / #{length(Application.loaded_applications())}" <>
+      IO.ANSI.reset()
+  end
+
+  defp hostname_text do
+    # Use "\e[0m" as a placeholder for consistent white spaces.
+    IO.ANSI.reset() <> hostname() <> IO.ANSI.reset()
+  end
+
+  defp memory_usage_text do
+    [memory_usage_total, memory_usage_used | _] = memory_usage()
+
+    "#{memory_usage_used} kB (#{trunc(memory_usage_used / memory_usage_total * 100)}%)"
+  end
+
+  defp load_average_text do
+    load_average()
+  end
+
+  defp networks_text do
+    Enum.join(network_names(), ", ")
   end
 
   # https://github.com/erlang/otp/blob/1c63b200a677ec7ac12202ddbcf7710884b16ff2/lib/stdlib/src/c.erl#L1118

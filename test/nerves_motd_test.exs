@@ -12,7 +12,7 @@ defmodule NervesMOTDTest do
   setup :verify_on_exit!
 
   setup do
-    {:ok, _kv} = Nerves.Runtime.KV.start_link([])
+    Nerves.Runtime.KV.start_link([])
     Mox.stub_with(NervesMOTD.MockRuntime, NervesMOTD.Runtime.Host)
     :ok
   end
@@ -20,11 +20,21 @@ defmodule NervesMOTDTest do
   test "print" do
     IO.puts("")
     assert :ok = NervesMOTD.print()
+  end
 
+  test "print with logo options" do
     logo_regex = ~r/\e\[34m████▄▖    \e\[36m▐███\n/
     assert capture_io(fn -> NervesMOTD.print() end) =~ logo_regex
     assert capture_io(fn -> NervesMOTD.print(logo: true) end) =~ logo_regex
     refute capture_io(fn -> NervesMOTD.print(logo: false) end) =~ logo_regex
+  end
+
+  test "ANSI color for firmware validation" do
+    NervesMOTD.MockRuntime |> Mox.expect(:firmware_valid?, 1, fn -> true end)
+    assert capture_io(fn -> NervesMOTD.print() end) =~ ~r/\e\[32mValid/
+
+    NervesMOTD.MockRuntime |> Mox.expect(:firmware_valid?, 1, fn -> false end)
+    assert capture_io(fn -> NervesMOTD.print() end) =~ ~r/\e\[31mInvalid/
   end
 
   test "uptime" do
