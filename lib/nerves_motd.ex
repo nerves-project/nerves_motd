@@ -43,7 +43,7 @@ defmodule NervesMOTD do
       Applications : #{fmt_col_fun.(applications_text)}\tLoad average : #{fmt_col_fun.(load_average())}
       Hostname     : #{fmt_col_fun.(hostname())}\tNetworks     : #{fmt_col_fun.(networks_text)}
 
-    Nerves CLI help: https://hexdocs.pm/nerves/nerves_cli.html
+    Nerves CLI help: https://hexdocs.pm/nerves/using-the-cli.html
     """)
   end
 
