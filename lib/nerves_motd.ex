@@ -21,9 +21,9 @@ defmodule NervesMOTD do
     fw_version = Nerves.Runtime.KV.get_active("nerves_fw_version")
     fw_uuid = Nerves.Runtime.KV.get_active("nerves_fw_uuid")
 
-    IO.puts("""
-    #{logo}
+    if logo, do: IO.puts(logo)
 
+    IO.puts("""
     #{fw_product} #{fw_version} (#{fw_uuid}) #{fw_architecture} #{fw_platform}
 
       Uptime : #{uptime()}

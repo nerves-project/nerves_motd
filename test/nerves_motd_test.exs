@@ -26,15 +26,19 @@ defmodule NervesMOTDTest do
     assert :ok = NervesMOTD.print()
   end
 
-  test "Logo" do
-    nerves_logo_regex = ~r/\e\[34m████▄▖    \e\[36m▐███\n/
+  @nerves_logo_regex ~r/\e\[34m████▄▖    \e\[36m▐███\n/
 
-    # Default Nerves logo
-    assert capture_motd() =~ nerves_logo_regex
+  test "Default logo" do
+    assert capture_motd() =~ @nerves_logo_regex
+  end
 
-    # Custom logo
+  test "Custom logo" do
     assert capture_motd(logo: "custom logo") =~ ~r/custom logo/
-    refute capture_motd(logo: "custom logo") =~ nerves_logo_regex
+    refute capture_motd(logo: "custom logo") =~ @nerves_logo_regex
+  end
+
+  test "No logo" do
+    refute capture_motd(logo: false) =~ @nerves_logo_regex
   end
 
   test "Uptime" do
