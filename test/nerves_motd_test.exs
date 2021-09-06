@@ -45,30 +45,6 @@ defmodule NervesMOTDTest do
     assert NervesMOTD.clock() =~ ~r/\A\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2} UTC\z/
   end
 
-  test "fw_active" do
-    assert NervesMOTD.fw_active() == "a"
-  end
-
-  test "fw_architecture" do
-    assert NervesMOTD.fw_architecture() == "arm"
-  end
-
-  test "fw_platform" do
-    assert NervesMOTD.fw_platform() == "rpi4"
-  end
-
-  test "fw_product" do
-    assert NervesMOTD.fw_product() == "nerves_livebook"
-  end
-
-  test "fw_version" do
-    assert NervesMOTD.fw_version() == "0.2.17"
-  end
-
-  test "fw_uuid" do
-    assert NervesMOTD.fw_uuid() == "0540f0cd-f95a-5596-d152-221a70c078a9"
-  end
-
   test "firmware_valid?" do
     assert NervesMOTD.firmware_valid?() == true
   end

@@ -15,16 +15,22 @@ defmodule NervesMOTD do
   def print(opts \\ []) do
     logo = Keyword.get(opts, :logo, @logo)
 
+    fw_architecture = Nerves.Runtime.KV.get_active("nerves_fw_architecture")
+    fw_platform = Nerves.Runtime.KV.get_active("nerves_fw_platform")
+    fw_product = Nerves.Runtime.KV.get_active("nerves_fw_product")
+    fw_version = Nerves.Runtime.KV.get_active("nerves_fw_version")
+    fw_uuid = Nerves.Runtime.KV.get_active("nerves_fw_uuid")
+
     IO.puts("""
     #{logo}
 
-    #{fw_product()} #{fw_version()} (#{fw_uuid()}) #{fw_architecture()}
+    #{fw_product} #{fw_version} (#{fw_uuid}) #{fw_architecture} #{fw_platform}
 
       Uptime : #{uptime()}
       Clock  : #{clock()}
 
       Firmware     : #{String.pad_trailing(firmware_text(), 20, " ")}\tMemory usage : #{memory_usage_text()}
-      Applications : #{String.pad_trailing(application_text(), 20, " ")}\tLoad average : #{load_average_text()}
+      Applications : #{String.pad_trailing(application_text(), 20, " ")}\tLoad average : #{load_average()}
       Hostname     : #{String.pad_trailing(hostname_text(), 20, " ")}\tNetworks     : #{networks_text()}
 
     Nerves CLI help: https://hexdocs.pm/nerves/using-the-cli.html
@@ -32,9 +38,11 @@ defmodule NervesMOTD do
   end
 
   defp firmware_text do
+    fw_active = Nerves.Runtime.KV.get("nerves_fw_active")
+
     if(firmware_valid?(),
-      do: IO.ANSI.green() <> "Valid (#{String.upcase(fw_active())})",
-      else: IO.ANSI.red() <> "Invalid (#{String.upcase(fw_active())})"
+      do: IO.ANSI.green() <> "Valid (#{String.upcase(fw_active)})",
+      else: IO.ANSI.red() <> "Invalid (#{String.upcase(fw_active)})"
     ) <> IO.ANSI.reset()
   end
 
@@ -61,10 +69,6 @@ defmodule NervesMOTD do
       IO.ANSI.reset()
   end
 
-  defp load_average_text do
-    load_average()
-  end
-
   defp networks_text do
     Enum.join(network_names(), ", ")
   end
@@ -88,36 +92,6 @@ defmodule NervesMOTD do
     |> DateTime.to_string()
     |> String.trim_trailing("Z")
     |> Kernel.<>(" UTC")
-  end
-
-  @spec fw_active :: binary
-  def fw_active do
-    Nerves.Runtime.KV.get("nerves_fw_active")
-  end
-
-  @spec fw_architecture :: binary
-  def fw_architecture do
-    Nerves.Runtime.KV.get_active("nerves_fw_architecture")
-  end
-
-  @spec fw_platform :: binary
-  def fw_platform do
-    Nerves.Runtime.KV.get_active("nerves_fw_platform")
-  end
-
-  @spec fw_product :: binary
-  def fw_product do
-    Nerves.Runtime.KV.get_active("nerves_fw_product")
-  end
-
-  @spec fw_version :: binary
-  def fw_version do
-    Nerves.Runtime.KV.get_active("nerves_fw_version")
-  end
-
-  @spec fw_uuid :: binary
-  def fw_uuid do
-    Nerves.Runtime.KV.get_active("nerves_fw_uuid")
   end
 
   @spec firmware_valid? :: boolean
