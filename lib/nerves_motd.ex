@@ -15,16 +15,10 @@ defmodule NervesMOTD do
   def print(opts \\ []) do
     logo = Keyword.get(opts, :logo, @logo)
 
-    fw_architecture = Nerves.Runtime.KV.get_active("nerves_fw_architecture")
-    fw_platform = Nerves.Runtime.KV.get_active("nerves_fw_platform")
-    fw_product = Nerves.Runtime.KV.get_active("nerves_fw_product")
-    fw_version = Nerves.Runtime.KV.get_active("nerves_fw_version")
-    fw_uuid = Nerves.Runtime.KV.get_active("nerves_fw_uuid")
-
     if logo, do: IO.puts(logo)
 
     IO.puts("""
-    #{fw_product} #{fw_version} (#{fw_uuid}) #{fw_architecture} #{fw_platform}
+    #{uname()}
 
       Uptime : #{uptime()}
       Clock  : #{clock()}
@@ -76,6 +70,15 @@ defmodule NervesMOTD do
 
   defp networks_text do
     Enum.join(network_names(), ", ")
+  end
+
+  defp uname do
+    fw_architecture = Nerves.Runtime.KV.get_active("nerves_fw_architecture")
+    fw_platform = Nerves.Runtime.KV.get_active("nerves_fw_platform")
+    fw_product = Nerves.Runtime.KV.get_active("nerves_fw_product")
+    fw_version = Nerves.Runtime.KV.get_active("nerves_fw_version")
+    fw_uuid = Nerves.Runtime.KV.get_active("nerves_fw_uuid")
+    "#{fw_product} #{fw_version} (#{fw_uuid}) #{fw_architecture} #{fw_platform}"
   end
 
   # https://github.com/erlang/otp/blob/1c63b200a677ec7ac12202ddbcf7710884b16ff2/lib/stdlib/src/c.erl#L1118

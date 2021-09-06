@@ -41,6 +41,11 @@ defmodule NervesMOTDTest do
     refute capture_motd(logo: false) =~ @nerves_logo_regex
   end
 
+  test "Uname" do
+    assert capture_motd() =~
+             ~r/nerves_livebook 0.2.17 \(0540f0cd-f95a-5596-d152-221a70c078a9\) arm rpi4/
+  end
+
   test "Uptime" do
     assert capture_motd() =~ ~r/Uptime : \d{0,2} seconds/
   end
