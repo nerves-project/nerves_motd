@@ -47,7 +47,7 @@ defmodule NervesMOTDTest do
   end
 
   test "Uptime" do
-    assert capture_motd() =~ ~r/Uptime : \d{0,2} seconds/
+    assert capture_motd() =~ ~r/Uptime : .*\d{0,2} seconds/
   end
 
   test "Clock" do
