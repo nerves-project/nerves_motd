@@ -11,7 +11,7 @@ defmodule NervesMOTD do
   \e[34m███▌    \e[36m▀▜████\e[0m
   """
 
-  @spec print(any) :: nil | :ok
+  @spec print(keyword()) :: nil | :ok
   def print(opts \\ []) do
     if runtime_mod().runtime_ready?(), do: IO.puts(generate(opts))
   end
@@ -35,7 +35,7 @@ defmodule NervesMOTD do
     if logo, do: logo <> "\n" <> body, else: body
   end
 
-  defp firmware_text do
+  defp firmware_text() do
     fw_active = Nerves.Runtime.KV.get("nerves_fw_active") |> String.upcase()
 
     if firmware_valid?() do
@@ -45,7 +45,7 @@ defmodule NervesMOTD do
     end <> IO.ANSI.reset()
   end
 
-  defp application_text do
+  defp application_text() do
     apps = runtime_mod().applications()
     started_count = length(apps[:started])
     loaded_count = length(apps[:loaded])
@@ -58,12 +58,12 @@ defmodule NervesMOTD do
     end <> IO.ANSI.reset()
   end
 
-  defp hostname_text do
+  defp hostname_text() do
     # Use "\e[0m" as a placeholder for consistent white spaces.
     IO.ANSI.reset() <> hostname() <> IO.ANSI.reset()
   end
 
-  defp memory_usage_text do
+  defp memory_usage_text() do
     [memory_usage_total, memory_usage_used | _] = memory_usage()
     percentage = trunc(memory_usage_used / memory_usage_total * 100)
 
@@ -72,11 +72,11 @@ defmodule NervesMOTD do
       IO.ANSI.reset()
   end
 
-  defp networks_text do
+  defp networks_text() do
     Enum.join(network_names(), ", ")
   end
 
-  defp uname do
+  defp uname() do
     fw_architecture = Nerves.Runtime.KV.get_active("nerves_fw_architecture")
     fw_platform = Nerves.Runtime.KV.get_active("nerves_fw_platform")
     fw_product = Nerves.Runtime.KV.get_active("nerves_fw_product")
@@ -86,8 +86,8 @@ defmodule NervesMOTD do
   end
 
   # https://github.com/erlang/otp/blob/1c63b200a677ec7ac12202ddbcf7710884b16ff2/lib/stdlib/src/c.erl#L1118
-  @spec uptime :: binary
-  defp uptime do
+  @spec uptime() :: String.t()
+  defp uptime() do
     {uptime, _} = :erlang.statistics(:wall_clock)
     {d, {h, m, s}} = :calendar.seconds_to_daystime(div(uptime, 1000))
     days = if d > 0, do: :io_lib.format("~p days, ", [d])
@@ -97,8 +97,8 @@ defmodule NervesMOTD do
     [days, hours, minutes, seconds] |> Enum.filter(fn x -> x end) |> List.to_string()
   end
 
-  @spec clock :: binary
-  defp clock do
+  @spec clock() :: String.t()
+  defp clock() do
     DateTime.utc_now()
     |> DateTime.truncate(:second)
     |> DateTime.to_string()
@@ -106,31 +106,31 @@ defmodule NervesMOTD do
     |> Kernel.<>(" UTC")
   end
 
-  @spec firmware_valid? :: boolean
-  defp firmware_valid? do
+  @spec firmware_valid?() :: boolean()
+  defp firmware_valid?() do
     runtime_mod().firmware_valid?()
   end
 
-  @spec network_names :: list
-  defp network_names do
+  @spec network_names() :: list()
+  defp network_names() do
     case :inet.getifaddrs() do
       {:ok, list} -> list |> Enum.map(&elem(&1, 0))
       _ -> []
     end
   end
 
-  @spec memory_usage :: [integer]
-  defp memory_usage do
+  @spec memory_usage() :: [integer()]
+  defp memory_usage() do
     [_total, _used, _free, _shared, _buff, _available] = runtime_mod().memory_usage()
   end
 
-  @spec load_average :: binary
-  defp load_average do
+  @spec load_average() :: String.t()
+  defp load_average() do
     runtime_mod().load_average()
   end
 
-  @spec hostname :: binary
-  defp hostname do
+  @spec hostname() :: String.t()
+  defp hostname() do
     :inet.gethostname() |> elem(1) |> to_string()
   end
 

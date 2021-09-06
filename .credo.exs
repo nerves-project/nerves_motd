@@ -3,8 +3,7 @@
     %{
       name: "default",
       checks: [
-        {Credo.Check.Readability.ParenthesesOnZeroArityDefs, parens: true},
-        {Credo.Check.Refactor.Nesting, max_nesting: 4}
+        {Credo.Check.Readability.ParenthesesOnZeroArityDefs, parens: true}
       ]
     }
   ]

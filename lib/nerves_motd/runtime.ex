@@ -1,10 +1,10 @@
 defmodule NervesMOTD.Runtime do
   @moduledoc false
-  @callback applications :: %{started: [atom], loaded: [atom]}
-  @callback firmware_valid? :: boolean
-  @callback load_average :: binary | nil
-  @callback memory_usage :: [integer]
-  @callback runtime_ready? :: boolean
+  @callback applications() :: %{started: [atom()], loaded: [atom()]}
+  @callback firmware_valid?() :: boolean()
+  @callback load_average() :: binary() | nil
+  @callback memory_usage() :: [integer()]
+  @callback runtime_ready?() :: boolean()
 end
 
 defmodule NervesMOTD.Runtime.Target do
@@ -12,19 +12,20 @@ defmodule NervesMOTD.Runtime.Target do
   @behaviour NervesMOTD.Runtime
 
   @impl NervesMOTD.Runtime
-  def applications do
+  def applications() do
     started = Enum.map(Application.started_applications(), &elem(&1, 0))
     loaded = Enum.map(Application.loaded_applications(), &elem(&1, 0))
+
     %{started: started, loaded: loaded}
   end
 
   @impl NervesMOTD.Runtime
-  def firmware_valid? do
+  def firmware_valid?() do
     Nerves.Runtime.firmware_valid?()
   end
 
   @impl NervesMOTD.Runtime
-  def load_average do
+  def load_average() do
     case File.read("/proc/loadavg") do
       {:ok, data_str} -> String.trim(data_str)
       _ -> nil
@@ -32,7 +33,7 @@ defmodule NervesMOTD.Runtime.Target do
   end
 
   @impl NervesMOTD.Runtime
-  def memory_usage do
+  def memory_usage() do
     [_total, _used, _free, _shared, _buff, _available] =
       System.cmd("free", [])
       |> elem(0)
@@ -45,7 +46,7 @@ defmodule NervesMOTD.Runtime.Target do
   end
 
   @impl NervesMOTD.Runtime
-  def runtime_ready? do
+  def runtime_ready?() do
     case Application.ensure_all_started(:nerves_runtime) do
       {:ok, _} -> true
       _ -> false
