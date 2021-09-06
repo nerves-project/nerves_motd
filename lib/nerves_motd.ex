@@ -38,21 +38,26 @@ defmodule NervesMOTD do
   end
 
   defp firmware_text do
-    fw_active = Nerves.Runtime.KV.get("nerves_fw_active")
+    fw_active = Nerves.Runtime.KV.get("nerves_fw_active") |> String.upcase()
 
-    if(firmware_valid?(),
-      do: IO.ANSI.green() <> "Valid (#{String.upcase(fw_active)})",
-      else: IO.ANSI.red() <> "Invalid (#{String.upcase(fw_active)})"
-    ) <> IO.ANSI.reset()
+    if firmware_valid?() do
+      IO.ANSI.green() <> "Valid (#{fw_active})"
+    else
+      IO.ANSI.red() <> "Invalid (#{fw_active})"
+    end <> IO.ANSI.reset()
   end
 
   defp application_text do
-    started = length(Application.started_applications())
-    loaded = length(Application.loaded_applications())
+    apps = runtime_mod().applications()
+    started_count = length(apps[:started])
+    loaded_count = length(apps[:loaded])
 
-    if(started == loaded, do: IO.ANSI.green(), else: IO.ANSI.red()) <>
-      "#{length(Application.started_applications())} / #{length(Application.loaded_applications())}" <>
-      IO.ANSI.reset()
+    if started_count == loaded_count do
+      IO.ANSI.green() <> "#{started_count} / #{loaded_count}"
+    else
+      apps_not_started = Enum.join(apps[:loaded] -- apps[:started], ", ")
+      IO.ANSI.red() <> "#{started_count} / #{loaded_count} (#{apps_not_started} not started)"
+    end <> IO.ANSI.reset()
   end
 
   defp hostname_text do

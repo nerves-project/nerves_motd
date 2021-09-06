@@ -59,8 +59,16 @@ defmodule NervesMOTDTest do
     assert capture_motd() =~ ~r/\e\[31mInvalid/
   end
 
-  test "Applications" do
-    assert capture_motd() =~ ~r/Applications : \e\[31m\d* \/ \d*\e\[0m/
+  test "Applications when all apps started" do
+    apps = %{started: [:a, :b, :c], loaded: [:a, :b, :c]}
+    Mox.expect(NervesMOTD.MockRuntime, :applications, 1, fn -> apps end)
+    assert capture_motd() =~ ~r/Applications : \e\[32m\d* \/ \d*\e\[0m/
+  end
+
+  test "Applications when not all apps started" do
+    apps = %{started: [:b], loaded: [:a, :b, :c]}
+    Mox.expect(NervesMOTD.MockRuntime, :applications, 1, fn -> apps end)
+    assert capture_motd() =~ ~r/Applications : \e\[31m\d* \/ \d* \(a, c not started\)\e\[0m/
   end
 
   test "Hostname" do
