@@ -75,7 +75,7 @@ defmodule NervesMOTD do
 
   # https://github.com/erlang/otp/blob/1c63b200a677ec7ac12202ddbcf7710884b16ff2/lib/stdlib/src/c.erl#L1118
   @spec uptime :: binary
-  def uptime do
+  defp uptime do
     {uptime, _} = :erlang.statistics(:wall_clock)
     {d, {h, m, s}} = :calendar.seconds_to_daystime(div(uptime, 1000))
     days = if d > 0, do: :io_lib.format("~p days, ", [d])
@@ -86,7 +86,7 @@ defmodule NervesMOTD do
   end
 
   @spec clock :: binary
-  def clock do
+  defp clock do
     DateTime.utc_now()
     |> DateTime.truncate(:second)
     |> DateTime.to_string()
@@ -95,12 +95,12 @@ defmodule NervesMOTD do
   end
 
   @spec firmware_valid? :: boolean
-  def firmware_valid? do
+  defp firmware_valid? do
     runtime_mod().firmware_valid?()
   end
 
   @spec network_names :: list
-  def network_names do
+  defp network_names do
     case :inet.getifaddrs() do
       {:ok, list} -> list |> Enum.map(&elem(&1, 0))
       _ -> []
@@ -108,17 +108,17 @@ defmodule NervesMOTD do
   end
 
   @spec memory_usage :: [integer]
-  def memory_usage do
+  defp memory_usage do
     [_total, _used, _free, _shared, _buff, _available] = runtime_mod().memory_usage()
   end
 
   @spec load_average :: binary
-  def load_average do
+  defp load_average do
     runtime_mod().load_average()
   end
 
   @spec hostname :: binary
-  def hostname do
+  defp hostname do
     :inet.gethostname() |> elem(1) |> to_string()
   end
 

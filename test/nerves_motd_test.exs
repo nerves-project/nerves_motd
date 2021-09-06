@@ -42,11 +42,11 @@ defmodule NervesMOTDTest do
   end
 
   test "Uptime" do
-    assert NervesMOTD.uptime() =~ ~r/\d{0,2} seconds\z/
+    assert capture_motd() =~ ~r/Uptime : \d{0,2} seconds/
   end
 
   test "Clock" do
-    assert NervesMOTD.clock() =~ ~r/\A\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2} UTC\z/
+    assert capture_motd() =~ ~r/Clock  : \d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2} UTC/
   end
 
   test "Firmware when valid" do
