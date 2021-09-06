@@ -17,47 +17,67 @@ defmodule NervesMOTDTest do
     :ok
   end
 
+  defp capture_motd(opts \\ []) do
+    capture_io(fn -> NervesMOTD.print(opts) end)
+  end
+
   test "print" do
     IO.puts("")
     assert :ok = NervesMOTD.print()
   end
 
-  test "print with logo options" do
-    logo_regex = ~r/\e\[34m████▄▖    \e\[36m▐███\n/
-    assert capture_io(fn -> NervesMOTD.print() end) =~ logo_regex
-    assert capture_io(fn -> NervesMOTD.print(logo: "custom logo") end) =~ ~r/custom logo/
-    refute capture_io(fn -> NervesMOTD.print(logo: "custom logo") end) =~ logo_regex
+  test "Logo" do
+    nerves_logo_regex = ~r/\e\[34m████▄▖    \e\[36m▐███\n/
+
+    # Default Nerves logo
+    assert capture_motd() =~ nerves_logo_regex
+
+    # Custom logo
+    assert capture_motd(logo: "custom logo") =~ ~r/custom logo/
+    refute capture_motd(logo: "custom logo") =~ nerves_logo_regex
   end
 
-  test "ANSI color for firmware validation" do
-    NervesMOTD.MockRuntime |> Mox.expect(:firmware_valid?, 1, fn -> true end)
-    assert capture_io(fn -> NervesMOTD.print() end) =~ ~r/\e\[32mValid/
-
-    NervesMOTD.MockRuntime |> Mox.expect(:firmware_valid?, 1, fn -> false end)
-    assert capture_io(fn -> NervesMOTD.print() end) =~ ~r/\e\[31mInvalid/
-  end
-
-  test "uptime" do
+  test "Uptime" do
     assert NervesMOTD.uptime() =~ ~r/\d{0,2} seconds\z/
   end
 
-  test "clock" do
+  test "Clock" do
     assert NervesMOTD.clock() =~ ~r/\A\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2} UTC\z/
   end
 
-  test "firmware_valid?" do
-    assert NervesMOTD.firmware_valid?() == true
+  test "Firmware when valid" do
+    Mox.expect(NervesMOTD.MockRuntime, :firmware_valid?, 1, fn -> true end)
+    assert capture_motd() =~ ~r/\e\[32mValid/
   end
 
-  test "network_names" do
-    assert is_list(NervesMOTD.network_names())
+  test "Firmware when invalid" do
+    Mox.expect(NervesMOTD.MockRuntime, :firmware_valid?, 1, fn -> false end)
+    assert capture_motd() =~ ~r/\e\[31mInvalid/
   end
 
-  test "memory_usage" do
-    assert NervesMOTD.memory_usage() == [316_664, 78_408, 126_776, 12, 111_480, 238_564]
+  test "Applications" do
+    assert capture_motd() =~ ~r/Applications : \e\[31m\d* \/ \d*\e\[0m/
   end
 
-  test "load_average" do
-    assert NervesMOTD.load_average() == "0.35 0.16 0.11 2/70 1536"
+  test "Hostname" do
+    assert capture_motd() =~ ~r/Hostname     : \e\[0m[0-9a-zA-Z\-]*\e\[0m/
+  end
+
+  test "Networks" do
+    assert capture_motd() =~ ~r/Networks     : [0-9a-zA-Z]+(,[0-9a-zA-Z]+)*/
+  end
+
+  test "Memory usage when ok" do
+    Mox.expect(NervesMOTD.MockRuntime, :memory_usage, 1, fn -> [316_664, 78_408, 0, 0, 0, 0] end)
+    assert capture_motd() =~ ~r/Memory usage : \e\[0m78 MB \(24%\)\e\[0m/
+  end
+
+  test "Memory usage when high" do
+    Mox.expect(NervesMOTD.MockRuntime, :memory_usage, 1, fn -> [316_664, 316_664, 0, 0, 0, 0] end)
+    assert capture_motd() =~ ~r/Memory usage : \e\[31m316 MB \(100%\)\e\[0m/
+  end
+
+  test "Load average" do
+    assert capture_motd() =~ ~r/Load average : 0.35 0.16 0.11 2\/70 1536/
   end
 end
