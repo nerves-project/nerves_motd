@@ -55,7 +55,7 @@ defmodule NervesMOTD do
   defp memory_usage_text do
     [memory_usage_total, memory_usage_used | _] = memory_usage()
 
-    "#{memory_usage_used} kB (#{trunc(memory_usage_used / memory_usage_total * 100)}%)"
+    "#{div(memory_usage_used, 1000)} MB (#{trunc(memory_usage_used / memory_usage_total * 100)}%)"
   end
 
   defp load_average_text do
