@@ -11,13 +11,15 @@ defmodule NervesMOTD do
   \e[34m███▌    \e[36m▀▜████\e[0m
   """
 
-  @spec print :: :ok
+  @spec print(any) :: nil | :ok
   def print(opts \\ []) do
+    if runtime_mod().runtime_ready?(), do: IO.puts(generate(opts))
+  end
+
+  defp generate(opts) do
     logo = Keyword.get(opts, :logo, @logo)
 
-    if logo, do: IO.puts(logo)
-
-    IO.puts("""
+    body = """
     #{uname()}
 
       Uptime : #{uptime()}
@@ -28,7 +30,9 @@ defmodule NervesMOTD do
       Hostname     : #{String.pad_trailing(hostname_text(), 20, " ")}\tNetworks     : #{networks_text()}
 
     Nerves CLI help: https://hexdocs.pm/nerves/using-the-cli.html
-    """)
+    """
+
+    if logo, do: logo <> "\n" <> body, else: body
   end
 
   defp firmware_text do

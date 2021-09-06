@@ -4,6 +4,7 @@ defmodule NervesMOTD.Runtime do
   @callback firmware_valid? :: boolean
   @callback load_average :: binary | nil
   @callback memory_usage :: [integer]
+  @callback runtime_ready? :: boolean
 end
 
 defmodule NervesMOTD.Runtime.Target do
@@ -41,5 +42,13 @@ defmodule NervesMOTD.Runtime.Target do
       |> String.split()
       |> tl
       |> Enum.map(&String.to_integer/1)
+  end
+
+  @impl NervesMOTD.Runtime
+  def runtime_ready? do
+    case Application.ensure_all_started(:nerves_runtime) do
+      {:ok, _} -> true
+      _ -> false
+    end
   end
 end
