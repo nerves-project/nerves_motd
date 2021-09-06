@@ -13,11 +13,11 @@ defmodule NervesMOTD do
 
   @spec print :: :ok
   def print(opts \\ []) do
-    show_logo = Keyword.get(opts, :logo, true)
-
-    if show_logo, do: IO.puts(@logo)
+    logo = Keyword.get(opts, :logo, @logo)
 
     IO.puts("""
+    #{logo}
+
     #{fw_product()} #{fw_version()} (#{fw_uuid()}) #{fw_architecture()}
 
       Uptime : #{uptime()}

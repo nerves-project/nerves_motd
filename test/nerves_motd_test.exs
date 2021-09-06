@@ -25,8 +25,8 @@ defmodule NervesMOTDTest do
   test "print with logo options" do
     logo_regex = ~r/\e\[34m████▄▖    \e\[36m▐███\n/
     assert capture_io(fn -> NervesMOTD.print() end) =~ logo_regex
-    assert capture_io(fn -> NervesMOTD.print(logo: true) end) =~ logo_regex
-    refute capture_io(fn -> NervesMOTD.print(logo: false) end) =~ logo_regex
+    assert capture_io(fn -> NervesMOTD.print(logo: "custom logo") end) =~ ~r/custom logo/
+    refute capture_io(fn -> NervesMOTD.print(logo: "custom logo") end) =~ logo_regex
   end
 
   test "ANSI color for firmware validation" do
