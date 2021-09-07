@@ -12,7 +12,6 @@ defmodule NervesMOTDTest do
   setup :verify_on_exit!
 
   setup do
-    Nerves.Runtime.KV.start_link([])
     Mox.stub_with(NervesMOTD.MockRuntime, NervesMOTD.Runtime.Host)
     :ok
   end
