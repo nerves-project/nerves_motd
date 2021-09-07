@@ -23,17 +23,13 @@ defmodule NervesMOTD.MixProject do
     ]
   end
 
-  # Run "mix help compile.app" to learn about applications.
   def application do
-    [
-      extra_applications: [:logger]
-    ]
+    []
   end
 
   defp elixirc_paths(:test), do: ["lib", "test/support"]
   defp elixirc_paths(_), do: ["lib"]
 
-  # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
       {:nerves_runtime, "~> 0.8", optional: true},
@@ -56,7 +52,7 @@ defmodule NervesMOTD.MixProject do
   end
 
   defp description do
-    "message of the day (MOTD) for Nerves devices"
+    "Message of the day for Nerves devices"
   end
 
   defp package do
