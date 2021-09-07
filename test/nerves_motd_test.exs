@@ -79,10 +79,6 @@ defmodule NervesMOTDTest do
     assert capture_motd() =~ ~r/Hostname     : [0-9a-zA-Z\-]*/
   end
 
-  test "Networks" do
-    assert capture_motd() =~ ~r/Networks     : [0-9a-zA-Z]+(,[0-9a-zA-Z]+)*/
-  end
-
   test "Memory usage when ok" do
     Mox.expect(NervesMOTD.MockRuntime, :memory_usage, 1, fn -> [316_664, 78_408, 0, 0, 0, 0] end)
     assert capture_motd() =~ ~r/Memory usage : 78 MB \(25%\)/
@@ -120,5 +116,9 @@ defmodule NervesMOTDTest do
     end)
 
     assert capture_motd() =~ ~r/Part usage   : \e\[31mnot available\e\[0m/
+  end
+
+  test "IP addresses" do
+    assert capture_motd() =~ ~r/\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\/\d{1,3}/
   end
 end

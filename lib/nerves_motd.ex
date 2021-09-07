@@ -15,6 +15,10 @@ defmodule NervesMOTD do
 
   """
 
+  alias NervesMOTD.Utils
+
+  @excluded_ifnames ['lo', 'lo0']
+
   @typedoc """
   MOTD options
   """
@@ -62,8 +66,8 @@ defmodule NervesMOTD do
       [firmware_cell(), applications_cell()],
       [memory_usage_cell(), active_application_partition_cell()],
       [{"Hostname", hostname()}, {"Load average", load_average()}],
-      [{"Networks", network_names()}]
-    ]
+      []
+    ] ++ ip_address_rows()
   end
 
   @spec format_row([cell()]) :: iolist()
@@ -197,14 +201,6 @@ defmodule NervesMOTD do
     ]
   end
 
-  @spec network_names() :: String.t()
-  defp network_names() do
-    case :inet.getifaddrs() do
-      {:ok, list} -> list |> Enum.map(&elem(&1, 0)) |> Enum.join(", ")
-      _ -> ""
-    end
-  end
-
   @spec load_average() :: iolist()
   defp load_average() do
     case runtime_mod().load_average() do
@@ -218,7 +214,35 @@ defmodule NervesMOTD do
     :inet.gethostname() |> elem(1)
   end
 
-  @spec runtime_mod() :: atom()
+  @spec ip_address_rows() :: [[cell()]]
+  defp ip_address_rows() do
+    {:ok, if_addresses} = :inet.getifaddrs()
+
+    if_addresses
+    |> Enum.map(&ip_address_row/1)
+    |> Enum.reject(fn row -> row == [] end)
+  end
+
+  @spec ip_address_row({charlist(), keyword()}) :: [cell()]
+  defp ip_address_row({name, ifaddrs}) when name not in @excluded_ifnames do
+    case Utils.extract_ifaddr_addresses(ifaddrs) do
+      [] ->
+        # Skip interfaces without addresses
+        []
+
+      addresses ->
+        # Create a comma-separated list of IP addresses
+        formatted_list =
+          addresses
+          |> Enum.map(&Utils.ip_address_mask_to_string/1)
+          |> Enum.intersperse(", ")
+
+        [{name, formatted_list}]
+    end
+  end
+
+  defp ip_address_row(_), do: []
+
   defp runtime_mod() do
     Application.get_env(:nerves_motd, :runtime_mod, NervesMOTD.Runtime.Target)
   end
