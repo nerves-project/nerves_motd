@@ -2,7 +2,7 @@ defmodule NervesMOTD.Runtime do
   @moduledoc false
   @callback applications() :: %{started: [atom()], loaded: [atom()]}
   @callback firmware_valid?() :: boolean()
-  @callback load_average() :: binary() | nil
+  @callback load_average() :: [String.t()]
   @callback memory_usage() :: [integer()]
 end
 
@@ -26,8 +26,8 @@ defmodule NervesMOTD.Runtime.Target do
   @impl NervesMOTD.Runtime
   def load_average() do
     case File.read("/proc/loadavg") do
-      {:ok, data_str} -> String.trim(data_str)
-      _ -> nil
+      {:ok, data_str} -> String.split(data_str, " ")
+      _ -> []
     end
   end
 
