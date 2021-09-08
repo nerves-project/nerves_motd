@@ -1,6 +1,9 @@
 defmodule NervesMOTD do
   @moduledoc """
-  `NervesMOTD` prints a "message of the day" (MOTD) for Nerves devices.
+  `NervesMOTD` prints a "message of the day" on Nerves devices.
+
+  To use, add `NervesMOTD.print()` to the `rootfs_overlay/etc/iex.exs` file in
+  your Nerves project.
   """
 
   @logo """
@@ -11,6 +14,9 @@ defmodule NervesMOTD do
   \e[34m███▌    \e[36m▀▜████\e[0m
   """
 
+  @doc """
+  Print the message of the day
+  """
   @spec print(keyword()) :: nil | :ok
   def print(opts \\ []) do
     if runtime_mod().runtime_ready?(), do: IO.puts(generate(opts))
