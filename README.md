@@ -28,7 +28,7 @@ NervesMOTD.print(
 
 ## Installation
 
-Te package can be installed by adding `nerves_motd` to your list of dependencies in `mix.exs`:
+Install by adding `:nerves_motd` to your list of dependencies in `mix.exs`:
 
 ```elixir
 def deps do
@@ -38,7 +38,7 @@ def deps do
 end
 ```
 
-Documentation can be found at [https://hexdocs.pm/nerves_motd](https://hexdocs.pm/nerves_motd).
+Documentation is at [https://hexdocs.pm/nerves_motd](https://hexdocs.pm/nerves_motd).
 
 ## License
 
