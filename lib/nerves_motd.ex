@@ -12,12 +12,13 @@ defmodule NervesMOTD do
   \e[34m█▌ \e[36m▐█▄▖\e[34m▝▀█▌ \e[36m▐█   \e[39mN  E  R  V  E  S
   \e[34m█▌   \e[36m▝▀█▙▄▖ ▐█
   \e[34m███▌    \e[36m▀▜████\e[0m
+
   """
 
   @typedoc """
   MOTD options
   """
-  @type option() :: {:logo, String.t() | false}
+  @type option() :: {:logo, iodata() | false}
 
   @doc """
   Print the message of the day
@@ -34,22 +35,25 @@ defmodule NervesMOTD do
   end
 
   defp generate(opts) do
-    logo = Keyword.get(opts, :logo, @logo)
+    [
+      logo_text(opts),
+      uname(),
+      """
 
-    body = """
-    #{uname()}
+        Uptime : #{uptime()}
+        Clock  : #{clock()}
 
-      Uptime : #{uptime()}
-      Clock  : #{clock()}
+        Firmware     : #{String.pad_trailing(firmware_text(), 20, " ")}\tMemory usage : #{memory_usage_text()}
+        Applications : #{String.pad_trailing(application_text(), 20, " ")}\tLoad average : #{load_average()}
+        Hostname     : #{String.pad_trailing(hostname_text(), 20, " ")}\tNetworks     : #{networks_text()}
 
-      Firmware     : #{String.pad_trailing(firmware_text(), 20, " ")}\tMemory usage : #{memory_usage_text()}
-      Applications : #{String.pad_trailing(application_text(), 20, " ")}\tLoad average : #{load_average()}
-      Hostname     : #{String.pad_trailing(hostname_text(), 20, " ")}\tNetworks     : #{networks_text()}
+      Nerves CLI help: https://hexdocs.pm/nerves/using-the-cli.html
+      """
+    ]
+  end
 
-    Nerves CLI help: https://hexdocs.pm/nerves/using-the-cli.html
-    """
-
-    if logo, do: logo <> "\n" <> body, else: body
+  defp logo_text(opts) do
+    Keyword.get(opts, :logo, @logo) || []
   end
 
   defp firmware_text() do
