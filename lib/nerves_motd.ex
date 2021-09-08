@@ -12,13 +12,14 @@ defmodule NervesMOTD do
   \e[34m█▌ \e[36m▐█▄▖\e[34m▝▀█▌ \e[36m▐█   \e[39mN  E  R  V  E  S
   \e[34m█▌   \e[36m▝▀█▙▄▖ ▐█
   \e[34m███▌    \e[36m▀▜████\e[0m
-
   """
 
   @typedoc """
   MOTD options
   """
   @type option() :: {:logo, iodata()}
+
+  @typep cell :: {String.t(), iodata()} | {String.t(), iodata(), :green | :red}
 
   @doc """
   Print the message of the day
@@ -31,70 +32,126 @@ defmodule NervesMOTD do
   @spec print([option()]) :: :ok
   def print(opts \\ []) do
     {:ok, _} = Application.ensure_all_started(:nerves_runtime)
-    IO.puts(generate(opts))
+
+    IO.puts(logo(opts))
+
+    IO.puts(uname())
+
+    Enum.each(rows(), &IO.puts(["  ", format_row(&1)]))
+
+    IO.puts("""
+
+    Nerves CLI help: https://hexdocs.pm/nerves/using-the-cli.html
+    """)
   end
 
-  defp generate(opts) do
-    [
-      logo_text(opts),
-      uname(),
-      """
-
-        Uptime : #{uptime()}
-        Clock  : #{clock()}
-
-        Firmware     : #{String.pad_trailing(firmware_text(), 24, " ")}\tApplications : #{application_text()}
-        Memory usage : #{String.pad_trailing(memory_usage_text(), 24, " ")}\tLoad average : #{load_average()}
-        Hostname     : #{String.pad_trailing(hostname_text(), 24, " ")}\tNetworks     : #{networks_text()}
-
-      Nerves CLI help: https://hexdocs.pm/nerves/using-the-cli.html
-      """
-    ]
-  end
-
-  defp logo_text(opts) do
+  @spec logo([option()]) :: iodata()
+  defp logo(opts) do
     Keyword.get(opts, :logo, @logo)
   end
 
-  defp firmware_text() do
+  @spec rows() :: [[cell()]]
+  defp rows() do
+    [
+      [{"Uptime", uptime()}],
+      [{"Clock", clock()}],
+      [],
+      [firmware_cell(), applications_cell()],
+      [memory_usage_cell(), {"Load average", load_average()}],
+      [{"Hostname", hostname()}, {"Networks", network_names()}]
+    ]
+  end
+
+  @spec format_row([cell()]) :: iolist()
+  # A blank line
+  defp format_row([]), do: []
+
+  # A row with full width
+  defp format_row([{label, formatted_iodata}]) do
+    :io_lib.format("~-12ts : ~s", [label, formatted_iodata])
+  end
+
+  # A row with two columns
+  defp format_row([col0, col1]) do
+    [format_cell(col0, 0), format_cell(col1, 1)]
+  end
+
+  @spec format_cell(cell(), 0 | 1) :: iolist()
+  defp format_cell({label, formatted_iodata}, column_index) do
+    case column_index do
+      0 -> "~-12ts : ~-24ts"
+      _ -> "~-12ts : ~s"
+    end
+    |> :io_lib.format([label, formatted_iodata])
+  end
+
+  defp format_cell({label, formatted_iodata, :green}, column_index) do
+    [
+      :io_lib.format("~-12ts : ", [label]),
+      IO.ANSI.green(),
+      case column_index do
+        0 -> "~-24ts"
+        _ -> "~s"
+      end
+      |> :io_lib.format([formatted_iodata]),
+      IO.ANSI.reset()
+    ]
+  end
+
+  defp format_cell({label, formatted_iodata, :red}, column_index) do
+    [
+      :io_lib.format("~-12ts : ", [label]),
+      IO.ANSI.red(),
+      case column_index do
+        0 -> "~-24ts"
+        _ -> "~s"
+      end
+      |> :io_lib.format([formatted_iodata]),
+      IO.ANSI.reset()
+    ]
+  end
+
+  @spec firmware_cell() :: cell()
+  defp firmware_cell() do
     fw_active = Nerves.Runtime.KV.get("nerves_fw_active") |> String.upcase()
 
     if runtime_mod().firmware_valid?() do
-      IO.ANSI.green() <> "Valid (#{fw_active})"
+      {"Firmware", :io_lib.format("Valid (~s)", [fw_active]), :green}
     else
-      IO.ANSI.red() <> "Not validated (#{fw_active})"
-    end <> IO.ANSI.reset()
+      {"Firmware", :io_lib.format("Not validated (~s)", [fw_active]), :red}
+    end
   end
 
-  defp application_text() do
+  @spec applications_cell() :: cell()
+  defp applications_cell() do
     apps = runtime_mod().applications()
     started_count = length(apps[:started])
     loaded_count = length(apps[:loaded])
 
     if started_count == loaded_count do
-      IO.ANSI.green() <> "#{started_count} / #{loaded_count}"
+      {"Applications", :io_lib.format("~p / ~p", [started_count, loaded_count]), :green}
     else
-      apps_not_started = Enum.join(apps[:loaded] -- apps[:started], ", ")
-      IO.ANSI.red() <> "#{started_count} / #{loaded_count} (#{apps_not_started} not started)"
-    end <> IO.ANSI.reset()
+      not_started = Enum.join(apps[:loaded] -- apps[:started], ", ")
+
+      {
+        "Applications",
+        :io_lib.format("~p / ~p (~s not started)", [started_count, loaded_count, not_started]),
+        :red
+      }
+    end
   end
 
-  defp hostname_text() do
-    # Use "\e[0m" as a placeholder for consistent white spaces.
-    IO.ANSI.reset() <> hostname() <> IO.ANSI.reset()
-  end
-
-  defp memory_usage_text() do
+  @spec memory_usage_cell() :: cell()
+  defp memory_usage_cell() do
     [memory_usage_total, memory_usage_used | _] = runtime_mod().memory_usage()
     percentage = round(memory_usage_used / memory_usage_total * 100)
+    text = :io_lib.format("~p MB (~p%)", [div(memory_usage_used, 1000), percentage])
 
-    if(percentage < 85, do: IO.ANSI.reset(), else: IO.ANSI.red()) <>
-      "#{div(memory_usage_used, 1000)} MB (#{percentage}%)" <>
-      IO.ANSI.reset()
-  end
-
-  defp networks_text() do
-    Enum.join(network_names(), ", ")
+    if percentage < 85 do
+      {"Memory usage", text}
+    else
+      {"Memory usage", text, :red}
+    end
   end
 
   @spec uname() :: iolist()
@@ -130,15 +187,15 @@ defmodule NervesMOTD do
     ]
   end
 
-  @spec network_names() :: list()
+  @spec network_names() :: String.t()
   defp network_names() do
     case :inet.getifaddrs() do
-      {:ok, list} -> list |> Enum.map(&elem(&1, 0))
-      _ -> []
+      {:ok, list} -> list |> Enum.map(&elem(&1, 0)) |> Enum.join(", ")
+      _ -> ""
     end
   end
 
-  @spec load_average() :: iodata()
+  @spec load_average() :: iolist()
   defp load_average() do
     case runtime_mod().load_average() do
       [a, b, c | _] -> [a, " ", b, " ", c]
@@ -146,11 +203,12 @@ defmodule NervesMOTD do
     end
   end
 
-  @spec hostname() :: String.t()
+  @spec hostname() :: [byte()]
   defp hostname() do
-    :inet.gethostname() |> elem(1) |> to_string()
+    :inet.gethostname() |> elem(1)
   end
 
+  @spec runtime_mod() :: atom()
   defp runtime_mod() do
     Application.get_env(:nerves_motd, :runtime_mod, NervesMOTD.Runtime.Target)
   end
