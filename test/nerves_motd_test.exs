@@ -37,7 +37,7 @@ defmodule NervesMOTDTest do
   end
 
   test "No logo" do
-    refute capture_motd(logo: false) =~ @nerves_logo_regex
+    refute capture_motd(logo: "") =~ @nerves_logo_regex
   end
 
   test "Uname" do

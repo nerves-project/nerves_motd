@@ -18,7 +18,7 @@ defmodule NervesMOTD do
   @typedoc """
   MOTD options
   """
-  @type option() :: {:logo, iodata() | false}
+  @type option() :: {:logo, iodata()}
 
   @doc """
   Print the message of the day
@@ -26,7 +26,7 @@ defmodule NervesMOTD do
   Options:
 
   * `:logo` - a custom logo to display instead of the default Nerves logo. Pass
-    `false` or `""` for no logo.
+    an empty logo (`""`) to remove it completely.
   """
   @spec print([option()]) :: :ok
   def print(opts \\ []) do
@@ -53,7 +53,7 @@ defmodule NervesMOTD do
   end
 
   defp logo_text(opts) do
-    Keyword.get(opts, :logo, @logo) || []
+    Keyword.get(opts, :logo, @logo)
   end
 
   defp firmware_text() do
