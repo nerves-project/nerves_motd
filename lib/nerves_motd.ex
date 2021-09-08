@@ -14,10 +14,20 @@ defmodule NervesMOTD do
   \e[34m███▌    \e[36m▀▜████\e[0m
   """
 
+  @typedoc """
+  MOTD options
+  """
+  @type option() :: {:logo, String.t() | false}
+
   @doc """
   Print the message of the day
+
+  Options:
+
+  * `:logo` - a custom logo to display instead of the default Nerves logo. Pass
+    `false` or `""` for no logo.
   """
-  @spec print(keyword()) :: :ok
+  @spec print([option()]) :: :ok
   def print(opts \\ []) do
     {:ok, _} = Application.ensure_all_started(:nerves_runtime)
     IO.puts(generate(opts))
