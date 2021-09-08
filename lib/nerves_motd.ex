@@ -17,9 +17,10 @@ defmodule NervesMOTD do
   @doc """
   Print the message of the day
   """
-  @spec print(keyword()) :: nil | :ok
+  @spec print(keyword()) :: :ok
   def print(opts \\ []) do
-    if runtime_mod().runtime_ready?(), do: IO.puts(generate(opts))
+    {:ok, _} = Application.ensure_all_started(:nerves_runtime)
+    IO.puts(generate(opts))
   end
 
   defp generate(opts) do
