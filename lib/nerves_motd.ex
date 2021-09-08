@@ -1,6 +1,6 @@
 defmodule NervesMOTD do
   @moduledoc """
-  `NervesMOTD` prints a "message of the day" (MOTD) for Nerves-based projects.
+  `NervesMOTD` prints a "message of the day" (MOTD) for Nerves devices.
   """
 
   @logo """
