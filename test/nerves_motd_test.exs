@@ -94,6 +94,11 @@ defmodule NervesMOTDTest do
   end
 
   test "Load average" do
-    assert capture_motd() =~ ~r/Load average : 0.35 0.16 0.11 2\/70 1536/
+    assert capture_motd() =~ ~r/Load average : 0.35 0.16 0.11/
+  end
+
+  test "Load average error" do
+    Mox.expect(NervesMOTD.MockRuntime, :load_average, 1, fn -> [] end)
+    assert capture_motd() =~ ~r/Load average : error/
   end
 end

@@ -145,9 +145,12 @@ defmodule NervesMOTD do
     [_total, _used, _free, _shared, _buff, _available] = runtime_mod().memory_usage()
   end
 
-  @spec load_average() :: String.t()
+  @spec load_average() :: iodata()
   defp load_average() do
-    runtime_mod().load_average()
+    case runtime_mod().load_average() do
+      [a, b, c | _] -> [a, " ", b, " ", c]
+      _ -> "error"
+    end
   end
 
   @spec hostname() :: String.t()
