@@ -43,8 +43,8 @@ defmodule NervesMOTD do
         Uptime : #{uptime()}
         Clock  : #{clock()}
 
-        Firmware     : #{String.pad_trailing(firmware_text(), 20, " ")}\tMemory usage : #{memory_usage_text()}
-        Applications : #{String.pad_trailing(application_text(), 20, " ")}\tLoad average : #{load_average()}
+        Firmware     : #{String.pad_trailing(firmware_text(), 20, " ")}\tApplications : #{application_text()}
+        Memory usage : #{String.pad_trailing(memory_usage_text(), 20, " ")}\tLoad average : #{load_average()}
         Hostname     : #{String.pad_trailing(hostname_text(), 20, " ")}\tNetworks     : #{networks_text()}
 
       Nerves CLI help: https://hexdocs.pm/nerves/using-the-cli.html
