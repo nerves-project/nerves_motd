@@ -46,27 +46,27 @@ defmodule NervesMOTDTest do
   end
 
   test "Uptime" do
-    assert capture_motd() =~ ~r/Uptime : .*\d{0,2} seconds/
+    assert capture_motd() =~ ~r/Uptime       : .*\d{0,2} seconds/
   end
 
   test "Clock" do
-    assert capture_motd() =~ ~r/Clock  : \d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2} UTC/
+    assert capture_motd() =~ ~r/Clock        : \d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2} UTC/
   end
 
   test "Firmware when valid" do
     Mox.expect(NervesMOTD.MockRuntime, :firmware_valid?, 1, fn -> true end)
-    assert capture_motd() =~ ~r/\e\[32mValid/
+    assert capture_motd() =~ ~r/Firmware     : \e\[32mValid.*\e\[0m/
   end
 
   test "Firmware when invalid" do
     Mox.expect(NervesMOTD.MockRuntime, :firmware_valid?, 1, fn -> false end)
-    assert capture_motd() =~ ~r/\e\[31mNot validated/
+    assert capture_motd() =~ ~r/Firmware     : \e\[31mNot validated.*\e\[0m/
   end
 
   test "Applications when all apps started" do
     apps = %{started: [:a, :b, :c], loaded: [:a, :b, :c]}
     Mox.expect(NervesMOTD.MockRuntime, :applications, 1, fn -> apps end)
-    assert capture_motd() =~ ~r/Applications : \e\[32m\d* \/ \d*\e\[0m/
+    assert capture_motd() =~ ~r/Applications : \e\[32m\d* \/ \d*.*\e\[0m/
   end
 
   test "Applications when not all apps started" do
@@ -76,7 +76,7 @@ defmodule NervesMOTDTest do
   end
 
   test "Hostname" do
-    assert capture_motd() =~ ~r/Hostname     : \e\[0m[0-9a-zA-Z\-]*\e\[0m/
+    assert capture_motd() =~ ~r/Hostname     : [0-9a-zA-Z\-]*/
   end
 
   test "Networks" do
@@ -85,12 +85,12 @@ defmodule NervesMOTDTest do
 
   test "Memory usage when ok" do
     Mox.expect(NervesMOTD.MockRuntime, :memory_usage, 1, fn -> [316_664, 78_408, 0, 0, 0, 0] end)
-    assert capture_motd() =~ ~r/Memory usage : \e\[0m78 MB \(25%\)\e\[0m/
+    assert capture_motd() =~ ~r/Memory usage : 78 MB \(25%\)/
   end
 
   test "Memory usage when high" do
     Mox.expect(NervesMOTD.MockRuntime, :memory_usage, 1, fn -> [316_664, 316_664, 0, 0, 0, 0] end)
-    assert capture_motd() =~ ~r/Memory usage : \e\[31m316 MB \(100%\)\e\[0m/
+    assert capture_motd() =~ ~r/Memory usage : \e\[31m316 MB \(100%\).*\e\[0m/
   end
 
   test "Load average" do
