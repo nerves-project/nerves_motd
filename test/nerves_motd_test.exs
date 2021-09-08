@@ -60,7 +60,7 @@ defmodule NervesMOTDTest do
 
   test "Firmware when invalid" do
     Mox.expect(NervesMOTD.MockRuntime, :firmware_valid?, 1, fn -> false end)
-    assert capture_motd() =~ ~r/\e\[31mInvalid/
+    assert capture_motd() =~ ~r/\e\[31mNot validated/
   end
 
   test "Applications when all apps started" do
