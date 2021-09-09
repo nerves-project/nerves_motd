@@ -97,13 +97,14 @@ defmodule NervesMOTD do
     Enum.join(network_names(), ", ")
   end
 
+  @spec uname() :: iolist()
   defp uname() do
     fw_architecture = Nerves.Runtime.KV.get_active("nerves_fw_architecture")
     fw_platform = Nerves.Runtime.KV.get_active("nerves_fw_platform")
     fw_product = Nerves.Runtime.KV.get_active("nerves_fw_product")
     fw_version = Nerves.Runtime.KV.get_active("nerves_fw_version")
     fw_uuid = Nerves.Runtime.KV.get_active("nerves_fw_uuid")
-    "#{fw_product} #{fw_version} (#{fw_uuid}) #{fw_architecture} #{fw_platform}"
+    [fw_product, " ", fw_version, " (", fw_uuid, ") ", fw_architecture, " ", fw_platform]
   end
 
   # https://github.com/erlang/otp/blob/1c63b200a677ec7ac12202ddbcf7710884b16ff2/lib/stdlib/src/c.erl#L1118
