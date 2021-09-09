@@ -107,7 +107,7 @@ defmodule NervesMOTD do
   end
 
   # https://github.com/erlang/otp/blob/1c63b200a677ec7ac12202ddbcf7710884b16ff2/lib/stdlib/src/c.erl#L1118
-  @spec uptime() :: String.t()
+  @spec uptime() :: iolist()
   defp uptime() do
     {uptime, _} = :erlang.statistics(:wall_clock)
     {d, {h, m, s}} = :calendar.seconds_to_daystime(div(uptime, 1000))
@@ -115,7 +115,7 @@ defmodule NervesMOTD do
     hours = if d + h > 0, do: :io_lib.format("~p hours, ", [h])
     minutes = if d + h + m > 0, do: :io_lib.format("~p minutes and ", [m])
     seconds = :io_lib.format("~p seconds", [s])
-    [days, hours, minutes, seconds] |> Enum.filter(fn x -> x end) |> List.to_string()
+    Enum.reject([days, hours, minutes, seconds], &is_nil/1)
   end
 
   @spec clock() :: String.t()
