@@ -118,13 +118,15 @@ defmodule NervesMOTD do
     [days, hours, minutes, seconds] |> Enum.filter(fn x -> x end) |> List.to_string()
   end
 
-  @spec clock() :: String.t()
+  @spec clock() :: [binary(), ...]
   defp clock() do
-    DateTime.utc_now()
-    |> DateTime.truncate(:second)
-    |> DateTime.to_string()
-    |> String.trim_trailing("Z")
-    |> Kernel.<>(" UTC")
+    [
+      DateTime.utc_now()
+      |> DateTime.truncate(:second)
+      |> DateTime.to_string()
+      |> String.trim_trailing("Z"),
+      " UTC"
+    ]
   end
 
   @spec firmware_valid?() :: boolean()
