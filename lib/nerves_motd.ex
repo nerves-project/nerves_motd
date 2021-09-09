@@ -85,7 +85,7 @@ defmodule NervesMOTD do
   end
 
   defp memory_usage_text() do
-    [memory_usage_total, memory_usage_used | _] = memory_usage()
+    [memory_usage_total, memory_usage_used | _] = runtime_mod().memory_usage()
     percentage = trunc(memory_usage_used / memory_usage_total * 100)
 
     if(percentage < 85, do: IO.ANSI.reset(), else: IO.ANSI.red()) <>
@@ -138,11 +138,6 @@ defmodule NervesMOTD do
       {:ok, list} -> list |> Enum.map(&elem(&1, 0))
       _ -> []
     end
-  end
-
-  @spec memory_usage() :: [integer()]
-  defp memory_usage() do
-    [_total, _used, _free, _shared, _buff, _available] = runtime_mod().memory_usage()
   end
 
   @spec load_average() :: iodata()
