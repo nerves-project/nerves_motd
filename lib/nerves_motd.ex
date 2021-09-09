@@ -43,7 +43,7 @@ defmodule NervesMOTD do
         Uptime : #{uptime()}
         Clock  : #{clock()}
 
-        Firmware     : #{String.pad_trailing(firmware_text(), 24, " ")}\tApplications : #{application_text()}
+        Firmware     : #{String.pad_trailing(firmware_text(), 24, " ")}\tApplications : #{applications_text()}
         Memory usage : #{String.pad_trailing(memory_usage_text(), 24, " ")}\tLoad average : #{load_average()}
         Hostname     : #{String.pad_trailing(hostname_text(), 24, " ")}\tNetworks     : #{networks_text()}
 
@@ -66,17 +66,28 @@ defmodule NervesMOTD do
     end <> IO.ANSI.reset()
   end
 
-  defp application_text() do
+  @spec applications_text() :: iolist()
+  defp applications_text() do
     apps = runtime_mod().applications()
     started_count = length(apps[:started])
     loaded_count = length(apps[:loaded])
 
     if started_count == loaded_count do
-      IO.ANSI.green() <> "#{started_count} / #{loaded_count}"
+      :io_lib.format("~s~p / ~p~s", [
+        IO.ANSI.green(),
+        started_count,
+        loaded_count,
+        IO.ANSI.reset()
+      ])
     else
-      apps_not_started = Enum.join(apps[:loaded] -- apps[:started], ", ")
-      IO.ANSI.red() <> "#{started_count} / #{loaded_count} (#{apps_not_started} not started)"
-    end <> IO.ANSI.reset()
+      :io_lib.format("~s~p / ~p (~s not started)~s", [
+        IO.ANSI.red(),
+        started_count,
+        loaded_count,
+        Enum.join(apps[:loaded] -- apps[:started], ", "),
+        IO.ANSI.reset()
+      ])
+    end
   end
 
   defp hostname_text() do
