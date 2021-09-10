@@ -118,7 +118,7 @@ defmodule NervesMOTD do
     [days, hours, minutes, seconds] |> Enum.filter(fn x -> x end) |> List.to_string()
   end
 
-  @spec clock() :: iolist()
+  @spec clock() :: [binary(), ...]
   defp clock() do
     [
       DateTime.utc_now()
