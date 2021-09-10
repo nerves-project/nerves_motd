@@ -86,7 +86,7 @@ defmodule NervesMOTD do
 
   defp memory_usage_text() do
     [memory_usage_total, memory_usage_used | _] = runtime_mod().memory_usage()
-    percentage = trunc(memory_usage_used / memory_usage_total * 100)
+    percentage = round(memory_usage_used / memory_usage_total * 100)
 
     if(percentage < 85, do: IO.ANSI.reset(), else: IO.ANSI.red()) <>
       "#{div(memory_usage_used, 1000)} MB (#{percentage}%)" <>
