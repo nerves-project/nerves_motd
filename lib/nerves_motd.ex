@@ -119,7 +119,7 @@ defmodule NervesMOTD do
     Enum.reject([days, hours, minutes, seconds], &is_nil/1)
   end
 
-  @spec clock() :: [binary(), ...]
+  @spec clock() :: iolist()
   defp clock() do
     [
       DateTime.utc_now()
