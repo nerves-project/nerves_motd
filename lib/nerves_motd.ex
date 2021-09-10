@@ -59,7 +59,7 @@ defmodule NervesMOTD do
   defp firmware_text() do
     fw_active = Nerves.Runtime.KV.get("nerves_fw_active") |> String.upcase()
 
-    if firmware_valid?() do
+    if runtime_mod().firmware_valid?() do
       IO.ANSI.green() <> "Valid (#{fw_active})"
     else
       IO.ANSI.red() <> "Not validated (#{fw_active})"
@@ -128,11 +128,6 @@ defmodule NervesMOTD do
       |> String.trim_trailing("Z"),
       " UTC"
     ]
-  end
-
-  @spec firmware_valid?() :: boolean()
-  defp firmware_valid?() do
-    runtime_mod().firmware_valid?()
   end
 
   @spec network_names() :: list()
