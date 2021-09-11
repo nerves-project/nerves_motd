@@ -4,6 +4,7 @@ defmodule NervesMOTD.Runtime do
   @callback firmware_valid?() :: boolean()
   @callback load_average() :: [String.t()]
   @callback memory_usage() :: [integer()]
+  @callback sd_card() :: %{String.t() => iolist()}
 end
 
 defmodule NervesMOTD.Runtime.Target do
@@ -42,5 +43,17 @@ defmodule NervesMOTD.Runtime.Target do
       |> String.split()
       |> tl
       |> Enum.map(&String.to_integer/1)
+  end
+
+  @impl NervesMOTD.Runtime
+  def sd_card() do
+    System.cmd("df", ["-m"])
+    |> elem(0)
+    |> String.split("\n")
+    |> tl
+    |> Enum.map(&String.split/1)
+    |> Enum.reject(&match?([], &1))
+    |> Enum.map(fn [path | data] -> {path, data} end)
+    |> Enum.into(%{})
   end
 end
