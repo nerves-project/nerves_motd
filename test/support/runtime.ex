@@ -29,4 +29,7 @@ defmodule NervesMOTD.Runtime.Host do
 
   @impl NervesMOTD.Runtime
   def memory_usage(), do: [316_664, 78_408, 126_776, 12, 111_480, 238_564]
+
+  @impl NervesMOTD.Runtime
+  def filesystem_stats(_filename), do: {:ok, %{size_mb: 14_619, used_mb: 37, used_percent: 0}}
 end

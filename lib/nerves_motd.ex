@@ -60,8 +60,9 @@ defmodule NervesMOTD do
       [{"Clock", clock()}],
       [],
       [firmware_cell(), applications_cell()],
-      [memory_usage_cell(), {"Load average", load_average()}],
-      [{"Hostname", hostname()}, {"Networks", network_names()}]
+      [memory_usage_cell(), active_application_partition_cell()],
+      [{"Hostname", hostname()}, {"Load average", load_average()}],
+      [{"Networks", network_names()}]
     ]
   end
 
@@ -141,6 +142,25 @@ defmodule NervesMOTD do
       {"Memory usage", text}
     else
       {"Memory usage", text, :red}
+    end
+  end
+
+  @spec active_application_partition_cell() :: cell()
+  defp active_application_partition_cell() do
+    app_partition_path = Nerves.Runtime.KV.get_active("nerves_fw_application_part0_devpath")
+
+    case runtime_mod().filesystem_stats(app_partition_path) do
+      {:ok, stats} ->
+        text = :io_lib.format("~p MB (~p%)", [stats.used_mb, stats.used_percent])
+
+        if stats.used_percent < 85 do
+          {"Part usage", text}
+        else
+          {"Part usage", text, :red}
+        end
+
+      :error ->
+        {"Part usage", "not available", :red}
     end
   end
 
