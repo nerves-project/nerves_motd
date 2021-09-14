@@ -19,7 +19,8 @@ defmodule NervesMOTD do
   """
   @type option() :: {:logo, iodata()}
 
-  @typep cell :: {String.t(), iodata()} | {String.t(), iodata(), :green | :red}
+  @typep color() :: :red | :green
+  @typep cell() :: {String.t(), iodata()} | {String.t(), iodata(), color()}  
 
   @doc """
   Print the message of the day
