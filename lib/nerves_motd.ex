@@ -20,7 +20,7 @@ defmodule NervesMOTD do
   @type option() :: {:logo, iodata()}
 
   @typep color() :: :red | :green
-  @typep cell() :: {String.t(), iodata()} | {String.t(), iodata(), color()}  
+  @typep cell() :: {String.t(), iodata()} | {String.t(), iodata(), color()}
 
   @doc """
   Print the message of the day
@@ -86,23 +86,10 @@ defmodule NervesMOTD do
     |> :io_lib.format([label, formatted_iodata])
   end
 
-  defp format_cell({label, formatted_iodata, :green}, column_index) do
+  defp format_cell({label, formatted_iodata, color}, column_index) do
     [
       :io_lib.format("~-12ts : ", [label]),
-      IO.ANSI.green(),
-      case column_index do
-        0 -> "~-24ts"
-        _ -> "~s"
-      end
-      |> :io_lib.format([formatted_iodata]),
-      IO.ANSI.reset()
-    ]
-  end
-
-  defp format_cell({label, formatted_iodata, :red}, column_index) do
-    [
-      :io_lib.format("~-12ts : ", [label]),
-      IO.ANSI.red(),
+      apply(IO.ANSI, color, []),
       case column_index do
         0 -> "~-24ts"
         _ -> "~s"
