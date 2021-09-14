@@ -12,6 +12,7 @@ defmodule NervesMOTD do
   \e[34m█▌ \e[36m▐█▄▖\e[34m▝▀█▌ \e[36m▐█   \e[39mN  E  R  V  E  S
   \e[34m█▌   \e[36m▝▀█▙▄▖ ▐█
   \e[34m███▌    \e[36m▀▜████\e[0m
+
   """
 
   @typedoc """
@@ -34,16 +35,17 @@ defmodule NervesMOTD do
   def print(opts \\ []) do
     {:ok, _} = Application.ensure_all_started(:nerves_runtime)
 
-    IO.puts(logo(opts))
-
-    IO.puts(uname())
-
-    Enum.each(rows(), &IO.puts(["  ", format_row(&1)]))
-
-    IO.puts("""
-
-    Nerves CLI help: https://hexdocs.pm/nerves/using-the-cli.html
-    """)
+    [
+      logo(opts),
+      uname(),
+      "\n",
+      Enum.map(rows(), &format_row/1),
+      "\n",
+      """
+      Nerves CLI help: https://hexdocs.pm/nerves/using-the-cli.html
+      """
+    ]
+    |> IO.puts()
   end
 
   @spec logo([option()]) :: iodata()
@@ -65,16 +67,16 @@ defmodule NervesMOTD do
 
   @spec format_row([cell()]) :: iolist()
   # A blank line
-  defp format_row([]), do: []
+  defp format_row([]), do: ["\n"]
 
   # A row with full width
   defp format_row([{label, formatted_iodata}]) do
-    :io_lib.format("~-12ts : ~s", [label, formatted_iodata])
+    :io_lib.format("  ~-12ts : ~s\n", [label, formatted_iodata])
   end
 
   # A row with two columns
   defp format_row([col0, col1]) do
-    [format_cell(col0, 0), format_cell(col1, 1)]
+    ["  ", format_cell(col0, 0), format_cell(col1, 1), "\n"]
   end
 
   @spec format_cell(cell(), 0 | 1) :: iolist()
