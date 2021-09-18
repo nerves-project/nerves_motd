@@ -4,7 +4,12 @@ defmodule NervesMOTD.Runtime do
   @callback firmware_valid?() :: boolean()
   @callback load_average() :: [String.t()]
   @callback memory_usage() :: [integer()]
-  @callback sd_card() :: %{String.t() => iolist()}
+  @callback filesystem_stats(String.t()) ::
+              %{
+                size_mb: non_neg_integer(),
+                used_mb: non_neg_integer(),
+                used_percent: non_neg_integer()
+              }
 end
 
 defmodule NervesMOTD.Runtime.Target do
@@ -46,14 +51,24 @@ defmodule NervesMOTD.Runtime.Target do
   end
 
   @impl NervesMOTD.Runtime
-  def sd_card() do
-    System.cmd("df", ["-m"])
-    |> elem(0)
-    |> String.split("\n")
-    |> tl
-    |> Enum.map(&String.split/1)
-    |> Enum.reject(&match?([], &1))
-    |> Enum.map(fn [path | data] -> {path, data} end)
-    |> Enum.into(%{})
+  def filesystem_stats(filename) when is_binary(filename) do
+    with {df_results, 0} <- System.cmd("df", ["-m", filename]) do
+      [size_mb, used_mb, _, used_percent, _] =
+        df_results
+        |> String.split("\n")
+        |> tl
+        |> Enum.map(&String.split/1)
+        |> Enum.reject(&match?([], &1))
+        |> Enum.map(fn [_path | data] -> data end)
+        |> hd
+
+      %{
+        size_mb: elem(Integer.parse(size_mb), 0),
+        used_mb: elem(Integer.parse(used_mb), 0),
+        used_percent: elem(Integer.parse(used_percent), 0)
+      }
+    else
+      _ -> raise "File not found"
+    end
   end
 end

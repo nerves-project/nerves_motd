@@ -103,14 +103,14 @@ defmodule NervesMOTDTest do
   end
 
   test "Application partition usage" do
-    assert capture_motd() =~ ~r/Part usage   : 37 \/ 14619 MB \(0%\)/
+    assert capture_motd() =~ ~r/Part usage   : 37 MB \(0%\)/
   end
 
   test "Application partition usage high" do
-    Mox.expect(NervesMOTD.MockRuntime, :sd_card, 1, fn ->
-      %{"/dev/mmcblk0p3" => ["14300", "12900", "_", "90%", "_"]}
+    Mox.expect(NervesMOTD.MockRuntime, :filesystem_stats, 1, fn _path ->
+      %{size_mb: 14300, used_mb: 12900, used_percent: 90}
     end)
 
-    assert capture_motd() =~ ~r/Part usage   : \e\[31m12900 \/ 14300 MB \(90%\)\e\[0m/
+    assert capture_motd() =~ ~r/Part usage   : \e\[31m12900 MB \(90%\)\e\[0m/
   end
 end

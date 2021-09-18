@@ -31,13 +31,5 @@ defmodule NervesMOTD.Runtime.Host do
   def memory_usage(), do: [316_664, 78_408, 126_776, 12, 111_480, 238_564]
 
   @impl NervesMOTD.Runtime
-  def sd_card() do
-    %{
-      "/dev/mmcblk0p1" => ["19", "6", "13", "32%", "/boot"],
-      "/dev/mmcblk0p3" => ["14619", "37", "13821", "0%", "/root"],
-      "/dev/root" => ["39", "39", "0", "100%", "/"],
-      "devtmpfs" => ["1", "0", "1", "0%", "/dev"],
-      "tmpfs" => ["1", "0", "1", "0%", "/sys/fs/cgroup"]
-    }
-  end
+  def filesystem_stats(_filename), do: %{size_mb: 14619, used_mb: 37, used_percent: 0}
 end
