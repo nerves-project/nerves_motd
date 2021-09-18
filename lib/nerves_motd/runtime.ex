@@ -52,23 +52,25 @@ defmodule NervesMOTD.Runtime.Target do
 
   @impl NervesMOTD.Runtime
   def filesystem_stats(filename) when is_binary(filename) do
-    with {df_results, 0} <- System.cmd("df", ["-m", filename]) do
-      [size_mb, used_mb, _, used_percent, _] =
-        df_results
-        |> String.split("\n")
-        |> tl
-        |> Enum.map(&String.split/1)
-        |> Enum.reject(&match?([], &1))
-        |> Enum.map(fn [_path | data] -> data end)
-        |> hd
+    case System.cmd("df", ["-m", filename]) do
+      {df_results, 0} ->
+        [size_mb, used_mb, _, used_percent, _] =
+          df_results
+          |> String.split("\n")
+          |> tl
+          |> Enum.map(&String.split/1)
+          |> Enum.reject(&match?([], &1))
+          |> Enum.map(fn [_path | data] -> data end)
+          |> hd
 
-      %{
-        size_mb: elem(Integer.parse(size_mb), 0),
-        used_mb: elem(Integer.parse(used_mb), 0),
-        used_percent: elem(Integer.parse(used_percent), 0)
-      }
-    else
-      _ -> raise "File not found"
+        %{
+          size_mb: elem(Integer.parse(size_mb), 0),
+          used_mb: elem(Integer.parse(used_mb), 0),
+          used_percent: elem(Integer.parse(used_percent), 0)
+        }
+
+      _ ->
+        raise "File not found"
     end
   end
 end
