@@ -5,11 +5,13 @@ defmodule NervesMOTD.Runtime do
   @callback load_average() :: [String.t()]
   @callback memory_usage() :: [integer()]
   @callback filesystem_stats(String.t()) ::
-              %{
-                size_mb: non_neg_integer(),
-                used_mb: non_neg_integer(),
-                used_percent: non_neg_integer()
-              }
+              {:ok,
+               %{
+                 size_mb: non_neg_integer(),
+                 used_mb: non_neg_integer(),
+                 used_percent: non_neg_integer()
+               }}
+              | :error
 end
 
 defmodule NervesMOTD.Runtime.Target do
@@ -52,25 +54,25 @@ defmodule NervesMOTD.Runtime.Target do
 
   @impl NervesMOTD.Runtime
   def filesystem_stats(filename) when is_binary(filename) do
-    case System.cmd("df", ["-m", filename]) do
-      {df_results, 0} ->
-        [size_mb, used_mb, _, used_percent, _] =
-          df_results
-          |> String.split("\n")
-          |> tl
-          |> Enum.map(&String.split/1)
-          |> Enum.reject(&match?([], &1))
-          |> Enum.map(fn [_path | data] -> data end)
-          |> hd
+    # Use df to determine filesystem statistics. df's output looks like:
+    #
+    #     Filesystem           1M-blocks      Used Available Use% Mounted on
+    #     /dev/mmcblk0p4            1534       205      1329  13% /root
 
-        %{
-          size_mb: elem(Integer.parse(size_mb), 0),
-          used_mb: elem(Integer.parse(used_mb), 0),
-          used_percent: elem(Integer.parse(used_percent), 0)
-        }
-
-      _ ->
-        raise "File not found"
+    with {df_results, 0} <- System.cmd("df", ["-m", filename]),
+         [_title_row, results_row | _] <- String.split(df_results, "\n"),
+         [_fs, size_mb_str, used_str, _avail, used_percent_str | _] <- String.split(results_row),
+         {size_mb, ""} <- Integer.parse(size_mb_str),
+         {used_mb, ""} <- Integer.parse(used_str),
+         {used_percent, "%"} <- Integer.parse(used_percent_str) do
+      {:ok,
+       %{
+         size_mb: size_mb,
+         used_mb: used_mb,
+         used_percent: used_percent
+       }}
+    else
+      _ -> :error
     end
   end
 end

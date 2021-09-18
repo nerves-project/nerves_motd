@@ -108,9 +108,17 @@ defmodule NervesMOTDTest do
 
   test "Application partition usage high" do
     Mox.expect(NervesMOTD.MockRuntime, :filesystem_stats, 1, fn _path ->
-      %{size_mb: 14_300, used_mb: 12_900, used_percent: 90}
+      {:ok, %{size_mb: 14_300, used_mb: 12_900, used_percent: 90}}
     end)
 
     assert capture_motd() =~ ~r/Part usage   : \e\[31m12900 MB \(90%\)\e\[0m/
+  end
+
+  test "Application partition usage not available" do
+    Mox.expect(NervesMOTD.MockRuntime, :filesystem_stats, 1, fn _path ->
+      :error
+    end)
+
+    assert capture_motd() =~ ~r/Part usage   : \e\[31mnot available\e\[0m/
   end
 end
