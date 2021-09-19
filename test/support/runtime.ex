@@ -28,7 +28,7 @@ defmodule NervesMOTD.Runtime.Host do
   def load_average(), do: ["0.35", "0.16", "0.11", "2/70", "1536"]
 
   @impl NervesMOTD.Runtime
-  def memory_usage(), do: [316_664, 78_408, 126_776, 12, 111_480, 238_564]
+  def memory_stats(), do: {:ok, %{size_mb: 316, used_mb: 78, used_percent: 25}}
 
   @impl NervesMOTD.Runtime
   def filesystem_stats(_filename), do: {:ok, %{size_mb: 14_619, used_mb: 37, used_percent: 0}}

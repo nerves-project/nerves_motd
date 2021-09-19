@@ -138,14 +138,18 @@ defmodule NervesMOTD do
 
   @spec memory_usage_cell() :: cell()
   defp memory_usage_cell() do
-    [memory_usage_total, memory_usage_used | _] = runtime_mod().memory_usage()
-    percentage = round(memory_usage_used / memory_usage_total * 100)
-    text = :io_lib.format("~p MB (~p%)", [div(memory_usage_used, 1000), percentage])
+    case runtime_mod().memory_stats() do
+      {:ok, stats} ->
+        text = :io_lib.format("~p MB (~p%)", [stats.used_mb, stats.used_percent])
 
-    if percentage < 85 do
-      {"Memory usage", text}
-    else
-      {"Memory usage", text, :red}
+        if stats.used_percent < 85 do
+          {"Memory usage", text}
+        else
+          {"Memory usage", text, :red}
+        end
+
+      :error ->
+        {"Memory usage", "not available", :red}
     end
   end
 

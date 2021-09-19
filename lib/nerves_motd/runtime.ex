@@ -3,7 +3,14 @@ defmodule NervesMOTD.Runtime do
   @callback applications() :: %{started: [atom()], loaded: [atom()]}
   @callback firmware_valid?() :: boolean()
   @callback load_average() :: [String.t()]
-  @callback memory_usage() :: [integer()]
+  @callback memory_stats() ::
+              {:ok,
+               %{
+                 size_mb: non_neg_integer(),
+                 used_mb: non_neg_integer(),
+                 used_percent: non_neg_integer()
+               }}
+              | :error
   @callback filesystem_stats(String.t()) ::
               {:ok,
                %{
@@ -40,16 +47,25 @@ defmodule NervesMOTD.Runtime.Target do
   end
 
   @impl NervesMOTD.Runtime
-  def memory_usage() do
-    [_total, _used, _free, _shared, _buff, _available] =
-      System.cmd("free", [])
-      |> elem(0)
-      |> String.split("\n")
-      |> tl
-      |> hd
-      |> String.split()
-      |> tl
-      |> Enum.map(&String.to_integer/1)
+  def memory_stats() do
+    # Use free to determine memory statistics. free's output looks like:
+    #
+    #                   total        used        free      shared  buff/cache   available
+    #     Mem:         316664       65184      196736          16       54744      253472
+    #     Swap:             0           0           0
+
+    {free_output, 0} = System.cmd("free", [])
+    [_title_row, memory_row | _] = String.split(free_output, "\n")
+    [_title_column | memory_columns] = String.split(memory_row)
+    [size_kb, used_kb, _, _, _, _] = Enum.map(memory_columns, &String.to_integer/1)
+    size_mb = round(size_kb / 1000)
+    used_mb = round(used_kb / 1000)
+    used_percent = round(used_mb / size_mb * 100)
+
+    {:ok, %{size_mb: size_mb, used_mb: used_mb, used_percent: used_percent}}
+  rescue
+    # In case the `free` command is not available or any of the out parses incorrectly
+    _error -> :error
   end
 
   @impl NervesMOTD.Runtime

@@ -80,12 +80,14 @@ defmodule NervesMOTDTest do
   end
 
   test "Memory usage when ok" do
-    Mox.expect(NervesMOTD.MockRuntime, :memory_usage, 1, fn -> [316_664, 78_408, 0, 0, 0, 0] end)
     assert capture_motd() =~ ~r/Memory usage : 78 MB \(25%\)/
   end
 
   test "Memory usage when high" do
-    Mox.expect(NervesMOTD.MockRuntime, :memory_usage, 1, fn -> [316_664, 316_664, 0, 0, 0, 0] end)
+    Mox.expect(NervesMOTD.MockRuntime, :memory_stats, 1, fn ->
+      {:ok, %{size_mb: 316, used_mb: 316, used_percent: 100}}
+    end)
+
     assert capture_motd() =~ ~r/Memory usage : \e\[31m316 MB \(100%\).*\e\[0m/
   end
 
