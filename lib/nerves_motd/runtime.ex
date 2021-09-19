@@ -74,5 +74,8 @@ defmodule NervesMOTD.Runtime.Target do
     else
       _ -> :error
     end
+  rescue
+    # In case the `df` command is not available.
+    ErlangError -> :error
   end
 end
