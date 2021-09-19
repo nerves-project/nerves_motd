@@ -59,23 +59,16 @@ defmodule NervesMOTD.Runtime.Target do
     #     Filesystem           1M-blocks      Used Available Use% Mounted on
     #     /dev/mmcblk0p4            1534       205      1329  13% /root
 
-    with {df_results, 0} <- System.cmd("df", ["-m", filename]),
-         [_title_row, results_row | _] <- String.split(df_results, "\n"),
-         [_fs, size_mb_str, used_str, _avail, used_percent_str | _] <- String.split(results_row),
-         {size_mb, ""} <- Integer.parse(size_mb_str),
-         {used_mb, ""} <- Integer.parse(used_str),
-         {used_percent, "%"} <- Integer.parse(used_percent_str) do
-      {:ok,
-       %{
-         size_mb: size_mb,
-         used_mb: used_mb,
-         used_percent: used_percent
-       }}
-    else
-      _ -> :error
-    end
+    {df_results, 0} = System.cmd("df", ["-m", filename])
+    [_title_row, results_row | _] = String.split(df_results, "\n")
+    [_fs, size_mb_str, used_mb_str, _avail, used_percent_str | _] = String.split(results_row)
+    {size_mb, ""} = Integer.parse(size_mb_str)
+    {used_mb, ""} = Integer.parse(used_mb_str)
+    {used_percent, "%"} = Integer.parse(used_percent_str)
+
+    {:ok, %{size_mb: size_mb, used_mb: used_mb, used_percent: used_percent}}
   rescue
-    # In case the `df` command is not available.
-    ErlangError -> :error
+    # In case the `df` command is not available or any of the out parses incorrectly
+    _error -> :error
   end
 end
