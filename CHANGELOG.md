@@ -2,6 +2,12 @@
 
 This project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## v0.1.3 - 2021-10-10
+
+* Improvements
+  * Remove denominator (loaded application count) from the applications section because it is changeable and can cause confusion
+  * Change text color for applications not (yet) loaded from red to yellow because most of the time it is transient
+
 ## v0.1.2 - 2021-09-25
 
 * Improvements
