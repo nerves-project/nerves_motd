@@ -124,14 +124,14 @@ defmodule NervesMOTD do
     loaded_count = length(apps[:loaded])
 
     if started_count == loaded_count do
-      {"Applications", :io_lib.format("~p / ~p", [started_count, loaded_count]), :green}
+      {"Applications", "#{started_count} started"}
     else
       not_started = Enum.join(apps[:loaded] -- apps[:started], ", ")
 
       {
         "Applications",
-        :io_lib.format("~p / ~p (~s not started)", [started_count, loaded_count, not_started]),
-        :red
+        :io_lib.format("~p started (~s not started)", [started_count, not_started]),
+        :yellow
       }
     end
   end
