@@ -7,12 +7,11 @@ defmodule NervesMOTD do
   """
 
   @logo """
-  \e[34m████▄▖    \e[36m▐███
-  \e[34m█▌  ▀▜█▙▄▖  \e[36m▐█
-  \e[34m█▌ \e[36m▐█▄▖\e[34m▝▀█▌ \e[36m▐█   \e[39mN  E  R  V  E  S
-  \e[34m█▌   \e[36m▝▀█▙▄▖ ▐█
-  \e[34m███▌    \e[36m▀▜████\e[0m
-
+  \e[34m████▄▄    \e[36m▐███
+  \e[34m█▌  ▀▀██▄▄  \e[36m▐█
+  \e[34m█▌ \e[36m▐█▄▄\e[34m▀▀█▌ \e[36m▐█   \e[39mN  E  R  V  E  S
+  \e[34m█▌   \e[36m▀▀██▄▄ ▐█
+  \e[34m███▌    \e[36m▀▀████\e[0m
   """
 
   alias NervesMOTD.Utils
