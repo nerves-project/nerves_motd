@@ -2,6 +2,11 @@
 
 This project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## v0.1.4 - 2021-10-17
+
+* Improvements
+  * Improve the logo so that it can render properly on touchscreen
+
 ## v0.1.3 - 2021-10-10
 
 * Improvements
