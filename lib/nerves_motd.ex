@@ -23,8 +23,7 @@ defmodule NervesMOTD do
   """
   @type option() :: {:logo, iodata()}
 
-  @typep color() :: :red | :green
-  @typep cell() :: {String.t(), iodata()} | {String.t(), iodata(), color()}
+  @typep cell() :: {String.t(), IO.ANSI.ansidata()}
 
   @doc """
   Print the message of the day
@@ -48,6 +47,7 @@ defmodule NervesMOTD do
       Nerves CLI help: https://hexdocs.pm/nerves/using-the-cli.html
       """
     ]
+    |> IO.ANSI.format()
     |> IO.puts()
   end
 
@@ -74,8 +74,8 @@ defmodule NervesMOTD do
   defp format_row([]), do: ["\n"]
 
   # A row with full width
-  defp format_row([{label, formatted_iodata}]) do
-    :io_lib.format("  ~-12ts : ~s\n", [label, formatted_iodata])
+  defp format_row([{label, value}]) do
+    ["  ", format_cell_label(label), " : ", value, "\n", :reset]
   end
 
   # A row with two columns
@@ -83,36 +83,26 @@ defmodule NervesMOTD do
     ["  ", format_cell(col0, 0), format_cell(col1, 1), "\n"]
   end
 
-  @spec format_cell(cell(), 0 | 1) :: iolist()
-  defp format_cell({label, formatted_iodata}, column_index) do
-    case column_index do
-      0 -> "~-12ts : ~-24ts"
-      _ -> "~-12ts : ~s"
-    end
-    |> :io_lib.format([label, formatted_iodata])
+  @spec format_cell(cell(), 0 | 1) :: IO.ANSI.ansidata()
+  defp format_cell({label, value}, column_index) do
+    [format_cell_label(label), " : ", format_cell_value(value, column_index, 24), :reset]
   end
 
-  defp format_cell({label, formatted_iodata, color}, column_index) do
-    [
-      :io_lib.format("~-12ts : ", [label]),
-      apply(IO.ANSI, color, []),
-      case column_index do
-        0 -> "~-24ts"
-        _ -> "~s"
-      end
-      |> :io_lib.format([formatted_iodata]),
-      IO.ANSI.reset()
-    ]
-  end
+  @spec format_cell_label(IO.ANSI.ansidata()) :: IO.ANSI.ansidata()
+  defp format_cell_label(label), do: Utils.fit_ansidata(label, 12)
+
+  @spec format_cell_value(IO.ANSI.ansidata(), 0 | 1, pos_integer()) :: IO.ANSI.ansidata()
+  defp format_cell_value(value, 0, width), do: Utils.fit_ansidata(value, width)
+  defp format_cell_value(value, 1, _width), do: value
 
   @spec firmware_cell() :: cell()
   defp firmware_cell() do
     fw_active = Nerves.Runtime.KV.get("nerves_fw_active") |> String.upcase()
 
     if runtime_mod().firmware_valid?() do
-      {"Firmware", :io_lib.format("Valid (~s)", [fw_active]), :green}
+      {"Firmware", [:green, "Valid (#{fw_active})"]}
     else
-      {"Firmware", :io_lib.format("Not validated (~s)", [fw_active]), :red}
+      {"Firmware", [:red, "Not validated (#{fw_active})"]}
     end
   end
 
@@ -126,12 +116,7 @@ defmodule NervesMOTD do
       {"Applications", "#{started_count} started"}
     else
       not_started = Enum.join(apps[:loaded] -- apps[:started], ", ")
-
-      {
-        "Applications",
-        :io_lib.format("~p started (~s not started)", [started_count, not_started]),
-        :yellow
-      }
+      {"Applications", [:yellow, "#{started_count} started (#{not_started} not started)"]}
     end
   end
 
@@ -144,11 +129,11 @@ defmodule NervesMOTD do
         if stats.used_percent < 85 do
           {"Memory usage", text}
         else
-          {"Memory usage", text, :red}
+          {"Memory usage", [:red, text]}
         end
 
       :error ->
-        {"Memory usage", "not available", :red}
+        {"Memory usage", [:red, "not available"]}
     end
   end
 
@@ -163,11 +148,11 @@ defmodule NervesMOTD do
         if stats.used_percent < 85 do
           {"Part usage", text}
         else
-          {"Part usage", text, :red}
+          {"Part usage", [:red, text]}
         end
 
       :error ->
-        {"Part usage", "not available", :red}
+        {"Part usage", [:red, "not available"]}
     end
   end
 

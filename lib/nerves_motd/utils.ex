@@ -80,4 +80,56 @@ defmodule NervesMOTD.Utils do
   defp leading_ones(<<0b11000000, _rest::binary>>, sum), do: sum + 2
   defp leading_ones(<<0b10000000, _rest::binary>>, sum), do: sum + 1
   defp leading_ones(_, sum), do: sum
+
+  @doc """
+  Fit ansidata to a specified column width
+
+  This function first trims the ansidata so that it doesn't exceed the specified
+  width. Then if it's not long enough, it will pad the ansidata to either left or
+  right justify it.
+
+  ## Examples
+
+      iex> s = [:red, "r", :yellow, "a", :light_yellow, "i", :green, "n", :blue, "b", :magenta, "o", :white, "w"]
+      ...> NervesMOTD.Utils.fit_ansidata(s, 4)
+      [:red, "r", :yellow, "a", :light_yellow, "i", :green, "n"]
+
+      iex> s = [:red, "r", :yellow, "a", :light_yellow, "i", :green, "n", :blue, "b", :magenta, "o", :white, "w"]
+      ...> NervesMOTD.Utils.fit_ansidata(s, 10)
+      [[:red, "r", :yellow, "a", :light_yellow, "i", :green, "n", :blue, "b", :magenta, "o", :white, "w"], "   "]
+
+      iex> NervesMOTD.Utils.fit_ansidata([:red, ["Hello"], [" ", "world!"]], 20, :right)
+      ["        ", :red, "Hello", " ", "world!"]
+
+      iex> NervesMOTD.Utils.fit_ansidata([:red, [["Hello"]], " ", "world!"], 2, :right)
+      [:red, "He"]
+  """
+  @spec fit_ansidata(IO.ANSI.ansidata(), non_neg_integer(), :left | :right) :: IO.ANSI.ansidata()
+  def fit_ansidata(ansidata, width, justification \\ :left) do
+    {result, length_left} = trim_ansidata(ansidata, [], width)
+
+    result
+    |> Enum.reverse()
+    |> add_padding(length_left, justification)
+  end
+
+  defp add_padding(ansidata, 0, _justification), do: ansidata
+  defp add_padding(ansidata, count, :left), do: [ansidata, :binary.copy(" ", count)]
+  defp add_padding(ansidata, count, :right), do: [:binary.copy(" ", count) | ansidata]
+
+  defp trim_ansidata(_remainder, acc, 0), do: {acc, 0}
+  defp trim_ansidata([], acc, length), do: {acc, length}
+  defp trim_ansidata(char, acc, length) when is_integer(char), do: {[char | acc], length - 1}
+  defp trim_ansidata(ansicode, acc, length) when is_atom(ansicode), do: {[ansicode | acc], length}
+
+  defp trim_ansidata(str, acc, length) when is_binary(str) do
+    sliced_string = String.slice(str, 0, length)
+    {[sliced_string | acc], length - String.length(sliced_string)}
+  end
+
+  defp trim_ansidata([head | rest], acc, length) do
+    {result, length_left} = trim_ansidata(head, acc, length)
+
+    trim_ansidata(rest, result, length_left)
+  end
 end
