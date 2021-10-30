@@ -181,11 +181,9 @@ defmodule NervesMOTD do
   @spec clock() :: [binary(), ...]
   defp clock() do
     [
-      DateTime.utc_now()
-      |> DateTime.truncate(:second)
-      |> DateTime.to_string()
-      |> String.trim_trailing("Z"),
-      " UTC"
+      NaiveDateTime.local_now()
+      |> NaiveDateTime.truncate(:second)
+      |> NaiveDateTime.to_string()
     ]
   end
 
