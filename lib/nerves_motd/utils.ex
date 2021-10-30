@@ -132,4 +132,26 @@ defmodule NervesMOTD.Utils do
 
     trim_ansidata(rest, result, length_left)
   end
+
+  if Version.match?(System.version(), ">= 1.11.0") and Code.ensure_loaded(NervesTimeZones) do
+    # NervesTimeZones and Calendar.strftime require Elixir 1.11
+    @spec formatted_local_time() :: binary()
+    def formatted_local_time() do
+      # NervesTimeZones is an optional dependency so make sure its started
+      {:ok, _} = Application.ensure_all_started(:nerves_time_zones)
+
+      NervesTimeZones.get_time_zone()
+      |> DateTime.now!()
+      |> DateTime.truncate(:second)
+      |> Calendar.strftime("%c %Z")
+    end
+  else
+    @spec formatted_local_time() :: binary()
+    def formatted_local_time() do
+      NaiveDateTime.utc_now()
+      |> NaiveDateTime.truncate(:second)
+      |> NaiveDateTime.to_string()
+      |> Kernel.<>(" UTC")
+    end
+  end
 end

@@ -60,7 +60,7 @@ defmodule NervesMOTD do
   defp rows() do
     [
       [{"Uptime", uptime()}],
-      [{"Clock", clock()}],
+      [{"Clock", Utils.formatted_local_time()}],
       [],
       [firmware_cell(), applications_cell()],
       [memory_usage_cell(), active_application_partition_cell()],
@@ -176,17 +176,6 @@ defmodule NervesMOTD do
     minutes = if d + h + m > 0, do: :io_lib.format("~p minutes and ", [m])
     seconds = :io_lib.format("~p seconds", [s])
     Enum.reject([days, hours, minutes, seconds], &is_nil/1)
-  end
-
-  @spec clock() :: [binary(), ...]
-  defp clock() do
-    [
-      DateTime.utc_now()
-      |> DateTime.truncate(:second)
-      |> DateTime.to_string()
-      |> String.trim_trailing("Z"),
-      " UTC"
-    ]
   end
 
   @spec load_average() :: iolist()
