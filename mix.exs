@@ -37,8 +37,7 @@ defmodule NervesMOTD.MixProject do
       {:dialyxir, "~> 1.1", only: [:dev, :test], runtime: false},
       {:ex_doc, "~> 0.25", only: :docs, runtime: false},
       {:mix_test_watch, "~> 1.1", only: :dev, runtime: false},
-      {:mox, "~> 1.0", only: :test},
-      {:nerves_time_zones, "~> 0.1", only: :test}
+      {:mox, "~> 1.0", only: :test}
     ]
   end
 

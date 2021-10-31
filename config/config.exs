@@ -24,7 +24,3 @@ config :nerves_runtime, Nerves.Runtime.KV.Mock, %{
 }
 
 config :nerves_motd, runtime_mod: NervesMOTD.MockRuntime
-
-if Mix.env() == :test do
-  config :nerves_time_zones, default_time_zone: "Asia/Tokyo"
-end
