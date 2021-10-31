@@ -133,29 +133,25 @@ defmodule NervesMOTD.Utils do
     trim_ansidata(rest, result, length_left)
   end
 
-  @spec time_with_nerves_time_zones() :: binary() | nil
-  def time_with_nerves_time_zones() do
-    case Code.ensure_loaded(NervesTimeZones) do
-      {:module, mod} ->
-        mod.get_time_zone()
-        |> DateTime.now!()
-        |> DateTime.truncate(:second)
-        |> Map.put(:time_zone, "")
-        |> DateTime.to_string()
-        |> String.replace(~r/[+|-]\d{2}:?\d{2}/, "")
-        |> String.trim()
+  if Version.match?(System.version(), ">= 1.11.0") and Code.ensure_loaded(NervesTimeZones) do
+    # NervesTimeZones and Calendar.strftime require Elixir 1.11
+    @spec formatted_local_time() :: binary()
+    def formatted_local_time() do
+      # NervesTimeZones is an optional dependency so make sure its started
+      {:ok, _} = Application.ensure_all_started(:nerves_time_zones)
 
-      _ ->
-        nil
+      NervesTimeZones.get_time_zone()
+      |> DateTime.now!()
+      |> DateTime.truncate(:second)
+      |> Calendar.strftime("%c %Z")
     end
-  end
-
-  @spec utc_time() :: binary()
-  def utc_time() do
-    DateTime.utc_now()
-    |> DateTime.truncate(:second)
-    |> DateTime.to_string()
-    |> String.trim_trailing("Z")
-    |> Kernel.<>(" UTC")
+  else
+    @spec formatted_local_time() :: binary()
+    def formatted_local_time() do
+      NaiveDateTime.utc_now()
+      |> NaiveDateTime.truncate(:second)
+      |> NaiveDateTime.to_string()
+      |> Kernel.<>(" UTC")
+    end
   end
 end

@@ -38,7 +38,15 @@ defmodule NervesMOTD.MixProject do
       {:ex_doc, "~> 0.25", only: :docs, runtime: false},
       {:mix_test_watch, "~> 1.1", only: :dev, runtime: false},
       {:mox, "~> 1.0", only: :test}
-    ]
+    ] ++ maybe_nerves_time_zones()
+  end
+
+  if Version.match?(System.version(), ">= 1.11.0") do
+    defp maybe_nerves_time_zones() do
+      [{:nerves_time_zones, "~> 0.1", optional: true}]
+    end
+  else
+    defp maybe_nerves_time_zones(), do: []
   end
 
   defp docs do
@@ -65,7 +73,8 @@ defmodule NervesMOTD.MixProject do
 
   defp dialyzer() do
     [
-      flags: [:race_conditions, :unmatched_returns, :error_handling, :underspecs]
+      flags: [:race_conditions, :unmatched_returns, :error_handling, :underspecs],
+      plt_add_apps: [:nerves_time_zones]
     ]
   end
 end

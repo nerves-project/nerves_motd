@@ -42,9 +42,16 @@ defmodule NervesMOTD.UtilsTest do
     end
   end
 
-  describe "utc_time/0" do
-    test "formats correctly" do
-      assert Utils.utc_time() =~ ~r/\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2} UTC/
+  describe "formatted_local_time/0" do
+    @tag :has_nerves_time_zones
+    test "formats correctly with zone information" do
+      # Japan doesn't observe daylight savings time so the time zone is JST all year
+      assert Utils.formatted_local_time() =~ ~r/\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2} JST/
+    end
+
+    @tag :no_nerves_time_zones
+    test "formats correctly without zone information" do
+      assert Utils.formatted_local_time() =~ ~r/\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2} UTC/
     end
   end
 end
