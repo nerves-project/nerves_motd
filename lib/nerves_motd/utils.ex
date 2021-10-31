@@ -132,4 +132,30 @@ defmodule NervesMOTD.Utils do
 
     trim_ansidata(rest, result, length_left)
   end
+
+  @spec time_with_nerves_time_zones() :: binary() | nil
+  def time_with_nerves_time_zones() do
+    case Code.ensure_loaded(NervesTimeZones) do
+      {:module, mod} ->
+        mod.get_time_zone()
+        |> DateTime.now!()
+        |> DateTime.truncate(:second)
+        |> Map.put(:time_zone, "")
+        |> DateTime.to_string()
+        |> String.replace(~r/[+|-]\d{2}:?\d{2}/, "")
+        |> String.trim()
+
+      _ ->
+        nil
+    end
+  end
+
+  @spec utc_time() :: binary()
+  def utc_time() do
+    DateTime.utc_now()
+    |> DateTime.truncate(:second)
+    |> DateTime.to_string()
+    |> String.trim_trailing("Z")
+    |> Kernel.<>(" UTC")
+  end
 end

@@ -178,60 +178,9 @@ defmodule NervesMOTD do
     Enum.reject([days, hours, minutes, seconds], &is_nil/1)
   end
 
-  @spec clock() :: binary() | [binary()]
+  @spec clock() :: binary()
   defp clock() do
-    local_time(NervesTimeZones) || local_time(NaiveDateTime) || utc_time()
-  end
-
-  # 2021-10-30 11:50:09-04:00 EDT America/New_York
-  defp local_time(NervesTimeZones) do
-    case Code.ensure_loaded(NervesTimeZones) do
-      {:module, mod} ->
-        mod.get_time_zone()
-        |> DateTime.now!()
-        |> DateTime.truncate(:second)
-        |> DateTime.to_string()
-
-      _ ->
-        nil
-    end
-  end
-
-  # 2021-10-30 11:49:44-0400 EDT
-  defp local_time(NaiveDateTime) do
-    if Version.match?(System.version(), "~> 1.10") do
-      case Code.ensure_loaded(NaiveDateTime) do
-        {:module, mod} ->
-          [
-            mod.local_now()
-            |> NaiveDateTime.truncate(:second)
-            |> NaiveDateTime.to_string(),
-            system_time_zone_name()
-          ]
-
-        _ ->
-          nil
-      end
-    end
-  end
-
-  # 2021-10-30 15:49:30+0000 UTC
-  defp utc_time() do
-    [
-      DateTime.utc_now()
-      |> DateTime.truncate(:second)
-      |> DateTime.to_string()
-      |> String.trim_trailing("Z"),
-      "+0000 UTC"
-    ]
-  end
-
-  defp system_time_zone_name() do
-    # -0400 EDT
-    case System.cmd("date", ["+%z %Z"]) do
-      {tz_str, 0} -> tz_str |> String.trim()
-      _ -> ""
-    end
+    Utils.time_with_nerves_time_zones() || Utils.utc_time()
   end
 
   @spec load_average() :: iolist()

@@ -41,4 +41,19 @@ defmodule NervesMOTD.UtilsTest do
       assert Utils.subnet_mask_to_prefix(ipv6("::")) == 0
     end
   end
+
+  # the dependency :nerves_time_zones requires Elixir "~> 1.11"
+  if {:module, NervesTimeZones} == Code.ensure_loaded(NervesTimeZones) do
+    describe "time_with_nerves_time_zones/0" do
+      test "formats correctly based on current time zone" do
+        assert Utils.time_with_nerves_time_zones() =~ ~r/\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2} JST/
+      end
+    end
+  end
+
+  describe "utc_time/0" do
+    test "formats correctly" do
+      assert Utils.utc_time() =~ ~r/\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2} UTC/
+    end
+  end
 end
