@@ -25,6 +25,10 @@ defmodule NervesMOTDTest do
     assert :ok = NervesMOTD.print()
   end
 
+  test "print failure" do
+    assert capture_motd("bad option") =~ ~r/Could not print MOTD: .*/
+  end
+
   @nerves_logo_regex ~r/N  E  R  V  E  S/
 
   test "Default logo" do

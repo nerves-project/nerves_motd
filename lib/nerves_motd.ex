@@ -49,6 +49,8 @@ defmodule NervesMOTD do
     ]
     |> IO.ANSI.format()
     |> IO.puts()
+  rescue
+    error -> IO.puts("Could not print MOTD: #{inspect(error)}")
   end
 
   @spec logo([option()]) :: iodata()
