@@ -124,6 +124,14 @@ defmodule NervesMOTDTest do
     assert capture_motd() =~ ~r/Part usage   : \e\[31mnot available\e\[0m/
   end
 
+  test "No application partition" do
+    old_devpath = Nerves.Runtime.KV.get_active("nerves_fw_application_part0_devpath")
+    Nerves.Runtime.KV.put_active("nerves_fw_application_part0_devpath", nil)
+    result = capture_motd()
+    Nerves.Runtime.KV.put_active("nerves_fw_application_part0_devpath", old_devpath)
+    assert result =~ ~r/Part usage   : \e\[31mnot available\e\[0m/
+  end
+
   test "IP addresses" do
     assert capture_motd() =~ ~r/\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\/\d{1,3}/
   end

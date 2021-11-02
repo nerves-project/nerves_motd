@@ -141,22 +141,27 @@ defmodule NervesMOTD do
 
   @spec active_application_partition_cell() :: cell()
   defp active_application_partition_cell() do
+    label = "Part usage"
     app_partition_path = Nerves.Runtime.KV.get_active("nerves_fw_application_part0_devpath")
 
-    case runtime_mod().filesystem_stats(app_partition_path) do
-      {:ok, stats} ->
-        text = :io_lib.format("~p MB (~p%)", [stats.used_mb, stats.used_percent])
+    with true <- devpath_specified?(app_partition_path),
+         {:ok, stats} <- runtime_mod().filesystem_stats(app_partition_path) do
+      text = :io_lib.format("~p MB (~p%)", [stats.used_mb, stats.used_percent])
 
-        if stats.used_percent < 85 do
-          {"Part usage", text}
-        else
-          {"Part usage", [:red, text]}
-        end
-
-      :error ->
-        {"Part usage", [:red, "not available"]}
+      if stats.used_percent < 85 do
+        {label, text}
+      else
+        {label, [:red, text]}
+      end
+    else
+      _ ->
+        {label, [:red, "not available"]}
     end
   end
+
+  defp devpath_specified?(nil), do: false
+  defp devpath_specified?(""), do: false
+  defp devpath_specified?(path) when is_binary(path), do: true
 
   @spec uname() :: iolist()
   defp uname() do
