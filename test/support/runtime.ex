@@ -31,5 +31,8 @@ defmodule NervesMOTD.Runtime.Host do
   def memory_stats(), do: {:ok, %{size_mb: 316, used_mb: 78, used_percent: 25}}
 
   @impl NervesMOTD.Runtime
-  def filesystem_stats(_filename), do: {:ok, %{size_mb: 14_619, used_mb: 37, used_percent: 0}}
+  def filesystem_stats("/dev/mmcblk0p3") do
+    # Raise if the path isn't the expected one for the unit tests
+    {:ok, %{size_mb: 14_619, used_mb: 37, used_percent: 0}}
+  end
 end
