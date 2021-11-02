@@ -2,6 +2,15 @@
 
 This project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## v0.1.5 - 2021-11-02
+
+* Improvements
+  * Print local time when a time zone has been set with `NervesTimeZones`
+  * Handle exceptions from `NervesMOTD.print/1` so they don't prematurely end
+    `iex.exs` scripts
+  * Handle Nerves configurations that do not have an application data partition
+  * Simplify text handling internally by using Elixir's `ansidata` throughout
+
 ## v0.1.4 - 2021-10-17
 
 * Improvements
