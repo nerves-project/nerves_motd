@@ -133,7 +133,7 @@ defmodule NervesMOTD.Utils do
     trim_ansidata(rest, result, length_left)
   end
 
-  if Version.match?(System.version(), ">= 1.11.0") and Code.ensure_loaded(NervesTimeZones) do
+  if Version.match?(System.version(), ">= 1.11.0") and Code.ensure_loaded?(NervesTimeZones) do
     # NervesTimeZones and Calendar.strftime require Elixir 1.11
     @spec formatted_local_time() :: binary()
     def formatted_local_time() do
