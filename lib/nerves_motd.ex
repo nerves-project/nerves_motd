@@ -21,9 +21,19 @@ defmodule NervesMOTD do
   @typedoc """
   MOTD options
   """
-  @type option() :: {:logo, iodata()}
+  @type option() :: {:logo, iodata()} | {:extra_rows, [row()]}
 
-  @typep cell() :: {String.t(), IO.ANSI.ansidata()}
+  @typedoc """
+  One row of information
+
+  A row may contain 0, 1 or 2 cells.
+  """
+  @type row() :: [cell()]
+
+  @typedoc """
+  A label and value
+  """
+  @type cell() :: {String.t(), IO.ANSI.ansidata()}
 
   @doc """
   Print the message of the day
@@ -32,6 +42,7 @@ defmodule NervesMOTD do
 
   * `:logo` - a custom logo to display instead of the default Nerves logo. Pass
     an empty logo (`""`) to remove it completely.
+  * `:extra_rows` - custom rows that append to the end of the MOTD.
   """
   @spec print([option()]) :: :ok
   def print(opts \\ []) do
@@ -41,7 +52,7 @@ defmodule NervesMOTD do
       logo(opts),
       uname(),
       "\n",
-      Enum.map(rows(), &format_row/1),
+      Enum.map(rows(opts), &format_row/1),
       "\n",
       """
       Nerves CLI help: https://hexdocs.pm/nerves/using-the-cli.html
@@ -58,8 +69,8 @@ defmodule NervesMOTD do
     Keyword.get(opts, :logo, @logo)
   end
 
-  @spec rows() :: [[cell()]]
-  defp rows() do
+  @spec rows(list()) :: [[cell()]]
+  defp rows(opts) do
     [
       [{"Uptime", uptime()}],
       [{"Clock", Utils.formatted_local_time()}],
@@ -69,6 +80,7 @@ defmodule NervesMOTD do
       [{"Hostname", hostname()}, {"Load average", load_average()}],
       []
     ] ++ ip_address_rows()
+      ++ Keyword.get(opts, :extra_rows, [])
   end
 
   @spec format_row([cell()]) :: iolist()
