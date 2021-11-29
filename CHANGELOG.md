@@ -2,6 +2,13 @@
 
 This project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## v0.1.6 - 2021-11-29
+
+* Improvements
+  * Add `:extra_rows` option to allow users to supply additional information to
+    be printed in the MOTD. The use case for this is to show project-specific
+    information like MQTT connection status in addition to the generic info.
+
 ## v0.1.5 - 2021-11-02
 
 * Improvements
