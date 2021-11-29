@@ -21,7 +21,7 @@ defmodule NervesMOTD do
   @typedoc """
   MOTD options
   """
-  @type option() :: {:logo, iodata()} | {:extra_rows, [row()]}
+  @type option() :: {:logo, IO.ANSI.ansidata()} | {:extra_rows, [row()]}
 
   @typedoc """
   One row of information
@@ -64,7 +64,7 @@ defmodule NervesMOTD do
     error -> IO.puts("Could not print MOTD: #{inspect(error)}")
   end
 
-  @spec logo([option()]) :: iodata()
+  @spec logo([option()]) :: IO.ANSI.ansidata()
   defp logo(opts) do
     Keyword.get(opts, :logo, @logo)
   end
