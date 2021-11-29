@@ -79,8 +79,9 @@ defmodule NervesMOTD do
       [memory_usage_cell(), active_application_partition_cell()],
       [{"Hostname", hostname()}, {"Load average", load_average()}],
       []
-    ] ++ ip_address_rows()
-      ++ Keyword.get(opts, :extra_rows, [])
+    ] ++
+      ip_address_rows() ++
+      Keyword.get(opts, :extra_rows, [])
   end
 
   @spec format_row([cell()]) :: iolist()
