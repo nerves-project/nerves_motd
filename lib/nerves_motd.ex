@@ -50,6 +50,7 @@ defmodule NervesMOTD do
 
     [
       logo(opts),
+      IO.ANSI.reset(),
       uname(),
       "\n",
       Enum.map(rows(opts), &format_row/1),
