@@ -26,6 +26,17 @@ NervesMOTD.print(
 )
 ```
 
+You can append your custom rows by passing the `:extra_rows` parameter to `NervesMOTD.print/1`.
+
+```elixir
+NervesMOTD.print(
+  extra_rows: [
+    [{"Label", "value"}, {"Label2", "value2"}],
+    [{"Long label", "Lots of text"}]
+  ]
+)
+```
+
 ## Installation
 
 Install by adding `:nerves_motd` to your list of dependencies in `mix.exs`:
