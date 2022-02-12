@@ -53,7 +53,7 @@ Documentation is at [https://hexdocs.pm/nerves_motd](https://hexdocs.pm/nerves_m
 
 ## License
 
-Copyright (C) 2021 Masatoshi Nishiguchi, Nerves Project Authors
+Copyright (C) 2022 Masatoshi Nishiguchi, Nerves Project Authors
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
