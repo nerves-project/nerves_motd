@@ -49,7 +49,7 @@ def deps do
 end
 ```
 
-Documentation is at [https://hexdocs.pm/nerves_motd](https://hexdocs.pm/nerves_motd).
+For details, see [API reference](https://hexdocs.pm/nerves_motd/api-reference.html).
 
 ## License
 
