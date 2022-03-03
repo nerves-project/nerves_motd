@@ -38,6 +38,9 @@ defmodule NervesMOTD do
   @doc """
   Print the message of the day
 
+  This uses the Nerves.Runtime library. In the unlikely event that it's not
+  available, it assumes the system isn't ready and doesn't print the MOTD.
+
   Options:
 
   * `:logo` - a custom logo to display instead of the default Nerves logo. Pass
@@ -46,37 +49,43 @@ defmodule NervesMOTD do
   """
   @spec print([option()]) :: :ok
   def print(opts \\ []) do
-    {:ok, _} = Application.ensure_all_started(:nerves_runtime)
+    apps = runtime_mod().applications()
 
-    [
-      logo(opts),
-      IO.ANSI.reset(),
-      uname(),
-      "\n",
-      Enum.map(rows(opts), &format_row/1),
-      "\n",
-      """
-      Nerves CLI help: https://hexdocs.pm/nerves/using-the-cli.html
-      """
-    ]
-    |> IO.ANSI.format()
-    |> IO.puts()
+    if ready?(apps) do
+      [
+        logo(opts),
+        IO.ANSI.reset(),
+        uname(),
+        "\n",
+        Enum.map(rows(apps, opts), &format_row/1),
+        "\n",
+        """
+        Nerves CLI help: https://hexdocs.pm/nerves/using-the-cli.html
+        """
+      ]
+      |> IO.ANSI.format()
+      |> IO.puts()
+    end
+
+    :ok
   rescue
     error -> IO.puts("Could not print MOTD: #{inspect(error)}")
   end
+
+  defp ready?(apps), do: :nerves_runtime in apps.started
 
   @spec logo([option()]) :: IO.ANSI.ansidata()
   defp logo(opts) do
     Keyword.get(opts, :logo, @logo)
   end
 
-  @spec rows(list()) :: [[cell()]]
-  defp rows(opts) do
+  @spec rows(map(), list()) :: [[cell()]]
+  defp rows(apps, opts) do
     [
       [{"Uptime", uptime()}],
       [{"Clock", Utils.formatted_local_time()}],
       [],
-      [firmware_cell(), applications_cell()],
+      [firmware_cell(), applications_cell(apps)],
       [memory_usage_cell(), active_application_partition_cell()],
       [{"Hostname", hostname()}, {"Load average", load_average()}],
       []
@@ -122,9 +131,8 @@ defmodule NervesMOTD do
     end
   end
 
-  @spec applications_cell() :: cell()
-  defp applications_cell() do
-    apps = runtime_mod().applications()
+  @spec applications_cell(%{loaded: list(), started: list()}) :: cell()
+  defp applications_cell(apps) do
     started_count = length(apps[:started])
     loaded_count = length(apps[:loaded])
 
