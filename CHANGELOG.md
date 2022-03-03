@@ -2,6 +2,16 @@
 
 This project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## v0.1.7 - 2022-03-03
+
+* Improvements
+  * Skip printing MOTD if Nerves.Runtime isn't started. The previous behavior
+    was to try to start Nerves.Runtime. The scenario this mostly affects is
+    printing the MOTD to the serial console right after Elixir loads, but before
+    Nerves.Runtime and the rest. Besides printing a slightly confusing MOTD of a
+    partially started system, it also could reorder OTP application from the
+    boot script.
+
 ## v0.1.6 - 2021-11-29
 
 * Improvements
