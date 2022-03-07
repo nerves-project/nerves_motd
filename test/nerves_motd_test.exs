@@ -190,7 +190,7 @@ defmodule NervesMOTDTest do
     |> Mox.expect(:applications, 1, default_applications_code())
 
     old_devpath = Nerves.Runtime.KV.get_active("nerves_fw_application_part0_devpath")
-    Nerves.Runtime.KV.put_active("nerves_fw_application_part0_devpath", nil)
+    Nerves.Runtime.KV.put_active("nerves_fw_application_part0_devpath", "")
     result = capture_motd()
     Nerves.Runtime.KV.put_active("nerves_fw_application_part0_devpath", old_devpath)
     assert result =~ ~r/Part usage   : \e\[31mnot available\e\[0m/
