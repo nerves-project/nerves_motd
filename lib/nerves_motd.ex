@@ -207,7 +207,7 @@ defmodule NervesMOTD do
     Enum.reject([days, hours, minutes, seconds], &is_nil/1)
   end
 
-  @spec load_average() :: iolist()
+  @spec load_average() :: iodata()
   defp load_average() do
     case runtime_mod().load_average() do
       [a, b, c | _] -> [a, " ", b, " ", c]
