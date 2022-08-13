@@ -60,7 +60,7 @@ defmodule NervesMOTD do
         Enum.map(rows(apps, opts), &format_row/1),
         "\n",
         """
-        Nerves CLI help: https://hexdocs.pm/nerves/using-the-cli.html
+        Nerves CLI help: https://hexdocs.pm/nerves/iex-with-nerves.html
         """
       ]
       |> IO.ANSI.format()
