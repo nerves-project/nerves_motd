@@ -88,6 +88,22 @@ defmodule NervesMOTDTest do
     assert capture_motd() =~ ~r/Clock        : \d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2} \w{3}/
   end
 
+  test "Temperature when available" do
+    NervesMOTD.MockRuntime
+    |> Mox.expect(:applications, 1, default_applications_code())
+    |> Mox.expect(:cpu_temperature, 1, fn -> {:ok, 41.234} end)
+
+    assert capture_motd() =~ ~r/Temperature  : 41.2/
+  end
+
+  test "Temperature when unavailable" do
+    NervesMOTD.MockRuntime
+    |> Mox.expect(:applications, 1, default_applications_code())
+    |> Mox.expect(:cpu_temperature, 1, fn -> :error end)
+
+    refute capture_motd() =~ ~r/Temperature/
+  end
+
   test "Firmware when valid" do
     NervesMOTD.MockRuntime
     |> Mox.expect(:applications, 1, default_applications_code())
