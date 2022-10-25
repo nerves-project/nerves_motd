@@ -84,6 +84,7 @@ defmodule NervesMOTD do
     [
       [{"Uptime", uptime()}],
       [{"Clock", Utils.formatted_local_time()}],
+      temperature_row(),
       [],
       [firmware_cell(), applications_cell(apps)],
       [memory_usage_cell(), active_application_partition_cell()],
@@ -106,6 +107,19 @@ defmodule NervesMOTD do
   # A row with two columns
   defp format_row([col0, col1]) do
     ["  ", format_cell(col0, 0), format_cell(col1, 1), "\n"]
+  end
+
+  defp format_row(nil), do: []
+
+  @spec temperature_row() :: [cell()] | nil
+  defp temperature_row() do
+    case runtime_mod().cpu_temperature() do
+      {:ok, temperature_c} ->
+        [{"Temperature", :erlang.float_to_binary(temperature_c, decimals: 1)}]
+
+      _ ->
+        nil
+    end
   end
 
   @spec format_cell(cell(), 0 | 1) :: IO.ANSI.ansidata()

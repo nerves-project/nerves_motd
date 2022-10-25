@@ -1,6 +1,7 @@
 defmodule NervesMOTD.Runtime do
   @moduledoc false
   @callback applications() :: %{started: [atom()], loaded: [atom()]}
+  @callback cpu_temperature() :: {:ok, float()} | :error
   @callback firmware_valid?() :: boolean()
   @callback load_average() :: [String.t()]
   @callback memory_stats() ::
@@ -31,6 +32,21 @@ defmodule NervesMOTD.Runtime.Target do
     loaded = Enum.map(Application.loaded_applications(), &elem(&1, 0))
 
     %{started: started, loaded: loaded}
+  end
+
+  @impl NervesMOTD.Runtime
+  def cpu_temperature() do
+    # Read the file /sys/class/thermal/thermal_zone0/temp. The file content is
+    # an integer in millidegree Celsius, which looks like:
+    #
+    #     39008\n
+
+    with {:ok, content} <- File.read("/sys/class/thermal/thermal_zone0/temp"),
+         {millidegree_c, _} <- Integer.parse(content) do
+      {:ok, millidegree_c / 1000}
+    else
+      _error -> :error
+    end
   end
 
   @impl NervesMOTD.Runtime
