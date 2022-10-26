@@ -2,6 +2,14 @@
 
 This project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## v0.1.8 - 2022-10-26
+
+* Improvements
+  * Show CPU temperature on MOTD
+  * Support OTP 25
+  * Update the Nerves CLI help url
+  * Fix tests with nerves_runtime >= 0.11.9
+
 ## v0.1.7 - 2022-03-03
 
 * Improvements
