@@ -115,7 +115,7 @@ defmodule NervesMOTD do
   defp temperature_row() do
     case runtime_mod().cpu_temperature() do
       {:ok, temperature_c} ->
-        [{"Temperature", :erlang.float_to_binary(temperature_c, decimals: 1)}]
+        [{"Temperature", [:erlang.float_to_binary(temperature_c, decimals: 1), "°C"]}]
 
       _ ->
         nil

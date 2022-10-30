@@ -93,7 +93,7 @@ defmodule NervesMOTDTest do
     |> Mox.expect(:applications, 1, default_applications_code())
     |> Mox.expect(:cpu_temperature, 1, fn -> {:ok, 41.234} end)
 
-    assert capture_motd() =~ ~r/Temperature  : 41.2/
+    assert capture_motd() =~ ~r/Temperature  : 41.2°C/
   end
 
   test "Temperature when unavailable" do
