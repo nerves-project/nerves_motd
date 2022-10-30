@@ -84,7 +84,7 @@ defmodule NervesMOTD do
     [
       [{"Serial", serial_number()}],
       [{"Uptime", uptime()}],
-      [{"Clock", Utils.formatted_local_time()}],
+      [clock_cell()],
       temperature_row(),
       [],
       [firmware_cell(), applications_cell(apps)],
@@ -134,6 +134,18 @@ defmodule NervesMOTD do
   @spec format_cell_value(IO.ANSI.ansidata(), 0 | 1, pos_integer()) :: IO.ANSI.ansidata()
   defp format_cell_value(value, 0, width), do: Utils.fit_ansidata(value, width)
   defp format_cell_value(value, 1, _width), do: value
+
+  @spec clock_cell() :: cell()
+  defp clock_cell() do
+    formatted_clock =
+      if runtime_mod().time_synchronized?() do
+        Utils.formatted_local_time()
+      else
+        [:yellow, Utils.formatted_local_time(), " (unsynchronized)", :reset]
+      end
+
+    {"Clock", formatted_clock}
+  end
 
   @spec firmware_cell() :: cell()
   defp firmware_cell() do

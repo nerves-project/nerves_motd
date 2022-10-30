@@ -113,6 +113,17 @@ defmodule NervesMOTDTest do
     assert capture_motd() =~ ~r/Clock        : \d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2} \w{3}/
   end
 
+  test "Clock gets highlighted when not synchronized" do
+    NervesMOTD.MockRuntime
+    |> Mox.expect(:applications, 1, default_applications_code())
+    |> Mox.expect(:active_partition, 1, fn -> "A" end)
+    |> Mox.expect(:firmware_validity, 1, fn -> :valid end)
+    |> Mox.expect(:time_synchronized?, 1, fn -> false end)
+
+    assert capture_motd() =~
+             ~r/Clock        : \d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2} \w{3} \(unsynchronized\)/
+  end
+
   test "Temperature when available" do
     NervesMOTD.MockRuntime
     |> Mox.expect(:applications, 1, default_applications_code())
