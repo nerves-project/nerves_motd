@@ -21,6 +21,7 @@ defmodule NervesMOTD.Runtime do
                  used_percent: non_neg_integer()
                }}
               | :error
+  @callback time_synchronized?() :: boolean()
 end
 
 defmodule NervesMOTD.Runtime.Target do
@@ -111,5 +112,13 @@ defmodule NervesMOTD.Runtime.Target do
   rescue
     # In case the `df` command is not available or any of the out parses incorrectly
     _error -> :error
+  end
+
+  if Code.ensure_loaded?(NervesTime) do
+    @impl NervesMOTD.Runtime
+    def time_synchronized?(), do: apply(NervesTime, :synchronized?, [])
+  else
+    @impl NervesMOTD.Runtime
+    def time_synchronized?(), do: true
   end
 end
