@@ -1,6 +1,7 @@
 defmodule NervesMOTD.Runtime do
   @moduledoc false
   @callback applications() :: %{started: [atom()], loaded: [atom()]}
+  @callback count_log_messages() :: {:ok, non_neg_integer()} | :error
   @callback cpu_temperature() :: {:ok, float()} | :error
   @callback firmware_valid?() :: boolean()
   @callback load_average() :: [String.t()]
@@ -32,6 +33,20 @@ defmodule NervesMOTD.Runtime.Target do
     loaded = Enum.map(Application.loaded_applications(), &elem(&1, 0))
 
     %{started: started, loaded: loaded}
+  end
+
+  if Code.ensure_loaded?(RingLogger) and
+       not is_nil(apply(RingLogger, :__info__, [:functions])[:count_next]) do
+    @impl NervesMOTD.Runtime
+    def count_log_messages() do
+      case apply(RingLogger, :count_next, []) do
+        count when is_integer(count) -> {:ok, count}
+        _ -> :error
+      end
+    end
+  else
+    @impl NervesMOTD.Runtime
+    def count_log_messages(), do: :error
   end
 
   @impl NervesMOTD.Runtime

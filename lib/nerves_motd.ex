@@ -61,6 +61,8 @@ defmodule NervesMOTD do
         "\n",
         """
         Nerves CLI help: https://hexdocs.pm/nerves/iex-with-nerves.html
+
+        #{logger_text()}
         """
       ]
       |> IO.ANSI.format()
@@ -77,6 +79,17 @@ defmodule NervesMOTD do
   @spec logo([option()]) :: IO.ANSI.ansidata()
   defp logo(opts) do
     Keyword.get(opts, :logo, @logo)
+  end
+
+  @spec logger_text() :: String.t()
+  defp logger_text() do
+    case runtime_mod().count_log_messages() do
+      {:ok, count} ->
+        "You have #{count} unread log messages"
+
+      _ ->
+        ""
+    end
   end
 
   @spec rows(map(), list()) :: [[cell()]]

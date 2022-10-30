@@ -59,6 +59,13 @@ defmodule NervesMOTDTest do
     refute capture_motd(logo: "") =~ @nerves_logo_regex
   end
 
+  test "Logger text" do
+    NervesMOTD.MockRuntime
+    |> Mox.expect(:applications, 1, default_applications_code())
+
+    assert capture_motd() =~ ~r/You have 123 unread log messages/
+  end
+
   test "Custom rows" do
     NervesMOTD.MockRuntime
     |> Mox.expect(:applications, 1, default_applications_code())
