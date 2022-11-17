@@ -2,6 +2,11 @@
 
 This project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## v0.1.9 - 2022-11-17
+
+* Improvements
+  * Append `"°C"` to temperature value
+
 ## v0.1.8 - 2022-10-26
 
 * Improvements
