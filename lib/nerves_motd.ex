@@ -14,7 +14,7 @@ defmodule NervesMOTD do
   \e[38;5;24m███▌    \e[38;5;74m▀▀████\e[0m
   """
 
-  alias NervesMOTD.Utils
+  alias NervesMOTD.SystemInfo
 
   @excluded_ifnames ['lo', 'lo0']
 
@@ -55,7 +55,7 @@ defmodule NervesMOTD do
       [
         logo(opts),
         IO.ANSI.reset(),
-        uname(),
+        SystemInfo.uname(),
         "\n",
         Enum.map(rows(apps, opts), &format_row/1),
         "\n",
@@ -82,13 +82,22 @@ defmodule NervesMOTD do
   @spec rows(map(), list()) :: [[cell()]]
   defp rows(apps, opts) do
     [
-      [{"Uptime", uptime()}],
-      [{"Clock", Utils.formatted_local_time()}],
-      temperature_row(),
+      [{"Uptime", SystemInfo.uptime_text()}],
+      [{"Clock", SystemInfo.clock_text()}],
+      if(text = SystemInfo.cpu_temperature_text(), do: [{"Temperature", text}]),
       [],
-      [firmware_cell(), applications_cell(apps)],
-      [memory_usage_cell(), active_application_partition_cell()],
-      [{"Hostname", hostname()}, {"Load average", load_average()}],
+      [
+        {"Firmware", SystemInfo.firmware_status_text()},
+        {"Applications", SystemInfo.applications_text(apps)}
+      ],
+      [
+        {"Memory usage", SystemInfo.memory_usage_text()},
+        {"Part usage", SystemInfo.active_part_usage_text()}
+      ],
+      [
+        {"Hostname", SystemInfo.hostname_text()},
+        {"Load average", SystemInfo.load_average_text()}
+      ],
       []
     ] ++
       ip_address_rows() ++
@@ -111,128 +120,17 @@ defmodule NervesMOTD do
 
   defp format_row(nil), do: []
 
-  @spec temperature_row() :: [cell()] | nil
-  defp temperature_row() do
-    case runtime_mod().cpu_temperature() do
-      {:ok, temperature_c} ->
-        [{"Temperature", [:erlang.float_to_binary(temperature_c, decimals: 1), "°C"]}]
-
-      _ ->
-        nil
-    end
-  end
-
   @spec format_cell(cell(), 0 | 1) :: IO.ANSI.ansidata()
   defp format_cell({label, value}, column_index) do
     [format_cell_label(label), " : ", format_cell_value(value, column_index, 24), :reset]
   end
 
   @spec format_cell_label(IO.ANSI.ansidata()) :: IO.ANSI.ansidata()
-  defp format_cell_label(label), do: Utils.fit_ansidata(label, 12)
+  defp format_cell_label(label), do: SystemInfo.fit_ansidata(label, 12)
 
   @spec format_cell_value(IO.ANSI.ansidata(), 0 | 1, pos_integer()) :: IO.ANSI.ansidata()
-  defp format_cell_value(value, 0, width), do: Utils.fit_ansidata(value, width)
+  defp format_cell_value(value, 0, width), do: SystemInfo.fit_ansidata(value, width)
   defp format_cell_value(value, 1, _width), do: value
-
-  @spec firmware_cell() :: cell()
-  defp firmware_cell() do
-    fw_active = Nerves.Runtime.KV.get("nerves_fw_active") |> String.upcase()
-
-    if runtime_mod().firmware_valid?() do
-      {"Firmware", [:green, "Valid (#{fw_active})"]}
-    else
-      {"Firmware", [:red, "Not validated (#{fw_active})"]}
-    end
-  end
-
-  @spec applications_cell(%{loaded: list(), started: list()}) :: cell()
-  defp applications_cell(apps) do
-    started_count = length(apps[:started])
-    loaded_count = length(apps[:loaded])
-
-    if started_count == loaded_count do
-      {"Applications", "#{started_count} started"}
-    else
-      not_started = Enum.join(apps[:loaded] -- apps[:started], ", ")
-      {"Applications", [:yellow, "#{started_count} started (#{not_started} not started)"]}
-    end
-  end
-
-  @spec memory_usage_cell() :: cell()
-  defp memory_usage_cell() do
-    case runtime_mod().memory_stats() do
-      {:ok, stats} ->
-        text = :io_lib.format("~p MB (~p%)", [stats.used_mb, stats.used_percent])
-
-        if stats.used_percent < 85 do
-          {"Memory usage", text}
-        else
-          {"Memory usage", [:red, text]}
-        end
-
-      :error ->
-        {"Memory usage", [:red, "not available"]}
-    end
-  end
-
-  @spec active_application_partition_cell() :: cell()
-  defp active_application_partition_cell() do
-    label = "Part usage"
-    app_partition_path = Nerves.Runtime.KV.get_active("nerves_fw_application_part0_devpath")
-
-    with true <- devpath_specified?(app_partition_path),
-         {:ok, stats} <- runtime_mod().filesystem_stats(app_partition_path) do
-      text = :io_lib.format("~p MB (~p%)", [stats.used_mb, stats.used_percent])
-
-      if stats.used_percent < 85 do
-        {label, text}
-      else
-        {label, [:red, text]}
-      end
-    else
-      _ ->
-        {label, [:red, "not available"]}
-    end
-  end
-
-  defp devpath_specified?(nil), do: false
-  defp devpath_specified?(""), do: false
-  defp devpath_specified?(path) when is_binary(path), do: true
-
-  @spec uname() :: iolist()
-  defp uname() do
-    fw_architecture = Nerves.Runtime.KV.get_active("nerves_fw_architecture")
-    fw_platform = Nerves.Runtime.KV.get_active("nerves_fw_platform")
-    fw_product = Nerves.Runtime.KV.get_active("nerves_fw_product")
-    fw_version = Nerves.Runtime.KV.get_active("nerves_fw_version")
-    fw_uuid = Nerves.Runtime.KV.get_active("nerves_fw_uuid")
-    [fw_product, " ", fw_version, " (", fw_uuid, ") ", fw_architecture, " ", fw_platform]
-  end
-
-  # https://github.com/erlang/otp/blob/1c63b200a677ec7ac12202ddbcf7710884b16ff2/lib/stdlib/src/c.erl#L1118
-  @spec uptime() :: iolist()
-  defp uptime() do
-    {uptime, _} = :erlang.statistics(:wall_clock)
-    {d, {h, m, s}} = :calendar.seconds_to_daystime(div(uptime, 1000))
-    days = if d > 0, do: :io_lib.format("~p days, ", [d])
-    hours = if d + h > 0, do: :io_lib.format("~p hours, ", [h])
-    minutes = if d + h + m > 0, do: :io_lib.format("~p minutes and ", [m])
-    seconds = :io_lib.format("~p seconds", [s])
-    Enum.reject([days, hours, minutes, seconds], &is_nil/1)
-  end
-
-  @spec load_average() :: iodata()
-  defp load_average() do
-    case runtime_mod().load_average() do
-      [a, b, c | _] -> [a, " ", b, " ", c]
-      _ -> "error"
-    end
-  end
-
-  @spec hostname() :: [byte()]
-  defp hostname() do
-    :inet.gethostname() |> elem(1)
-  end
 
   @spec ip_address_rows() :: [[cell()]]
   defp ip_address_rows() do
@@ -245,19 +143,14 @@ defmodule NervesMOTD do
 
   @spec ip_address_row({charlist(), keyword()}) :: [cell()]
   defp ip_address_row({name, ifaddrs}) when name not in @excluded_ifnames do
-    case Utils.extract_ifaddr_addresses(ifaddrs) do
+    case SystemInfo.extract_ifaddr_addresses(ifaddrs) do
       [] ->
         # Skip interfaces without addresses
         []
 
       addresses ->
         # Create a comma-separated list of IP addresses
-        formatted_list =
-          addresses
-          |> Enum.map(&Utils.ip_address_mask_to_string/1)
-          |> Enum.intersperse(", ")
-
-        [{name, formatted_list}]
+        [{name, SystemInfo.join_ip_addresses(addresses, ", ")}]
     end
   end
 
