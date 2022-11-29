@@ -6,7 +6,9 @@ defmodule NervesMOTD do
   your Nerves project.
   """
 
-  @logo """
+  alias NervesMOTD.{LayoutView, SystemInfo}
+
+  @nerves_logo """
   \e[38;5;24m████▄▄    \e[38;5;74m▐███
   \e[38;5;24m█▌  ▀▀██▄▄  \e[38;5;74m▐█
   \e[38;5;24m█▌  \e[38;5;74m▄▄  \e[38;5;24m▀▀  \e[38;5;74m▐█   \e[39mN  E  R  V  E  S
@@ -14,7 +16,9 @@ defmodule NervesMOTD do
   \e[38;5;24m███▌    \e[38;5;74m▀▀████\e[0m
   """
 
-  alias NervesMOTD.SystemInfo
+  @help_text """
+  Nerves CLI help: https://hexdocs.pm/nerves/iex-with-nerves.html
+  """
 
   @excluded_ifnames ['lo', 'lo0']
 
@@ -28,12 +32,12 @@ defmodule NervesMOTD do
 
   A row may contain 0, 1 or 2 cells.
   """
-  @type row() :: [cell()]
+  @type row() :: LayoutView.row()
 
   @typedoc """
   A label and value
   """
-  @type cell() :: {String.t(), IO.ANSI.ansidata()}
+  @type cell() :: LayoutView.cell()
 
   @doc """
   Print the message of the day
@@ -53,17 +57,12 @@ defmodule NervesMOTD do
 
     if ready?(apps) do
       [
-        logo(opts),
-        IO.ANSI.reset(),
-        SystemInfo.uname(),
-        "\n",
-        Enum.map(rows(apps, opts), &format_row/1),
-        "\n",
-        """
-        Nerves CLI help: https://hexdocs.pm/nerves/iex-with-nerves.html
-        """
+        logo: logo(opts),
+        header: header(),
+        rows: rows(apps, opts),
+        help_text: help_text()
       ]
-      |> IO.ANSI.format()
+      |> LayoutView.render()
       |> IO.puts()
     end
 
@@ -75,62 +74,29 @@ defmodule NervesMOTD do
   defp ready?(apps), do: :nerves_runtime in apps.started
 
   @spec logo([option()]) :: IO.ANSI.ansidata()
-  defp logo(opts) do
-    Keyword.get(opts, :logo, @logo)
-  end
+  defp logo(opts), do: Keyword.get(opts, :logo, @nerves_logo)
+
+  @spec header() :: IO.ANSI.ansidata()
+  defp header(), do: SystemInfo.uname()
 
   @spec rows(map(), list()) :: [[cell()]]
   defp rows(apps, opts) do
+    main_rows(apps) ++ ip_address_rows() ++ Keyword.get(opts, :extra_rows, [])
+  end
+
+  @spec main_rows(map()) :: [[cell()]]
+  defp main_rows(apps) do
     [
-      [{"Uptime", SystemInfo.uptime_text()}],
-      [{"Clock", SystemInfo.clock_text()}],
-      if(text = SystemInfo.cpu_temperature_text(), do: [{"Temperature", text}]),
+      [LayoutView.uptime_cell()],
+      [LayoutView.clock_cell()],
+      if(temp_cell = LayoutView.cpu_temperature_cell(), do: [temp_cell]),
       [],
-      [
-        {"Firmware", SystemInfo.firmware_status_text()},
-        {"Applications", SystemInfo.applications_text(apps)}
-      ],
-      [
-        {"Memory usage", SystemInfo.memory_usage_text()},
-        {"Part usage", SystemInfo.active_part_usage_text()}
-      ],
-      [
-        {"Hostname", SystemInfo.hostname_text()},
-        {"Load average", SystemInfo.load_average_text()}
-      ],
+      [LayoutView.firmware_cell(), LayoutView.applications_cell(apps)],
+      [LayoutView.memory_usage_cell(), LayoutView.part_usage_cell()],
+      [LayoutView.hostname_cell(), LayoutView.load_average_cell()],
       []
-    ] ++
-      ip_address_rows() ++
-      Keyword.get(opts, :extra_rows, [])
+    ]
   end
-
-  @spec format_row([cell()]) :: iolist()
-  # A blank line
-  defp format_row([]), do: ["\n"]
-
-  # A row with full width
-  defp format_row([{label, value}]) do
-    ["  ", format_cell_label(label), " : ", value, "\n", :reset]
-  end
-
-  # A row with two columns
-  defp format_row([col0, col1]) do
-    ["  ", format_cell(col0, 0), format_cell(col1, 1), "\n"]
-  end
-
-  defp format_row(nil), do: []
-
-  @spec format_cell(cell(), 0 | 1) :: IO.ANSI.ansidata()
-  defp format_cell({label, value}, column_index) do
-    [format_cell_label(label), " : ", format_cell_value(value, column_index, 24), :reset]
-  end
-
-  @spec format_cell_label(IO.ANSI.ansidata()) :: IO.ANSI.ansidata()
-  defp format_cell_label(label), do: SystemInfo.fit_ansidata(label, 12)
-
-  @spec format_cell_value(IO.ANSI.ansidata(), 0 | 1, pos_integer()) :: IO.ANSI.ansidata()
-  defp format_cell_value(value, 0, width), do: SystemInfo.fit_ansidata(value, width)
-  defp format_cell_value(value, 1, _width), do: value
 
   @spec ip_address_rows() :: [[cell()]]
   defp ip_address_rows() do
@@ -155,6 +121,9 @@ defmodule NervesMOTD do
   end
 
   defp ip_address_row(_), do: []
+
+  @spec help_text() :: IO.ANSI.ansidata()
+  defp help_text(), do: @help_text
 
   defp runtime_mod() do
     Application.get_env(:nerves_motd, :runtime_mod, NervesMOTD.Runtime.Target)
