@@ -136,7 +136,7 @@ defmodule NervesMOTD do
 
   @spec firmware_cell() :: cell()
   defp firmware_cell() do
-    fw_active = Nerves.Runtime.KV.get("nerves_fw_active") |> String.upcase()
+    fw_active = kv_get("nerves_fw_active", "A") |> String.upcase()
 
     if runtime_mod().firmware_valid?() do
       {"Firmware", [:green, "Valid (#{fw_active})"]}
@@ -201,11 +201,11 @@ defmodule NervesMOTD do
 
   @spec uname() :: iolist()
   defp uname() do
-    fw_architecture = Nerves.Runtime.KV.get_active("nerves_fw_architecture")
-    fw_platform = Nerves.Runtime.KV.get_active("nerves_fw_platform")
-    fw_product = Nerves.Runtime.KV.get_active("nerves_fw_product")
-    fw_version = Nerves.Runtime.KV.get_active("nerves_fw_version")
-    fw_uuid = Nerves.Runtime.KV.get_active("nerves_fw_uuid")
+    fw_architecture = architecture()
+    fw_platform = kv_get_active("nerves_fw_platform", "unknown")
+    fw_product = kv_get_active("nerves_fw_product", "unknown")
+    fw_version = kv_get_active("nerves_fw_version", "N/A")
+    fw_uuid = kv_get_active("nerves_fw_uuid", "unknown")
     [fw_product, " ", fw_version, " (", fw_uuid, ") ", fw_architecture, " ", fw_platform]
   end
 
@@ -265,5 +265,27 @@ defmodule NervesMOTD do
 
   defp runtime_mod() do
     Application.get_env(:nerves_motd, :runtime_mod, NervesMOTD.Runtime.Target)
+  end
+
+  defp kv_get(key, default \\ nil) do
+    case Nerves.Runtime.KV.get(key) do
+      nil -> default
+      value -> value
+    end
+  end
+
+  defp kv_get_active(key, default \\ nil) do
+    case Nerves.Runtime.KV.get_active(key) do
+      nil -> default
+      value -> value
+    end
+  end
+
+  defp architecture() do
+    Nerves.Runtime.KV.get_active("nerves_fw_architecture") || gcc_tuple_architecture()
+  end
+
+  defp gcc_tuple_architecture() do
+    :erlang.system_info(:system_architecture) |> to_string() |> String.split("-") |> List.first()
   end
 end
