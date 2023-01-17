@@ -211,15 +211,17 @@ defmodule NervesMOTD do
   end
 
   # https://github.com/erlang/otp/blob/1c63b200a677ec7ac12202ddbcf7710884b16ff2/lib/stdlib/src/c.erl#L1118
-  @spec uptime() :: iolist()
+  @spec uptime() :: IO.chardata()
   defp uptime() do
     {uptime, _} = :erlang.statistics(:wall_clock)
     {d, {h, m, s}} = :calendar.seconds_to_daystime(div(uptime, 1000))
-    days = if d > 0, do: :io_lib.format("~p days, ", [d])
-    hours = if d + h > 0, do: :io_lib.format("~p hours, ", [h])
-    minutes = if d + h + m > 0, do: :io_lib.format("~p minutes and ", [m])
-    seconds = :io_lib.format("~p seconds", [s])
-    Enum.reject([days, hours, minutes, seconds], &is_nil/1)
+    days = if d > 0, do: :io_lib.format("~b days, ", [d]), else: []
+    hours = if d + h > 0, do: :io_lib.format("~b hours, ", [h]), else: []
+    minutes = if d + h + m > 0, do: :io_lib.format("~b minutes and ", [m]), else: []
+    seconds = :io_lib.format("~b", [s])
+    millis = if d + h + m == 0, do: :io_lib.format(".~3..0b", [rem(uptime, 1000)]), else: []
+
+    [days, hours, minutes, seconds, millis, " seconds"]
   end
 
   @spec load_average() :: iodata()
