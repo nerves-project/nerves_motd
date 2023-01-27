@@ -74,6 +74,15 @@ defmodule NervesMOTDTest do
              ~r/nerves_livebook 0.2.17 \(0540f0cd-f95a-5596-d152-221a70c078a9\) arm rpi4/
   end
 
+  test "Serial number" do
+    NervesMOTD.MockRuntime
+    |> Mox.expect(:applications, 1, default_applications_code())
+
+    # Nerves.Runtime.serial_number() is expected to fail when running
+    # the regression tests since not using Nerves.
+    assert capture_motd() =~ ~r/Serial       : unconfigured/
+  end
+
   test "Uptime" do
     NervesMOTD.MockRuntime
     |> Mox.expect(:applications, 1, default_applications_code())
