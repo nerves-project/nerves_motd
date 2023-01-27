@@ -82,6 +82,7 @@ defmodule NervesMOTD do
   @spec rows(map(), list()) :: [[cell()]]
   defp rows(apps, opts) do
     [
+      [{"Serial", serial_number()}],
       [{"Uptime", uptime()}],
       [{"Clock", Utils.formatted_local_time()}],
       temperature_row(),
@@ -227,6 +228,11 @@ defmodule NervesMOTD do
       [a, b, c | _] -> [a, " ", b, " ", c]
       _ -> "error"
     end
+  end
+
+  @spec serial_number() :: String.t()
+  defp serial_number() do
+    Nerves.Runtime.serial_number()
   end
 
   @spec hostname() :: [byte()]
