@@ -2,6 +2,12 @@
 
 This project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## v0.1.10 - 2023-02-01
+
+* Improvements
+  * Print milliseconds when uptime < 60s
+  * Add serial number
+
 ## v0.1.9 - 2022-11-17
 
 * Improvements
