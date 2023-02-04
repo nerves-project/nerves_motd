@@ -200,7 +200,7 @@ defmodule NervesMOTD do
   defp devpath_specified?(""), do: false
   defp devpath_specified?(path) when is_binary(path), do: true
 
-  @spec uname() :: iolist()
+  @spec uname() :: IO.chardata()
   defp uname() do
     fw_architecture = Nerves.Runtime.KV.get_active("nerves_fw_architecture")
     fw_platform = Nerves.Runtime.KV.get_active("nerves_fw_platform")
@@ -224,7 +224,7 @@ defmodule NervesMOTD do
     [days, hours, minutes, seconds, millis, " seconds"]
   end
 
-  @spec load_average() :: iodata()
+  @spec load_average() :: IO.chardata()
   defp load_average() do
     case runtime_mod().load_average() do
       [a, b, c | _] -> [a, " ", b, " ", c]
