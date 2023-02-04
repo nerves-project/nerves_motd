@@ -2,6 +2,15 @@
 
 This project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## v0.1.11 - 2023-02-04
+
+* Bug fixees
+  * Don't raise if `Nerves.Runtime.KV` is empty
+
+* Improvements
+  * Test with ANSI off to make tests easier to read
+  * Update specs to `IO.chardata()` for consistency
+
 ## v0.1.10 - 2023-02-01
 
 * Improvements
