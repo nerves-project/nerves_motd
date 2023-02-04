@@ -2,7 +2,8 @@ defmodule NervesMOTD.Runtime do
   @moduledoc false
   @callback applications() :: %{started: [atom()], loaded: [atom()]}
   @callback cpu_temperature() :: {:ok, float()} | :error
-  @callback firmware_valid?() :: boolean()
+  @callback active_partition() :: String.t()
+  @callback firmware_validity() :: :valid | :invalid | :unknown
   @callback load_average() :: [String.t()]
   @callback memory_stats() ::
               {:ok,
@@ -50,8 +51,16 @@ defmodule NervesMOTD.Runtime.Target do
   end
 
   @impl NervesMOTD.Runtime
-  def firmware_valid?() do
-    Nerves.Runtime.firmware_valid?()
+  def active_partition() do
+    case Nerves.Runtime.KV.get("nerves_fw_active") do
+      nil -> "unknown"
+      partition -> String.upcase(partition)
+    end
+  end
+
+  @impl NervesMOTD.Runtime
+  def firmware_validity() do
+    if Nerves.Runtime.firmware_valid?(), do: :valid, else: :invalid
   end
 
   @impl NervesMOTD.Runtime

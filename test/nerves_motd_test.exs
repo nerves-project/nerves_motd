@@ -40,6 +40,8 @@ defmodule NervesMOTDTest do
   test "Default logo" do
     NervesMOTD.MockRuntime
     |> Mox.expect(:applications, 1, default_applications_code())
+    |> Mox.expect(:active_partition, 1, fn -> "A" end)
+    |> Mox.expect(:firmware_validity, 1, fn -> :valid end)
 
     assert capture_motd() =~ @nerves_logo_regex
   end
@@ -47,6 +49,8 @@ defmodule NervesMOTDTest do
   test "Custom logo" do
     NervesMOTD.MockRuntime
     |> Mox.expect(:applications, 1, default_applications_code())
+    |> Mox.expect(:active_partition, 1, fn -> "A" end)
+    |> Mox.expect(:firmware_validity, 1, fn -> :valid end)
 
     assert capture_motd(logo: "custom logo") =~ ~r/custom logo/
     refute capture_motd(logo: "custom logo") =~ @nerves_logo_regex
@@ -55,6 +59,8 @@ defmodule NervesMOTDTest do
   test "No logo" do
     NervesMOTD.MockRuntime
     |> Mox.expect(:applications, 1, default_applications_code())
+    |> Mox.expect(:active_partition, 1, fn -> "A" end)
+    |> Mox.expect(:firmware_validity, 1, fn -> :valid end)
 
     refute capture_motd(logo: "") =~ @nerves_logo_regex
   end
@@ -62,6 +68,8 @@ defmodule NervesMOTDTest do
   test "Custom rows" do
     NervesMOTD.MockRuntime
     |> Mox.expect(:applications, 1, default_applications_code())
+    |> Mox.expect(:active_partition, 1, fn -> "A" end)
+    |> Mox.expect(:firmware_validity, 1, fn -> :valid end)
 
     assert capture_motd(extra_rows: [[{"custom row", "hello"}]]) =~ ~r/hello/
   end
@@ -69,6 +77,8 @@ defmodule NervesMOTDTest do
   test "Uname" do
     NervesMOTD.MockRuntime
     |> Mox.expect(:applications, 1, default_applications_code())
+    |> Mox.expect(:active_partition, 1, fn -> "A" end)
+    |> Mox.expect(:firmware_validity, 1, fn -> :valid end)
 
     assert capture_motd() =~
              ~r/nerves_livebook 0.2.17 \(0540f0cd-f95a-5596-d152-221a70c078a9\) arm rpi4/
@@ -77,6 +87,8 @@ defmodule NervesMOTDTest do
   test "Serial number" do
     NervesMOTD.MockRuntime
     |> Mox.expect(:applications, 1, default_applications_code())
+    |> Mox.expect(:active_partition, 1, fn -> "A" end)
+    |> Mox.expect(:firmware_validity, 1, fn -> :valid end)
 
     # Nerves.Runtime.serial_number() is expected to fail when running
     # the regression tests since not using Nerves.
@@ -86,6 +98,8 @@ defmodule NervesMOTDTest do
   test "Uptime" do
     NervesMOTD.MockRuntime
     |> Mox.expect(:applications, 1, default_applications_code())
+    |> Mox.expect(:active_partition, 1, fn -> "A" end)
+    |> Mox.expect(:firmware_validity, 1, fn -> :valid end)
 
     assert capture_motd() =~ ~r/Uptime       : .*\d{0,2} seconds/
   end
@@ -93,6 +107,8 @@ defmodule NervesMOTDTest do
   test "Clock" do
     NervesMOTD.MockRuntime
     |> Mox.expect(:applications, 1, default_applications_code())
+    |> Mox.expect(:active_partition, 1, fn -> "A" end)
+    |> Mox.expect(:firmware_validity, 1, fn -> :valid end)
 
     assert capture_motd() =~ ~r/Clock        : \d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2} \w{3}/
   end
@@ -100,6 +116,8 @@ defmodule NervesMOTDTest do
   test "Temperature when available" do
     NervesMOTD.MockRuntime
     |> Mox.expect(:applications, 1, default_applications_code())
+    |> Mox.expect(:active_partition, 1, fn -> "A" end)
+    |> Mox.expect(:firmware_validity, 1, fn -> :valid end)
     |> Mox.expect(:cpu_temperature, 1, fn -> {:ok, 41.234} end)
 
     assert capture_motd() =~ ~r/Temperature  : 41.2°C/
@@ -108,6 +126,8 @@ defmodule NervesMOTDTest do
   test "Temperature when unavailable" do
     NervesMOTD.MockRuntime
     |> Mox.expect(:applications, 1, default_applications_code())
+    |> Mox.expect(:active_partition, 1, fn -> "A" end)
+    |> Mox.expect(:firmware_validity, 1, fn -> :valid end)
     |> Mox.expect(:cpu_temperature, 1, fn -> :error end)
 
     refute capture_motd() =~ ~r/Temperature/
@@ -116,22 +136,38 @@ defmodule NervesMOTDTest do
   test "Firmware when valid" do
     NervesMOTD.MockRuntime
     |> Mox.expect(:applications, 1, default_applications_code())
-    |> Mox.expect(:firmware_valid?, 1, fn -> true end)
+    |> Mox.expect(:active_partition, 1, fn -> "B" end)
+    |> Mox.expect(:firmware_validity, 1, fn -> :valid end)
 
-    assert capture_motd() =~ ~r/Firmware     : Valid \(A\)/
+    assert capture_motd() =~ ~r/Firmware     : Valid \(B\)/
   end
 
   test "Firmware when invalid" do
     NervesMOTD.MockRuntime
     |> Mox.expect(:applications, 1, default_applications_code())
-    |> Mox.expect(:firmware_valid?, 1, fn -> false end)
+    |> Mox.expect(:active_partition, 1, fn -> "A" end)
+    |> Mox.expect(:firmware_validity, 1, fn -> :invalid end)
 
     assert capture_motd() =~ ~r/Firmware     : Not validated \(A\)/
   end
 
+  test "Firmware validity is unknown" do
+    NervesMOTD.MockRuntime
+    |> Mox.expect(:applications, 1, default_applications_code())
+    |> Mox.expect(:active_partition, 1, fn -> "A" end)
+    |> Mox.expect(:firmware_validity, 1, fn -> :unknown end)
+
+    assert capture_motd() =~ ~r/Firmware     : A/
+  end
+
   test "Applications when all apps started" do
     apps = %{started: [:a, :b, :nerves_runtime], loaded: [:a, :b, :nerves_runtime]}
-    Mox.expect(NervesMOTD.MockRuntime, :applications, 1, fn -> apps end)
+
+    NervesMOTD.MockRuntime
+    |> Mox.expect(:applications, 1, fn -> apps end)
+    |> Mox.expect(:active_partition, 1, fn -> "A" end)
+    |> Mox.expect(:firmware_validity, 1, fn -> :unknown end)
+
     assert capture_motd() =~ ~r/Applications : \d* started/
   end
 
@@ -140,6 +176,8 @@ defmodule NervesMOTDTest do
 
     NervesMOTD.MockRuntime
     |> Mox.expect(:applications, 1, fn -> apps end)
+    |> Mox.expect(:active_partition, 1, fn -> "A" end)
+    |> Mox.expect(:firmware_validity, 1, fn -> :valid end)
 
     assert capture_motd() =~ ~r/Applications : \d* started \(a, b not started\)/
   end
@@ -147,6 +185,8 @@ defmodule NervesMOTDTest do
   test "Hostname" do
     NervesMOTD.MockRuntime
     |> Mox.expect(:applications, 1, default_applications_code())
+    |> Mox.expect(:active_partition, 1, fn -> "A" end)
+    |> Mox.expect(:firmware_validity, 1, fn -> :valid end)
 
     assert capture_motd() =~ ~r/Hostname     : [0-9a-zA-Z\-]*/
   end
@@ -154,6 +194,8 @@ defmodule NervesMOTDTest do
   test "Memory usage when ok" do
     NervesMOTD.MockRuntime
     |> Mox.expect(:applications, 1, default_applications_code())
+    |> Mox.expect(:active_partition, 1, fn -> "A" end)
+    |> Mox.expect(:firmware_validity, 1, fn -> :valid end)
 
     assert capture_motd() =~ ~r/Memory usage : 78 MB \(25%\)/
   end
@@ -161,6 +203,8 @@ defmodule NervesMOTDTest do
   test "Memory usage when high" do
     NervesMOTD.MockRuntime
     |> Mox.expect(:applications, 1, default_applications_code())
+    |> Mox.expect(:active_partition, 1, fn -> "A" end)
+    |> Mox.expect(:firmware_validity, 1, fn -> :valid end)
     |> Mox.expect(:memory_stats, 1, fn ->
       {:ok, %{size_mb: 316, used_mb: 316, used_percent: 100}}
     end)
@@ -171,6 +215,8 @@ defmodule NervesMOTDTest do
   test "Load average" do
     NervesMOTD.MockRuntime
     |> Mox.expect(:applications, 1, default_applications_code())
+    |> Mox.expect(:active_partition, 1, fn -> "A" end)
+    |> Mox.expect(:firmware_validity, 1, fn -> :valid end)
 
     assert capture_motd() =~ ~r/Load average : 0.35 0.16 0.11/
   end
@@ -178,6 +224,8 @@ defmodule NervesMOTDTest do
   test "Load average error" do
     NervesMOTD.MockRuntime
     |> Mox.expect(:applications, 1, default_applications_code())
+    |> Mox.expect(:active_partition, 1, fn -> "A" end)
+    |> Mox.expect(:firmware_validity, 1, fn -> :valid end)
     |> Mox.expect(:load_average, 1, fn -> [] end)
 
     assert capture_motd() =~ ~r/Load average : error/
@@ -186,6 +234,8 @@ defmodule NervesMOTDTest do
   test "Application partition usage" do
     NervesMOTD.MockRuntime
     |> Mox.expect(:applications, 1, default_applications_code())
+    |> Mox.expect(:active_partition, 1, fn -> "A" end)
+    |> Mox.expect(:firmware_validity, 1, fn -> :valid end)
 
     assert capture_motd() =~ ~r/Part usage   : 37 MB \(0%\)/
   end
@@ -193,6 +243,8 @@ defmodule NervesMOTDTest do
   test "Application partition usage high" do
     NervesMOTD.MockRuntime
     |> Mox.expect(:applications, 1, default_applications_code())
+    |> Mox.expect(:active_partition, 1, fn -> "A" end)
+    |> Mox.expect(:firmware_validity, 1, fn -> :valid end)
     |> Mox.expect(:filesystem_stats, 1, fn _path ->
       {:ok, %{size_mb: 14_300, used_mb: 12_900, used_percent: 90}}
     end)
@@ -203,6 +255,8 @@ defmodule NervesMOTDTest do
   test "Application partition usage not available" do
     NervesMOTD.MockRuntime
     |> Mox.expect(:applications, 1, default_applications_code())
+    |> Mox.expect(:active_partition, 1, fn -> "A" end)
+    |> Mox.expect(:firmware_validity, 1, fn -> :valid end)
     |> Mox.expect(:filesystem_stats, 1, fn _path ->
       :error
     end)
@@ -213,6 +267,8 @@ defmodule NervesMOTDTest do
   test "No application partition" do
     NervesMOTD.MockRuntime
     |> Mox.expect(:applications, 1, default_applications_code())
+    |> Mox.expect(:active_partition, 1, fn -> "A" end)
+    |> Mox.expect(:firmware_validity, 1, fn -> :valid end)
 
     old_devpath = Nerves.Runtime.KV.get_active("nerves_fw_application_part0_devpath")
     Nerves.Runtime.KV.put_active("nerves_fw_application_part0_devpath", "")
@@ -224,6 +280,8 @@ defmodule NervesMOTDTest do
   test "IP addresses" do
     NervesMOTD.MockRuntime
     |> Mox.expect(:applications, 1, default_applications_code())
+    |> Mox.expect(:active_partition, 1, fn -> "A" end)
+    |> Mox.expect(:firmware_validity, 1, fn -> :valid end)
 
     assert capture_motd() =~ ~r/\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\/\d{1,3}/
   end

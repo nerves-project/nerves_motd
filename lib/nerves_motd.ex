@@ -137,13 +137,16 @@ defmodule NervesMOTD do
 
   @spec firmware_cell() :: cell()
   defp firmware_cell() do
-    fw_active = Nerves.Runtime.KV.get("nerves_fw_active") |> String.upcase()
+    fw_active = runtime_mod().active_partition()
 
-    if runtime_mod().firmware_valid?() do
-      {"Firmware", [:green, "Valid (#{fw_active})"]}
-    else
-      {"Firmware", [:red, "Not validated (#{fw_active})"]}
-    end
+    status =
+      case runtime_mod().firmware_validity() do
+        :valid -> [:green, "Valid (#{fw_active})"]
+        :invalid -> [:red, "Not validated (#{fw_active})"]
+        _ -> fw_active
+      end
+
+    {"Firmware", status}
   end
 
   @spec applications_cell(%{loaded: list(), started: list()}) :: cell()
