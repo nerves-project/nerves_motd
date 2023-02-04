@@ -118,7 +118,7 @@ defmodule NervesMOTDTest do
     |> Mox.expect(:applications, 1, default_applications_code())
     |> Mox.expect(:firmware_valid?, 1, fn -> true end)
 
-    assert capture_motd() =~ ~r/Firmware     : \e\[32mValid.*\e\[0m/
+    assert capture_motd() =~ ~r/Firmware     : Valid \(A\)/
   end
 
   test "Firmware when invalid" do
@@ -126,7 +126,7 @@ defmodule NervesMOTDTest do
     |> Mox.expect(:applications, 1, default_applications_code())
     |> Mox.expect(:firmware_valid?, 1, fn -> false end)
 
-    assert capture_motd() =~ ~r/Firmware     : \e\[31mNot validated.*\e\[0m/
+    assert capture_motd() =~ ~r/Firmware     : Not validated \(A\)/
   end
 
   test "Applications when all apps started" do
@@ -141,7 +141,7 @@ defmodule NervesMOTDTest do
     NervesMOTD.MockRuntime
     |> Mox.expect(:applications, 1, fn -> apps end)
 
-    assert capture_motd() =~ ~r/Applications : \e\[33m\d* started \(a, b not started\)\e\[0m/
+    assert capture_motd() =~ ~r/Applications : \d* started \(a, b not started\)/
   end
 
   test "Hostname" do
@@ -165,7 +165,7 @@ defmodule NervesMOTDTest do
       {:ok, %{size_mb: 316, used_mb: 316, used_percent: 100}}
     end)
 
-    assert capture_motd() =~ ~r/Memory usage : \e\[31m316 MB \(100%\).*\e\[0m/
+    assert capture_motd() =~ ~r/Memory usage : 316 MB \(100%\)/
   end
 
   test "Load average" do
@@ -197,7 +197,7 @@ defmodule NervesMOTDTest do
       {:ok, %{size_mb: 14_300, used_mb: 12_900, used_percent: 90}}
     end)
 
-    assert capture_motd() =~ ~r/Part usage   : \e\[31m12900 MB \(90%\)\e\[0m/
+    assert capture_motd() =~ ~r/Part usage   : 12900 MB \(90%\)/
   end
 
   test "Application partition usage not available" do
@@ -207,7 +207,7 @@ defmodule NervesMOTDTest do
       :error
     end)
 
-    assert capture_motd() =~ ~r/Part usage   : \e\[31mnot available\e\[0m/
+    assert capture_motd() =~ ~r/Part usage   : not available/
   end
 
   test "No application partition" do
@@ -218,7 +218,7 @@ defmodule NervesMOTDTest do
     Nerves.Runtime.KV.put_active("nerves_fw_application_part0_devpath", "")
     result = capture_motd()
     Nerves.Runtime.KV.put_active("nerves_fw_application_part0_devpath", old_devpath)
-    assert result =~ ~r/Part usage   : \e\[31mnot available\e\[0m/
+    assert result =~ ~r/Part usage   : not available/
   end
 
   test "IP addresses" do
