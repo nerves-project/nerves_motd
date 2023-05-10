@@ -49,15 +49,16 @@ defmodule NervesMOTD do
   """
   @spec print([option()]) :: :ok
   def print(opts \\ []) do
+    combined_opts = Application.get_all_env(:nerves_motd) |> Keyword.merge(opts)
     apps = runtime_mod().applications()
 
     if ready?(apps) do
       [
-        logo(opts),
+        logo(combined_opts),
         IO.ANSI.reset(),
         uname(),
         "\n",
-        Enum.map(rows(apps, opts), &format_row/1),
+        Enum.map(rows(apps, combined_opts), &format_row/1),
         "\n",
         """
         Nerves CLI help: https://hexdocs.pm/nerves/iex-with-nerves.html

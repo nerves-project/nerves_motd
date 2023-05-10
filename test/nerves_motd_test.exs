@@ -29,9 +29,6 @@ defmodule NervesMOTDTest do
   end
 
   test "print failure" do
-    NervesMOTD.MockRuntime
-    |> Mox.expect(:applications, 1, default_applications_code())
-
     assert capture_motd("bad option") =~ ~r/Could not print MOTD: .*/
   end
 
@@ -54,6 +51,18 @@ defmodule NervesMOTDTest do
 
     assert capture_motd(logo: "custom logo") =~ ~r/custom logo/
     refute capture_motd(logo: "custom logo") =~ @nerves_logo_regex
+  end
+
+  test "Custom logo via Application environment" do
+    NervesMOTD.MockRuntime
+    |> Mox.expect(:applications, 2, default_applications_code())
+    |> Mox.expect(:active_partition, 2, fn -> "A" end)
+    |> Mox.expect(:firmware_validity, 2, fn -> :valid end)
+
+    Application.put_env(:nerves_motd, :logo, "app env logo")
+    assert capture_motd() =~ ~r/app env logo/
+    assert capture_motd(logo: "override logo") =~ ~r/override logo/
+    :application.unset_env(:nerves_motd, :logo)
   end
 
   test "No logo" do
