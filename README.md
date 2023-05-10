@@ -37,6 +37,15 @@ NervesMOTD.print(
 )
 ```
 
+For convenience, `NervesMOTD.print/1` options may be stored in the application environment in your `config.exs`:
+
+```elixir
+config :nerves_motd,
+  logo: """
+  Custom logo
+  """
+```
+
 ## Installation
 
 Install by adding `:nerves_motd` to your list of dependencies in `mix.exs`:
