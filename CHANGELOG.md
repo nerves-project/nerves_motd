@@ -2,6 +2,12 @@
 
 This project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## v0.1.12 - 2023-05-10
+
+* Improvements
+  * Use application environment for default options (#122)
+  * Use yellow text color for clock and show unsyncronized help text when clock is out of sync (#74)
+
 ## v0.1.11 - 2023-02-04
 
 * Bug fixees
