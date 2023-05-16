@@ -83,6 +83,41 @@ defmodule NervesMOTDTest do
     assert capture_motd(extra_rows: [[{"custom row", "hello"}]]) =~ ~r/hello/
   end
 
+  test "Custom rows from function" do
+    NervesMOTD.MockRuntime
+    |> Mox.expect(:applications, 1, default_applications_code())
+    |> Mox.expect(:active_partition, 1, fn -> "A" end)
+    |> Mox.expect(:firmware_validity, 1, fn -> :valid end)
+
+    fun = fn -> [[{"custom row", "hello"}]] end
+    assert capture_motd(extra_rows: fun) =~ ~r/hello/
+  end
+
+  test "Custom rows from an MFArgs" do
+    NervesMOTD.MockRuntime
+    |> Mox.expect(:applications, 1, default_applications_code())
+    |> Mox.expect(:active_partition, 1, fn -> "A" end)
+    |> Mox.expect(:firmware_validity, 1, fn -> :valid end)
+
+    assert capture_motd(extra_rows: {__MODULE__, :extra_rows_callback, []}) =~ ~r/hello/
+  end
+
+  @doc false
+  @spec extra_rows_callback() :: list()
+  def extra_rows_callback() do
+    [[{"custom row", "hello"}]]
+  end
+
+  test "Custom rows from bad function prints error" do
+    NervesMOTD.MockRuntime
+    |> Mox.expect(:applications, 1, default_applications_code())
+    |> Mox.expect(:active_partition, 1, fn -> "A" end)
+    |> Mox.expect(:firmware_validity, 1, fn -> :valid end)
+
+    bad_fun = fn -> raise "wat!" end
+    assert capture_motd(extra_rows: bad_fun) =~ ~r/:extra_rows  : failed \(:error\) -/
+  end
+
   test "Uname" do
     NervesMOTD.MockRuntime
     |> Mox.expect(:applications, 1, default_applications_code())
