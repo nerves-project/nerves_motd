@@ -45,7 +45,8 @@ defmodule NervesMOTD do
 
   * `:logo` - a custom logo to display instead of the default Nerves logo. Pass
     an empty logo (`""`) to remove it completely.
-  * `:extra_rows` - custom rows that append to the end of the MOTD.
+  * `:extra_rows` - a list of custom rows or a callback for returning rows.
+    The callback can be a 0-arity function reference or MFArgs tuple.
   """
   @spec print([option()]) :: :ok
   def print(opts \\ []) do
@@ -93,8 +94,20 @@ defmodule NervesMOTD do
       [{"Hostname", hostname()}, {"Load average", load_average()}],
       []
     ] ++
-      ip_address_rows() ++
-      Keyword.get(opts, :extra_rows, [])
+      ip_address_rows() ++ extra_rows(opts)
+  end
+
+  @spec extra_rows([option()]) :: IO.ANSI.ansidata()
+  defp extra_rows(opts) do
+    case opts[:extra_rows] do
+      fun when is_function(fun, 0) -> fun.()
+      {m, f, args} -> apply(m, f, args)
+      rows when is_list(rows) -> rows
+      _ -> []
+    end
+  catch
+    err, msg ->
+      [[{[:red, ":extra_rows failed"], ["failed (", inspect(err), ") - ", inspect(msg)]}]]
   end
 
   @spec format_row([cell()]) :: iolist()
