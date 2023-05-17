@@ -10,40 +10,51 @@ day"](https://en.wikipedia.org/wiki/Motd_(Unix)) on Nerves devices.
 
 ## Usage
 
-Just invoke `NervesMOTD.print/1` in `rootfs_overlay/etc/iex.exs` of your Nerves projects.
+The primary function is `NervesMOTD.print()` which prints the base layout based
+on the template below:
 
-```elixir
-NervesMOTD.print()
+```
+<LOGO>
+<APP_NAME> <APP_VERSION> (<FW_UUID>) <PLATFORM> <TARGET>
+  Serial       : <SERIAL_NUMBER>
+  Uptime       : 18.296 seconds
+  Clock        : 2023-05-18 00:05:20 JST <synchronization state>
+
+  Firmware     : <VALIDITY> (<A|B>)      Applications : <N> started (<not started applications>)
+  Memory usage : 74 MB (15%)             Part usage   : 210 MB (14%)
+  Hostname     : <HOSTNAME>              Load average : 0.05 0.14 0.15
+
+  <IFNAME>     : <IPV6>, <IPV4>
+  <EXTRA_ROWS>
 ```
 
-By default, `NervesMOTD.print/1` prints Nerves logo, but you can replace it with your custom logo if you wish.
+To have `NervesMOTD` print automatically when first accessing a device, add
+`NervesMOTD.print()` to your `iex.exs` file (typically in
+`rootfs_overlay/etc/iex.exs`)
 
-```elixir
-NervesMOTD.print(
-  logo: """
-  My custom logo
-  """
-)
-```
+### Customization
 
-You can append your custom rows by passing the `:extra_rows` parameter to `NervesMOTD.print/1`.
+`NervesMOTD.print/1` supports a few options for customizing the base layout:
 
-```elixir
-NervesMOTD.print(
-  extra_rows: [
-    [{"Label", "value"}, {"Label2", "value2"}],
-    [{"Long label", "Lots of text"}]
-  ]
-)
-```
+* `:logo` - Change the logo displayed. Defaults to the Nerves logo. Set to `""`
+  to prevent any logo from being displayed
+* `:extra_rows` - a list of custom rows or a callback for returning rows to be
+  appended to the end of the layout. The callback can be a 0-arity function
+  reference or MFArgs tuple.
 
-For convenience, `NervesMOTD.print/1` options may be stored in the application environment in your `config.exs`:
+For convenience, `NervesMOTD.print/1` options may be stored in the application
+environment in your `config.exs` to be used whenever `NervesMOTD.print/0` is
+called:
 
 ```elixir
 config :nerves_motd,
   logo: """
   Custom logo
-  """
+  """,
+  extra_rows: [
+    [{"Label", "value"}, {"Label2", "value2"}],
+    [{"Long label", "Lots of text"}]
+  ]
 ```
 
 ## Installation
