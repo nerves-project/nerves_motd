@@ -2,6 +2,11 @@
 
 This project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## v0.1.13 - 2023-05-17
+
+* Improvements
+  * Support `:extra_rows` as a callback (#124)
+
 ## v0.1.12 - 2023-05-10
 
 * Improvements
