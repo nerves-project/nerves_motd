@@ -16,7 +16,7 @@ defmodule NervesMOTD do
 
   alias NervesMOTD.Utils
 
-  @excluded_ifnames ['lo', 'lo0']
+  @excluded_ifnames [~c"lo", ~c"lo0"]
 
   @typedoc """
   MOTD options
