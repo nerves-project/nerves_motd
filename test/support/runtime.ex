@@ -22,6 +22,9 @@ defmodule NervesMOTD.Runtime.Host do
   def applications(), do: %{loaded: @apps, started: @apps}
 
   @impl NervesMOTD.Runtime
+  def count_log_messages(), do: {:ok, 123}
+
+  @impl NervesMOTD.Runtime
   def cpu_temperature(), do: {:ok, 41.234}
 
   @impl NervesMOTD.Runtime
