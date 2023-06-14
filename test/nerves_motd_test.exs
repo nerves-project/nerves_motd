@@ -348,4 +348,23 @@ defmodule NervesMOTDTest do
 
     assert capture_motd() == ""
   end
+
+  describe "tip of the day" do
+    setup _context do
+      NervesMOTD.MockRuntime
+      |> Mox.expect(:applications, 1, default_applications_code())
+      |> Mox.expect(:active_partition, 1, fn -> "A" end)
+      |> Mox.expect(:firmware_validity, 1, fn -> :valid end)
+
+      :ok
+    end
+
+    test "does nothing by default" do
+      refute capture_motd() =~ ~r/Tip of the day/
+    end
+
+    test "shows tip when enabled" do
+      assert capture_motd(show_tip: true) =~ ~r/Tip of the day/
+    end
+  end
 end

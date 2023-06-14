@@ -15,6 +15,7 @@ defmodule NervesMOTD do
   """
 
   alias Nerves.Runtime.KV
+  alias NervesMOTD.Tips
   alias NervesMOTD.Utils
 
   @excluded_ifnames [~c"lo", ~c"lo0"]
@@ -48,6 +49,7 @@ defmodule NervesMOTD do
     an empty logo (`""`) to remove it completely.
   * `:extra_rows` - a list of custom rows or a callback for returning rows.
     The callback can be a 0-arity function reference or MFArgs tuple.
+  * `:show tip` - a boolean flag to show the tip of the day.
   """
   @spec print([option()]) :: :ok
   def print(opts \\ []) do
@@ -64,7 +66,8 @@ defmodule NervesMOTD do
         "\n",
         """
         Nerves CLI help: https://hexdocs.pm/nerves/iex-with-nerves.html
-        """
+        """,
+        tips(opts)
       ]
       |> IO.ANSI.format()
       |> IO.puts()
@@ -80,6 +83,23 @@ defmodule NervesMOTD do
   @spec logo([option()]) :: IO.ANSI.ansidata()
   defp logo(opts) do
     Keyword.get(opts, :logo, @logo)
+  end
+
+  @spec tips([option()]) :: IO.ANSI.ansidata()
+  defp tips(opts) do
+    if opts[:show_tip] do
+      {title, content} = Tips.random()
+
+      """
+      ==========================================================================
+      [Tip of the day] #{title}
+      --------------------------------------------------------------------------
+      #{String.strip(content)}
+      ==========================================================================
+      """
+    else
+      []
+    end
   end
 
   @spec rows(map(), list()) :: [[cell()]]
