@@ -359,12 +359,14 @@ defmodule NervesMOTDTest do
       :ok
     end
 
-    test "does nothing by default" do
-      refute capture_motd() =~ ~r/Tip of the day/
+    @tip_of_the_day_regex ~r/Tip of the day/
+
+    test "does not show tip by default" do
+      refute capture_motd() =~ @tip_of_the_day_regex
     end
 
     test "shows tip when enabled" do
-      assert capture_motd(show_tip: true) =~ ~r/Tip of the day/
+      assert capture_motd(show_tip: true) =~ @tip_of_the_day_regex
     end
   end
 end
