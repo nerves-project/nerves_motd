@@ -23,7 +23,11 @@ defmodule NervesMOTD do
   @typedoc """
   MOTD options
   """
-  @type option() :: {:logo, IO.ANSI.ansidata()} | {:extra_rows, [row()]}
+  @type option() ::
+          {:logo, IO.ANSI.ansidata()}
+          | {:extra_rows, [row()]}
+          | {:show_tip, boolean()}
+          | {:extra_tips, [String.t()]}
 
   @typedoc """
   One row of information
@@ -49,7 +53,8 @@ defmodule NervesMOTD do
     an empty logo (`""`) to remove it completely.
   * `:extra_rows` - a list of custom rows or a callback for returning rows.
     The callback can be a 0-arity function reference or MFArgs tuple.
-  * `:show tip` - a boolean flag to show the tip of the day.
+  * `:show_tip` - a boolean flag to show the tip of the day.
+  * `:extra_tips` - additional custom tips as a list of strings.
   """
   @spec print([option()]) :: :ok
   def print(opts \\ []) do
@@ -88,14 +93,10 @@ defmodule NervesMOTD do
   @spec tips([option()]) :: IO.ANSI.ansidata()
   defp tips(opts) do
     if opts[:show_tip] do
-      content = Tips.random() |> String.trim()
-
       """
-      ==========================================================================
-      [Tip of the day]
-      --------------------------------------------------------------------------
-      #{content}
-      ==========================================================================
+
+      === Tip of the day ===
+      #{Tips.random(opts)}
       """
     else
       []
