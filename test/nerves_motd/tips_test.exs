@@ -3,11 +3,12 @@ defmodule NervesMOTD.TipsTest do
   alias NervesMOTD.Tips
   doctest NervesMOTD.Tips
 
-  test "all" do
-    assert [{_title, _content} | _] = Tips.all()
+  test "all returns a list of strings" do
+    assert [tip | _] = Tips.all()
+    assert is_binary(tip)
   end
 
-  test "random" do
-    assert {_title, _content} = Tips.random()
+  test "random returns a string" do
+    assert Tips.random() |> is_binary()
   end
 end

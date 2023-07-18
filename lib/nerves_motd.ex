@@ -88,13 +88,13 @@ defmodule NervesMOTD do
   @spec tips([option()]) :: IO.ANSI.ansidata()
   defp tips(opts) do
     if opts[:show_tip] do
-      {title, content} = Tips.random()
+      content = Tips.random() |> String.trim()
 
       """
       ==========================================================================
-      [Tip of the day] #{title}
+      [Tip of the day]
       --------------------------------------------------------------------------
-      #{String.strip(content)}
+      #{content}
       ==========================================================================
       """
     else
