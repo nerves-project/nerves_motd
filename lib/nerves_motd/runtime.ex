@@ -28,6 +28,8 @@ defmodule NervesMOTD.Runtime.Target do
   @moduledoc false
   @behaviour NervesMOTD.Runtime
 
+  alias Nerves.Runtime.KV
+
   @impl NervesMOTD.Runtime
   def applications() do
     started = Enum.map(Application.started_applications(), &elem(&1, 0))
@@ -53,7 +55,7 @@ defmodule NervesMOTD.Runtime.Target do
 
   @impl NervesMOTD.Runtime
   def active_partition() do
-    case Nerves.Runtime.KV.get("nerves_fw_active") do
+    case KV.get("nerves_fw_active") do
       nil -> "unknown"
       partition -> String.upcase(partition)
     end
