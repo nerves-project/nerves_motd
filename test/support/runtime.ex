@@ -25,9 +25,6 @@ defmodule NervesMOTD.Runtime.Host do
   def cpu_temperature(), do: {:ok, 41.234}
 
   @impl NervesMOTD.Runtime
-  def firmware_valid?(), do: true
-
-  @impl NervesMOTD.Runtime
   def load_average(), do: ["0.35", "0.16", "0.11", "2/70", "1536"]
 
   @impl NervesMOTD.Runtime
@@ -41,4 +38,10 @@ defmodule NervesMOTD.Runtime.Host do
 
   @impl NervesMOTD.Runtime
   def time_synchronized?(), do: true
+
+  @impl NervesMOTD.Runtime
+  def firmware_validity(), do: :valid
+
+  @impl NervesMOTD.Runtime
+  def active_partition(), do: "A"
 end

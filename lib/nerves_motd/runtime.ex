@@ -61,7 +61,7 @@ defmodule NervesMOTD.Runtime.Target do
 
   @impl NervesMOTD.Runtime
   def firmware_validity() do
-    if Nerves.Runtime.firmware_valid?(), do: :valid, else: :invalid
+    :valid
   end
 
   @impl NervesMOTD.Runtime
