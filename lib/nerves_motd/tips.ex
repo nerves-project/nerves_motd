@@ -1,7 +1,7 @@
 defmodule NervesMOTD.Tips do
   @moduledoc false
 
-  # Returns a tuple list of locaton and byte size of each tip entry in the provided file.
+  # Returns a tuple list of location and byte size of each tip entry in the provided file.
   index_file = fn filename, divider when is_binary(filename) and is_binary(divider) ->
     divider_byte_size = byte_size(divider)
 
