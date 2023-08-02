@@ -2,6 +2,7 @@ defmodule NervesMOTDTest do
   use ExUnit.Case
   doctest NervesMOTD
 
+  alias Nerves.Runtime.KV
   import ExUnit.CaptureIO
   import Mox
 
@@ -325,10 +326,10 @@ defmodule NervesMOTDTest do
     |> Mox.expect(:active_partition, 1, fn -> "A" end)
     |> Mox.expect(:firmware_validity, 1, fn -> :valid end)
 
-    old_devpath = Nerves.Runtime.KV.get_active("nerves_fw_application_part0_devpath")
-    Nerves.Runtime.KV.put_active("nerves_fw_application_part0_devpath", "")
+    old_devpath = KV.get_active("nerves_fw_application_part0_devpath")
+    KV.put_active("nerves_fw_application_part0_devpath", "")
     result = capture_motd()
-    Nerves.Runtime.KV.put_active("nerves_fw_application_part0_devpath", old_devpath)
+    KV.put_active("nerves_fw_application_part0_devpath", old_devpath)
     assert result =~ ~r/Part usage   : not available/
   end
 

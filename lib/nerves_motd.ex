@@ -14,6 +14,7 @@ defmodule NervesMOTD do
   \e[38;5;24m███▌    \e[38;5;74m▀▀████\e[0m
   """
 
+  alias Nerves.Runtime.KV
   alias NervesMOTD.Utils
 
   @excluded_ifnames [~c"lo", ~c"lo0"]
@@ -208,7 +209,7 @@ defmodule NervesMOTD do
   @spec active_application_partition_cell() :: cell()
   defp active_application_partition_cell() do
     label = "Part usage"
-    app_partition_path = Nerves.Runtime.KV.get_active("nerves_fw_application_part0_devpath")
+    app_partition_path = KV.get_active("nerves_fw_application_part0_devpath")
 
     with true <- devpath_specified?(app_partition_path),
          {:ok, stats} <- runtime_mod().filesystem_stats(app_partition_path) do
@@ -231,11 +232,11 @@ defmodule NervesMOTD do
 
   @spec uname() :: IO.chardata()
   defp uname() do
-    fw_architecture = Nerves.Runtime.KV.get_active("nerves_fw_architecture")
-    fw_platform = Nerves.Runtime.KV.get_active("nerves_fw_platform")
-    fw_product = Nerves.Runtime.KV.get_active("nerves_fw_product")
-    fw_version = Nerves.Runtime.KV.get_active("nerves_fw_version")
-    fw_uuid = Nerves.Runtime.KV.get_active("nerves_fw_uuid")
+    fw_architecture = KV.get_active("nerves_fw_architecture")
+    fw_platform = KV.get_active("nerves_fw_platform")
+    fw_product = KV.get_active("nerves_fw_product")
+    fw_version = KV.get_active("nerves_fw_version")
+    fw_uuid = KV.get_active("nerves_fw_uuid")
     [fw_product, " ", fw_version, " (", fw_uuid, ") ", fw_architecture, " ", fw_platform]
   end
 
