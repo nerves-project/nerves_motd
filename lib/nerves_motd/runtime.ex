@@ -116,11 +116,13 @@ defmodule NervesMOTD.Runtime.Target do
     _error -> :error
   end
 
-  if Code.ensure_loaded?(NervesTime) do
-    @impl NervesMOTD.Runtime
-    def time_synchronized?(), do: apply(NervesTime, :synchronized?, [])
-  else
-    @impl NervesMOTD.Runtime
-    def time_synchronized?(), do: true
+  case Code.ensure_compiled(NervesTime) do
+    {:module, _} ->
+      @impl NervesMOTD.Runtime
+      def time_synchronized?(), do: NervesTime.synchronized?()
+
+    _ ->
+      @impl NervesMOTD.Runtime
+      def time_synchronized?(), do: true
   end
 end
