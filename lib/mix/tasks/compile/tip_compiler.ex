@@ -19,33 +19,43 @@ defmodule Mix.Tasks.Compile.TipCompiler do
 
     source_strings = File.read!("tips/#{file}")
     divider = <<?\n, @strfile_separator, ?\n>>
-    divider_byte_size = byte_size(divider)
 
     state = %__MODULE__{}
 
     state =
       source_strings
       |> String.split(divider)
-      |> Enum.reduce(state, fn tip, state ->
-        location = state.location
-        len = byte_size(tip)
-        next_location = location + len + divider_byte_size
-
-        %{
-          indices: [location | state.indices],
-          location: next_location,
-          num_string: state.num_string + 1,
-          shortest_string: min(state.shortest_string, len),
-          longest_string: max(state.longest_string, len)
-        }
-      end)
-      |> then(fn state -> %{state | indices: Enum.reverse(state.indices)} end)
+      |> process_strings(state)
 
     strings_file = Path.join(priv_path, file)
     index_file = Path.join(priv_path, "#{file}.dat")
 
     File.write!(strings_file, source_strings)
     File.write!(index_file, [strfile_header(state), indices_to_binary(state.indices)])
+  end
+
+  defp process_strings([], state) do
+    %{state | indices: Enum.reverse(state.indices)}
+  end
+
+  defp process_strings(["" | rest], state) do
+    process_strings(rest, state)
+  end
+
+  defp process_strings([string | rest], state) do
+    location = state.location
+    len = byte_size(string)
+    next_location = location + len + 3
+
+    next_state = %{
+      indices: [location | state.indices],
+      location: next_location,
+      num_string: state.num_string + 1,
+      shortest_string: min(state.shortest_string, len),
+      longest_string: max(state.longest_string, len)
+    }
+
+    process_strings(rest, next_state)
   end
 
   defp indices_to_binary(indices) do
