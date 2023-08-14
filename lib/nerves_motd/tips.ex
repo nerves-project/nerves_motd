@@ -1,6 +1,6 @@
 defmodule NervesMOTD.Tips do
   @moduledoc false
-  @strfile_header_len 24
+  @strfile_max_header_len 44
 
   @doc """
   Pick one tip randomly
@@ -17,16 +17,28 @@ defmodule NervesMOTD.Tips do
   end
 
   def tips_paths() do
-    priv_path = Application.app_dir(:nerves_motd, "priv")
+    paths = [Application.app_dir(:nerves_motd, "priv"), "/opt/homebrew/share/games/fortunes/"]
 
-    case File.ls(priv_path) do
+    Enum.flat_map(paths, &scan_dir_for_tips/1)
+  end
+
+  defp scan_dir_for_tips(path) do
+    case File.ls(path) do
       {:ok, paths} ->
         paths
-        |> Enum.map(&Path.join(priv_path, &1))
+        |> Enum.map(&Path.join(path, &1))
         |> Enum.filter(&tips_path?/1)
 
       _error ->
         []
+    end
+  end
+
+  def tips_info(path) do
+    with {:ok, io} <- open_index(path),
+         {:ok, header} <- read_header(io) do
+      File.close(io)
+      {:ok, header}
     end
   end
 
@@ -35,14 +47,9 @@ defmodule NervesMOTD.Tips do
       File.exists?([path, ".dat"])
   end
 
-  def open_index(path) do
+  defp open_index(path) do
     index_path = [path, ".dat"]
     File.open(index_path, [:read])
-  end
-
-  def read_tip(path, index, tip_number) do
-    {offset, len} = Enum.at(index, tip_number)
-    pread(path, offset, len)
   end
 
   defp pread(path, offset, len) do
@@ -53,13 +60,16 @@ defmodule NervesMOTD.Tips do
   end
 
   defp read_header(io_device) do
-    with {:ok, data} <- :file.pread(io_device, 0, @strfile_header_len) do
+    with {:ok, data} <- :file.pread(io_device, 0, @strfile_max_header_len) do
       parse_header(data)
     end
   end
 
   defp read_string(io_device, path, header, index) do
-    with {:ok, <<offset::32>>} <- :file.pread(io_device, @strfile_header_len + index * 4, 4),
+    offset_size = header.word_size
+
+    with {:ok, <<offset::size(offset_size * 8)>>} <-
+           :file.pread(io_device, header.length + index * offset_size, offset_size),
          {:ok, string_and_more} <- pread(path, offset, header.longest_string) do
       trim_string_to_separator(string_and_more, header.separator)
     end
@@ -76,10 +86,10 @@ defmodule NervesMOTD.Tips do
 
   defp parse_header(
          <<version::32, num_string::32, longest_string::32, shortest_string::32, _::29,
-           rotated?::1, ordered?::1, random?::1, separator::8, _::24>>
+           rotated?::1, ordered?::1, random?::1, separator::8, _::24, _::binary>>
        )
        when version == 2 and num_string >= 1 and longest_string < 4096 and shortest_string >= 0 and
-              shortest_string < longest_string do
+              shortest_string < longest_string and separator > 0 do
     {:ok,
      %{
        version: version,
@@ -89,7 +99,30 @@ defmodule NervesMOTD.Tips do
        rotated?: rotated? == 1,
        ordered?: ordered? == 1,
        random?: random? == 1,
-       separator: separator
+       separator: separator,
+       word_size: 4,
+       length: 24
+     }}
+  end
+
+  defp parse_header(
+         <<version::32, num_string::64, longest_string::64, shortest_string::64, _::61,
+           rotated?::1, ordered?::1, random?::1, _::32, separator::8, _::24, _::binary>>
+       )
+       when version == 1 and num_string >= 1 and longest_string < 4096 and shortest_string >= 0 and
+              shortest_string < longest_string and separator > 0 do
+    {:ok,
+     %{
+       version: version,
+       num_string: num_string,
+       longest_string: longest_string,
+       shortest_string: shortest_string,
+       rotated?: rotated? == 1,
+       ordered?: ordered? == 1,
+       random?: random? == 1,
+       separator: separator,
+       word_size: 8,
+       length: 36
      }}
   end
 
