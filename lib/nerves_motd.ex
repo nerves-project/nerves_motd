@@ -15,7 +15,6 @@ defmodule NervesMOTD do
   """
 
   alias Nerves.Runtime.KV
-  alias NervesMOTD.Tips
   alias NervesMOTD.Utils
 
   @excluded_ifnames [~c"lo", ~c"lo0"]
@@ -91,7 +90,7 @@ defmodule NervesMOTD do
   @spec tips([option()]) :: IO.ANSI.ansidata()
   defp tips(opts) do
     if opts[:show_tip] do
-      case Tips.random() do
+      case Fortune.random() do
         {:ok, tip} ->
           ["\n=== Tip of the day ===\n", tip, "\n"]
 

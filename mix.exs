@@ -14,7 +14,7 @@ defmodule NervesMOTD.MixProject do
       description: description(),
       package: package(),
       deps: deps(),
-      compilers: Mix.compilers() ++ [:tip_compiler],
+      compilers: Mix.compilers() ++ [:strfile_compiler],
       dialyzer: dialyzer(),
       preferred_cli_env: %{
         docs: :docs,
@@ -35,6 +35,7 @@ defmodule NervesMOTD.MixProject do
     [
       {:nerves_runtime, "~> 0.8"},
       {:nerves_time, "~> 0.4", optional: true},
+      {:fortune, "~> 0.1", path: "~/git/fhunleth/fortune", optional: true},
       {:credo, "~> 1.5", only: [:dev, :test], runtime: false},
       {:dialyxir, "~> 1.1", only: [:dev, :test], runtime: false},
       {:ex_doc, "~> 0.25", only: :docs, runtime: false},
@@ -67,7 +68,7 @@ defmodule NervesMOTD.MixProject do
 
   defp package do
     [
-      files: ["CHANGELOG.md", "lib", "LICENSE", "mix.exs", "README.md", "tips"],
+      files: ["CHANGELOG.md", "lib", "LICENSE", "mix.exs", "README.md", "fortunes"],
       licenses: ["Apache-2.0"],
       links: %{"Github" => @source_url}
     ]
