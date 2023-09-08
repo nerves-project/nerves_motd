@@ -349,7 +349,7 @@ defmodule NervesMOTDTest do
     assert capture_motd() == ""
   end
 
-  describe "tip of the day" do
+  describe "fortune" do
     setup _context do
       NervesMOTD.MockRuntime
       |> Mox.expect(:applications, 1, default_applications_code())
@@ -359,14 +359,14 @@ defmodule NervesMOTDTest do
       :ok
     end
 
-    @tip_of_the_day_regex ~r/Tip of the day/
+    @fortune_regex ~r/\n---*\n.*\n---*\n/
 
-    test "does not show tip by default" do
-      refute capture_motd() =~ @tip_of_the_day_regex
+    test "does not show fortune by default" do
+      refute capture_motd() =~ @fortune_regex
     end
 
-    test "shows tip when enabled" do
-      assert capture_motd(show_tip: true) =~ @tip_of_the_day_regex
+    test "shows fortune when enabled" do
+      assert capture_motd(fortune: true) =~ @fortune_regex
     end
   end
 end

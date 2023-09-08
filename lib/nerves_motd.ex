@@ -15,7 +15,6 @@ defmodule NervesMOTD do
   """
 
   alias Nerves.Runtime.KV
-  alias NervesMOTD.Tips
   alias NervesMOTD.Utils
 
   @excluded_ifnames [~c"lo", ~c"lo0"]
@@ -26,8 +25,7 @@ defmodule NervesMOTD do
   @type option() ::
           {:logo, IO.ANSI.ansidata()}
           | {:extra_rows, [row()]}
-          | {:show_tip, boolean()}
-          | {:extra_tips, [String.t()]}
+          | {:fortune, boolean()}
 
   @typedoc """
   One row of information
@@ -53,8 +51,7 @@ defmodule NervesMOTD do
     an empty logo (`""`) to remove it completely.
   * `:extra_rows` - a list of custom rows or a callback for returning rows.
     The callback can be a 0-arity function reference or MFArgs tuple.
-  * `:show_tip` - a boolean flag to show the tip of the day.
-  * `:extra_tips` - additional custom tips as a list of strings.
+  * `:fortune` - a boolean flag to show fortune.
   """
   @spec print([option()]) :: :ok
   def print(opts \\ []) do
@@ -72,7 +69,7 @@ defmodule NervesMOTD do
         """
         Nerves CLI help: https://hexdocs.pm/nerves/iex-with-nerves.html
         """,
-        tips(opts)
+        fortune(opts)
       ]
       |> IO.ANSI.format()
       |> IO.puts()
@@ -90,13 +87,14 @@ defmodule NervesMOTD do
     Keyword.get(opts, :logo, @logo)
   end
 
-  @spec tips([option()]) :: IO.ANSI.ansidata()
-  defp tips(opts) do
-    if opts[:show_tip] do
+  @spec fortune([option()]) :: IO.ANSI.ansidata()
+  defp fortune(opts) do
+    if opts[:fortune] do
       """
 
-      === Tip of the day ===
-      #{Tips.random(opts)}
+      --------------------------------------------------------------------------------
+      #{Fortune.random!()}
+      --------------------------------------------------------------------------------
       """
     else
       []
