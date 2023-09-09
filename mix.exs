@@ -35,7 +35,7 @@ defmodule NervesMOTD.MixProject do
       {:nerves_runtime, "~> 0.8"},
       {:nerves_time, "~> 0.4", optional: true},
       {:credo, "~> 1.5", only: [:dev, :test], runtime: false},
-      {:dialyxir, "~> 1.1", only: [:dev, :test], runtime: false},
+      {:dialyxir, "~> 1.1", only: :dev, runtime: false},
       {:ex_doc, "~> 0.25", only: :docs, runtime: false},
       {:mix_test_watch, "~> 1.1", only: :dev, runtime: false},
       {:mox, "~> 1.0", only: :test}
