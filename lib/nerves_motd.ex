@@ -67,7 +67,6 @@ defmodule NervesMOTD do
         Enum.map(rows(apps, combined_opts), &format_row/1),
         "\n",
         fortune(opts),
-        "\n"
       ]
       |> IO.ANSI.format()
       |> IO.puts()
@@ -88,7 +87,7 @@ defmodule NervesMOTD do
   @spec fortune([option()]) :: IO.ANSI.ansidata()
   defp fortune(opts) do
     if opts[:fortune] do
-      Fortune.random!()
+      [Fortune.random!(), "n"]
     else
       []
     end

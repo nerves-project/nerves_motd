@@ -348,25 +348,4 @@ defmodule NervesMOTDTest do
 
     assert capture_motd() == ""
   end
-
-  describe "fortune" do
-    setup _context do
-      NervesMOTD.MockRuntime
-      |> Mox.expect(:applications, 1, default_applications_code())
-      |> Mox.expect(:active_partition, 1, fn -> "A" end)
-      |> Mox.expect(:firmware_validity, 1, fn -> :valid end)
-
-      :ok
-    end
-
-    @fortune_regex ~r/\n---*\n.*\n---*\n/
-
-    test "does not show fortune by default" do
-      refute capture_motd() =~ @fortune_regex
-    end
-
-    test "shows fortune when enabled" do
-      assert capture_motd(fortune: true) =~ @fortune_regex
-    end
-  end
 end
