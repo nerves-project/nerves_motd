@@ -66,10 +66,8 @@ defmodule NervesMOTD do
         "\n",
         Enum.map(rows(apps, combined_opts), &format_row/1),
         "\n",
-        """
-        Nerves CLI help: https://hexdocs.pm/nerves/iex-with-nerves.html
-        """,
-        fortune(opts)
+        fortune(opts),
+        "\n"
       ]
       |> IO.ANSI.format()
       |> IO.puts()
@@ -90,12 +88,7 @@ defmodule NervesMOTD do
   @spec fortune([option()]) :: IO.ANSI.ansidata()
   defp fortune(opts) do
     if opts[:fortune] do
-      """
-
-      --------------------------------------------------------------------------------
-      #{Fortune.random!()}
-      --------------------------------------------------------------------------------
-      """
+      Fortune.random!()
     else
       []
     end
