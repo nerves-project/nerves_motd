@@ -14,7 +14,7 @@ defmodule NervesMOTD.MixProject do
       description: description(),
       package: package(),
       deps: deps(),
-      compilers: Mix.compilers() ++ [:fortune_compiler],
+      compilers: compilers(Mix.env()),
       dialyzer: dialyzer(),
       preferred_cli_env: %{
         docs: :docs,
@@ -31,11 +31,15 @@ defmodule NervesMOTD.MixProject do
   defp elixirc_paths(:test), do: ["lib", "test/support"]
   defp elixirc_paths(_), do: ["lib"]
 
+  defp compilers(env) when env in [:dev, :test], do: Mix.compilers() ++ [:fortune_compiler]
+  defp compilers(_), do: Mix.compilers()
+
   defp deps do
     [
       {:nerves_runtime, "~> 0.8"},
       {:nerves_time, "~> 0.4", optional: true},
-      {:fortune, "~> 0.1"},
+      {:nerves_tips, github: "nerves-project/nerves_tips", only: [:dev, :test], optional: true},
+      {:fortune, "~> 0.1", only: [:dev, :test], optional: true},
       {:credo, "~> 1.5", only: [:dev, :test], runtime: false},
       {:dialyxir, "~> 1.1", only: :dev, runtime: false},
       {:ex_doc, "~> 0.25", only: :docs, runtime: false},

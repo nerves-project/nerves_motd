@@ -25,7 +25,7 @@ defmodule NervesMOTD do
   @type option() ::
           {:logo, IO.ANSI.ansidata()}
           | {:extra_rows, [row()]}
-          | {:fortune, boolean()}
+          | {:show_fortune?, boolean()}
 
   @typedoc """
   One row of information
@@ -51,7 +51,7 @@ defmodule NervesMOTD do
     an empty logo (`""`) to remove it completely.
   * `:extra_rows` - a list of custom rows or a callback for returning rows.
     The callback can be a 0-arity function reference or MFArgs tuple.
-  * `:fortune` - a boolean flag to show fortune.
+  * `:show_fortune?` - a boolean flag to show fortune.
   """
   @spec print([option()]) :: :ok
   def print(opts \\ []) do
@@ -66,7 +66,7 @@ defmodule NervesMOTD do
         "\n",
         Enum.map(rows(apps, combined_opts), &format_row/1),
         "\n",
-        fortune(opts),
+        fortune(opts)
       ]
       |> IO.ANSI.format()
       |> IO.puts()
@@ -86,10 +86,12 @@ defmodule NervesMOTD do
 
   @spec fortune([option()]) :: IO.ANSI.ansidata()
   defp fortune(opts) do
-    if opts[:fortune] do
-      [Fortune.random!(), "n"]
-    else
-      []
+    case Code.ensure_compiled(Fortune) do
+      {:module, fortune_mod} ->
+        if opts[:show_fortune?], do: [fortune_mod.random!(), "\n"], else: []
+
+      _ ->
+        []
     end
   end
 
