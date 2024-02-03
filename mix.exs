@@ -34,6 +34,8 @@ defmodule NervesMOTD.MixProject do
     [
       {:nerves_runtime, "~> 0.8"},
       {:nerves_time, "~> 0.4", optional: true},
+      {:nerves_tips, github: "nerves-project/nerves_tips", only: [:dev, :test], optional: true},
+      {:fortune, "~> 0.1", only: [:dev, :test], optional: true},
       {:credo, "~> 1.5", only: [:dev, :test], runtime: false},
       {:dialyxir, "~> 1.1", only: :dev, runtime: false},
       {:ex_doc, "~> 0.25", only: :docs, runtime: false},

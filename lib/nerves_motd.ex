@@ -22,7 +22,10 @@ defmodule NervesMOTD do
   @typedoc """
   MOTD options
   """
-  @type option() :: {:logo, IO.ANSI.ansidata()} | {:extra_rows, [row()]}
+  @type option() ::
+          {:logo, IO.ANSI.ansidata()}
+          | {:extra_rows, [row()]}
+          | {:show_fortune?, boolean()}
 
   @typedoc """
   One row of information
@@ -48,6 +51,7 @@ defmodule NervesMOTD do
     an empty logo (`""`) to remove it completely.
   * `:extra_rows` - a list of custom rows or a callback for returning rows.
     The callback can be a 0-arity function reference or MFArgs tuple.
+  * `:show_fortune?` - a boolean flag to show fortune.
   """
   @spec print([option()]) :: :ok
   def print(opts \\ []) do
@@ -62,9 +66,7 @@ defmodule NervesMOTD do
         "\n",
         Enum.map(rows(apps, combined_opts), &format_row/1),
         "\n",
-        """
-        Nerves CLI help: https://hexdocs.pm/nerves/iex-with-nerves.html
-        """
+        fortune(opts)
       ]
       |> IO.ANSI.format()
       |> IO.puts()
@@ -80,6 +82,17 @@ defmodule NervesMOTD do
   @spec logo([option()]) :: IO.ANSI.ansidata()
   defp logo(opts) do
     Keyword.get(opts, :logo, @logo)
+  end
+
+  @spec fortune([option()]) :: IO.ANSI.ansidata()
+  defp fortune(opts) do
+    case Code.ensure_compiled(Fortune) do
+      {:module, fortune_mod} ->
+        if opts[:show_fortune?], do: [fortune_mod.random!(), "\n"], else: []
+
+      _ ->
+        []
+    end
   end
 
   @spec rows(map(), list()) :: [[cell()]]
