@@ -8,7 +8,7 @@ defmodule NervesMOTD.MixProject do
     [
       app: :nerves_motd,
       version: @version,
-      elixir: "~> 1.9",
+      elixir: "~> 1.13",
       elixirc_paths: elixirc_paths(Mix.env()),
       docs: docs(),
       description: description(),

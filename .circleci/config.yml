@@ -1,16 +1,15 @@
 version: 2.1
 
 latest: &latest
-  pattern: "^1.16.*-erlang-26.*$"
+  pattern: "^1.17.*-erlang-27.*$"
 
-tags:
-  &tags [
-    1.16.2-erlang-26.2.4-alpine-3.19.1,
-    1.15.7-erlang-26.1.2-alpine-3.18.4,
-    1.14.5-erlang-25.3.2-alpine-3.18.0,
-    1.13.4-erlang-24.3.4-alpine-3.15.3,
-    1.12.3-erlang-24.3.4-alpine-3.15.3,
-    1.11.4-erlang-23.3.4.13-alpine-3.15.3,
+tags: &tags
+  [
+    1.17.2-erlang-27.0.1-alpine-3.20.1,
+    1.16.3-erlang-26.2.5-alpine-3.19.1,
+    1.15.7-erlang-26.2.1-alpine-3.18.4,
+    1.14.5-erlang-25.3.2-alpine-3.17.3,
+    1.13.4-erlang-24.3.4-alpine-3.15.3
   ]
 
 jobs:
@@ -46,7 +45,7 @@ jobs:
             - run: mix deps.unlock --check-unused
             - run: mix docs
             - run: mix hex.build
-            - run: mix credo -a
+            - run: mix credo -a --strict
             - run: mix dialyzer
       - save_cache:
           key: v1-mix-cache-<< parameters.tag >>-{{ checksum "mix.lock" }}
