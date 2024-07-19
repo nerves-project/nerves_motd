@@ -2,6 +2,15 @@
 
 This project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## v0.1.15 - 2024-07-19
+
+This release requires Elixir 1.13 or later. Previous versions became hard to
+maintain due to dependent packages. No code changed in this library to prevent
+previous versions from working.
+
+* Fixes
+  * Fix a regression that caused the firmware validity to always show up as valid even when invalid.
+
 ## v0.1.14 - 2024-06-02
 
 * Improvements
@@ -20,7 +29,7 @@ This project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## v0.1.11 - 2023-02-04
 
-* Bug fixees
+* Bug fixes
   * Don't raise if `Nerves.Runtime.KV` is empty
 
 * Improvements
