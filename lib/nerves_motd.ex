@@ -269,7 +269,8 @@ defmodule NervesMOTD do
 
   @spec hostname() :: [byte()]
   defp hostname() do
-    :inet.gethostname() |> elem(1)
+    {:ok, hostname} = :inet.gethostname()
+    hostname
   end
 
   @spec ip_address_rows() :: [[cell()]]
