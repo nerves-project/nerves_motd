@@ -103,7 +103,7 @@ defmodule NervesMOTD.Runtime.Target do
     #     Filesystem           1M-blocks      Used Available Use% Mounted on
     #     /dev/mmcblk0p4            1534       205      1329  13% /root
 
-    {df_results, 0} = System.cmd("df", ["-m", filename])
+    {df_results, 0} = System.cmd("df", ["-Pm", filename])
     [_title_row, results_row | _] = String.split(df_results, "\n")
     [_fs, size_mb_str, used_mb_str, _avail, used_percent_str | _] = String.split(results_row)
     {size_mb, ""} = Integer.parse(size_mb_str)
