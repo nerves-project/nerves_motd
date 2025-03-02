@@ -1,3 +1,7 @@
+# SPDX-FileCopyrightText: 2021 Masatoshi Nishiguchi
+#
+# SPDX-License-Identifier: Apache-2.0
+#
 defmodule NervesMOTD.UtilsTest do
   use ExUnit.Case
   doctest NervesMOTD.Utils

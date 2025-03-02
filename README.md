@@ -1,7 +1,9 @@
 # nerves_motd
 
 [![Hex version](https://img.shields.io/hexpm/v/nerves_motd.svg "Hex version")](https://hex.pm/packages/nerves_motd)
-[![CircleCI](https://circleci.com/gh/nerves-project/nerves_motd.svg?style=svg)](https://circleci.com/gh/nerves-project/nerves_motd)
+[![API docs](https://img.shields.io/hexpm/v/nerves_motd.svg?label=hexdocs "API docs")](https://hexdocs.pm/nerves_motd/NervesMOTD.html)
+[![CircleCI](https://dl.circleci.com/status-badge/img/gh/nerves-project/nerves_motd/tree/main.svg?style=svg)](https://dl.circleci.com/status-badge/redirect/gh/nerves-project/nerves_motd/tree/main)
+[![REUSE status](https://api.reuse.software/badge/github.com/nerves-project/nerves_motd)](https://api.reuse.software/info/github.com/nerves-project/nerves_motd)
 
 `nerves_motd` prints a ["message of the
 day"](https://en.wikipedia.org/wiki/Motd_(Unix)) on Nerves devices.
@@ -73,14 +75,8 @@ For details, see [API reference](https://hexdocs.pm/nerves_motd/api-reference.ht
 
 ## License
 
-Copyright (C) 2022 Masatoshi Nishiguchi, Nerves Project Authors
+All original source code in this project is licensed under Apache-2.0.
 
-    Licensed under the Apache License, Version 2.0 (the "License");
-    you may not use this file except in compliance with the License.
-    You may obtain a copy of the License at [http://www.apache.org/licenses/LICENSE-2.0](http://www.apache.org/licenses/LICENSE-2.0)
+Additionally, this project follows the [REUSE recommendations](https://reuse.software)
+and labels so that licensing and copyright are clear at the file level.
 
-    Unless required by applicable law or agreed to in writing, software
-    distributed under the License is distributed on an "AS IS" BASIS,
-    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-    See the License for the specific language governing permissions and
-    limitations under the License.

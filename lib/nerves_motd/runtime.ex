@@ -1,3 +1,9 @@
+# SPDX-FileCopyrightText: 2021 Masatoshi Nishiguchi
+# SPDX-FileCopyrightText: 2023 Frank Hunleth
+# SPDX-FileCopyrightText: 2025 Marc Lainez
+#
+# SPDX-License-Identifier: Apache-2.0
+#
 defmodule NervesMOTD.Runtime do
   @moduledoc false
   @callback applications() :: %{started: [atom()], loaded: [atom()]}

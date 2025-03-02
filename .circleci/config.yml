@@ -1,11 +1,17 @@
 version: 2.1
 
+defaults: &defaults
+  working_directory: ~/repo
+  environment:
+    LC_ALL: C.UTF-8
+
 latest: &latest
-  pattern: "^1.17.*-erlang-27.*$"
+  pattern: "^1.18.*-erlang-27.*$"
 
 tags: &tags
   [
-    1.17.2-erlang-27.0.1-alpine-3.20.1,
+    1.18.2-erlang-27.2.1-alpine-3.21.2,
+    1.17.3-erlang-27.2-alpine-3.20.3,
     1.16.3-erlang-26.2.5-alpine-3.19.1,
     1.15.7-erlang-26.2.1-alpine-3.18.4,
     1.14.5-erlang-25.3.2-alpine-3.17.3,
@@ -13,15 +19,20 @@ tags: &tags
   ]
 
 jobs:
+  check-license:
+    docker:
+      - image: fsfe/reuse:latest
+    steps:
+      - checkout
+      - run: reuse lint
+
   build-test:
     parameters:
       tag:
         type: string
     docker:
       - image: hexpm/elixir:<< parameters.tag >>
-    working_directory: ~/repo
-    environment:
-      LC_ALL: C.UTF-8
+    <<: *defaults
     steps:
       - run:
           name: Install system dependencies
@@ -56,6 +67,7 @@ jobs:
   automerge:
     docker:
       - image: alpine:3.18.4
+    <<: *defaults
     steps:
       - run:
           name: Install GitHub CLI
@@ -64,6 +76,7 @@ jobs:
           name: Attempt PR automerge
           command: |
             author=$(gh pr view "${CIRCLE_PULL_REQUEST}" --json author --jq '.author.login' || true)
+
             if [ "$author" = "app/dependabot" ]; then
               gh pr merge "${CIRCLE_PULL_REQUEST}" --auto --rebase || echo "Failed trying to set automerge"
             else
@@ -73,6 +86,10 @@ jobs:
 workflows:
   checks:
     jobs:
+      - check-license:
+          filters:
+            tags:
+              only: /.*/
       - build-test:
           name: << matrix.tag >>
           matrix:

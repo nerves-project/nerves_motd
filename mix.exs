@@ -66,9 +66,21 @@ defmodule NervesMOTD.MixProject do
 
   defp package do
     [
-      files: ["CHANGELOG.md", "lib", "LICENSE", "mix.exs", "README.md"],
+      files: [
+        "CHANGELOG.md",
+        "lib",
+        "LICENSES/*",
+        "mix.exs",
+        "NOTICE",
+        "README.md",
+        "REUSE.toml"
+      ],
       licenses: ["Apache-2.0"],
-      links: %{"Github" => @source_url}
+      links: %{
+        "GitHub" => @source_url,
+        "REUSE Compliance" =>
+          "https://api.reuse.software/info/github.com/nerves-project/nerves_motd"
+      }
     ]
   end
 
