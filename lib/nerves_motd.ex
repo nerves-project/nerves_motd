@@ -1,3 +1,10 @@
+# SPDX-FileCopyrightText: 2021 Ace Yanagida
+# SPDX-FileCopyrightText: 2021 Frank Hunleth
+# SPDX-FileCopyrightText: 2021 Masatoshi Nishiguchi
+# SPDX-FileCopyrightText: 2022 Jon Carstens
+#
+# SPDX-License-Identifier: Apache-2.0
+#
 defmodule NervesMOTD do
   @moduledoc """
   `NervesMOTD` prints a "message of the day" on Nerves devices.
