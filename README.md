@@ -71,6 +71,8 @@ def deps do
 end
 ```
 
+You can also install it using [Igniter](https://hexdocs.pm/igniter/) with `mix igniter.install nerves_motd`.
+
 For details, see [API reference](https://hexdocs.pm/nerves_motd/api-reference.html).
 
 ## License
