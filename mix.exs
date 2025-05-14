@@ -14,6 +14,7 @@ defmodule NervesMOTD.MixProject do
       description: description(),
       package: package(),
       deps: deps(),
+      aliases: aliases(),
       dialyzer: dialyzer(),
       preferred_cli_env: %{
         docs: :docs,
@@ -81,6 +82,12 @@ defmodule NervesMOTD.MixProject do
         "REUSE Compliance" =>
           "https://api.reuse.software/info/github.com/nerves-project/nerves_motd"
       }
+    ]
+  end
+
+  defp aliases() do
+    [
+      test: "test --warnings-as-errors"
     ]
   end
 
