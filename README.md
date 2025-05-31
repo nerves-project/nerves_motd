@@ -47,6 +47,7 @@ To have `NervesMOTD` print automatically when first accessing a device, add
 
 * `:logo` - Change the logo displayed. Defaults to the Nerves logo. Set to `""`
   to prevent any logo from being displayed
+* `:nerves_logo_scheme` - Defaults to `:daily`. Set to `:nerves` for the normal blue
 * `:extra_rows` - a list of custom rows or a callback for returning rows to be
   appended to the end of the layout. The callback can be a 0-arity function
   reference or MFArgs tuple.
@@ -88,4 +89,3 @@ All original source code in this project is licensed under Apache-2.0.
 
 Additionally, this project follows the [REUSE recommendations](https://reuse.software)
 and labels so that licensing and copyright are clear at the file level.
-

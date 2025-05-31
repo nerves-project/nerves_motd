@@ -50,6 +50,37 @@ defmodule NervesMOTDTest do
     assert capture_motd() =~ ~r/N  E  R  V  E  S/
   end
 
+  test "daily logo schemes" do
+    for {date, scheme} <- [
+          {~D[2026-10-31], :pumpkin},
+          {~D[2027-10-31], :pumpkin},
+          {~D[2026-05-25], :elixir},
+          {~D[2026-06-14], :rainbow},
+          {~D[2026-10-25], :nerves},
+          {~D[2026-12-25], :christmas}
+        ] do
+      expect(Date, :utc_today, fn -> date end)
+      logo = NervesMOTD.nerves_logo()
+      assert logo == NervesMOTD.nerves_logo(scheme)
+
+      if scheme != :nerves do
+        refute logo == NervesMOTD.nerves_logo(:nerves)
+      end
+    end
+  end
+
+  test "Print defaults to the daily scheme and permits an explicit override" do
+    stub(Date, :utc_today, fn -> ~D[2026-10-31] end)
+
+    pumpkin = NervesMOTD.nerves_logo(:pumpkin) |> IO.iodata_to_binary()
+    blue = NervesMOTD.nerves_logo(:nerves) |> IO.iodata_to_binary()
+
+    assert String.starts_with?(capture_motd(), pumpkin)
+    assert String.starts_with?(capture_motd(nerves_logo_scheme: :nerves), blue)
+    assert String.starts_with?(capture_motd(logo: "custom logo"), "custom logo")
+    refute capture_motd(logo: "") =~ IO.ANSI.color(208)
+  end
+
   test "Custom logo" do
     assert capture_motd(logo: "custom logo") =~ ~r/custom logo/
     refute capture_motd(logo: "custom logo") =~ ~r/N  E  R  V  E  S/

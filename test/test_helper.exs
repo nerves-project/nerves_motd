@@ -12,5 +12,6 @@ exclude =
   end
 
 Mimic.copy(NervesMOTD.Model)
+Mimic.copy(Date)
 
 ExUnit.start(exclude: exclude)

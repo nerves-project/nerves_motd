@@ -17,20 +17,13 @@ defmodule NervesMOTD do
   alias NervesMOTD.Model
   alias NervesMOTD.Utils
 
-  @logo """
-  \e[38;5;24m████▄▄    \e[38;5;74m▐███
-  \e[38;5;24m█▌  ▀▀██▄▄  \e[38;5;74m▐█
-  \e[38;5;24m█▌  \e[38;5;74m▄▄  \e[38;5;24m▀▀  \e[38;5;74m▐█   \e[39mN  E  R  V  E  S
-  \e[38;5;24m█▌  \e[38;5;74m▀▀██▄▄  ▐█
-  \e[38;5;24m███▌    \e[38;5;74m▀▀████\e[0m
-  """
-
   @excluded_ifnames [~c"lo", ~c"lo0"]
 
   @typedoc """
   MOTD options
   """
-  @type option() :: {:logo, IO.ANSI.ansidata()} | {:extra_rows, [row()]}
+  @type option() ::
+          {:logo, IO.ANSI.ansidata()} | {:nerves_logo_scheme, atom()} | {:extra_rows, [row()]}
 
   @typedoc """
   One row of information
@@ -54,6 +47,8 @@ defmodule NervesMOTD do
 
   * `:logo` - a custom logo to display instead of the default Nerves logo. Pass
     an empty logo (`""`) to remove it completely.
+  * `:nerves_logo_scheme` - if not passing `:logo`, this is the color
+    scheme for the Nerves logo. Defaults to `:daily`. `:nerves` will be a familiar option.
   * `:extra_rows` - a list of custom rows or a callback for returning rows.
     The callback can be a 0-arity function reference or MFArgs tuple.
   """
@@ -87,7 +82,71 @@ defmodule NervesMOTD do
 
   @spec logo([option()]) :: IO.ANSI.ansidata()
   defp logo(opts) do
-    Keyword.get(opts, :logo, @logo)
+    opts[:logo] || nerves_logo(opts[:nerves_logo_scheme] || :daily)
+  end
+
+  defp schemes() do
+    %{
+      gray: %{colors: [7, 15, 7]},
+      nerves: %{colors: [24, 74, 7]},
+      nerves_hub: %{colors: [52, 88, 7]},
+      rainbow: %{colors: [24, 74, 196, 208, 226, 28, 27, 90], dates: [{6, :all}]},
+      pumpkin: %{colors: [208, 214, 7], dates: [{10, 31}]},
+      valentine: %{colors: [201, 213, 7], dates: [{2, 14}]},
+      christmas: %{colors: [28, 34, 196, 34, 196, 34, 196, 34], dates: [{12, 25}]},
+      elixir: %{colors: [97, 140, 7], dates: [{5, 25}]},
+      forest: %{colors: [22, 70, 7], dates: [{3, 21}]},
+      water: %{colors: [27, 51, 195], dates: [{3, 22}]},
+      bee: %{colors: [220, 58, 220, 58, 220, 58, 220, 58], dates: [{5, 20}]}
+    }
+  end
+
+  defp logo_colors(:daily) do
+    today = Date.utc_today()
+
+    scheme =
+      dated_scheme({today.month, today.day}) || dated_scheme({today.month, :all}) || :nerves
+
+    logo_colors(scheme)
+  end
+
+  defp logo_colors(s) when is_atom(s) do
+    scheme = schemes()[s] || schemes()[:nerves]
+    logo_colors(scheme.colors)
+  end
+
+  defp logo_colors([c1, c2, t1]), do: logo_colors([c1, c2, t1, t1, t1, t1, t1, t1])
+
+  defp logo_colors(colors) when is_list(colors) and length(colors) == 8 do
+    expand_colors(colors, -1)
+  end
+
+  defp dated_scheme(date) do
+    Enum.find_value(schemes(), fn {name, scheme} ->
+      if date in Map.get(scheme, :dates, []), do: name
+    end)
+  end
+
+  defp expand_colors([h | t], h), do: [[] | expand_colors(t, h)]
+  defp expand_colors([h | t], _), do: [IO.ANSI.color(h) | expand_colors(t, h)]
+  defp expand_colors([], _), do: []
+
+  @doc """
+  Return the Nerves logo using a color scheme
+  """
+  @spec nerves_logo(atom()) :: IO.ANSI.ansidata()
+  def nerves_logo(scheme \\ :daily) do
+    [c1, c2, t1, t2, t3, t4, t5, t6] = logo_colors(scheme)
+
+    [
+      [c1, "████▄▄    ", c2, "▐███\n"],
+      [c1, "█▌  ▀▀██▄▄  ", c2, "▐█\n"],
+      [c1, "█▌  ", c2, "▄▄  ", c1, "▀▀  ", c2, "▐█   "],
+      [t1, "N  ", t2, "E  ", t3, "R  ", t4, "V  ", t5, "E  ", t6, "S\n"],
+      [c1, "█▌  ", c2, "▀▀██▄▄  ▐█\n"],
+      [c1, "███▌    ", c2, "▀▀████\n"],
+      IO.ANSI.default_color()
+    ]
   end
 
   @spec rows(map(), list()) :: [[cell()]]
