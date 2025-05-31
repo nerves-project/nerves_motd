@@ -13,14 +13,6 @@ defmodule NervesMOTD do
   your Nerves project.
   """
 
-  @logo """
-  \e[38;5;24m████▄▄    \e[38;5;74m▐███
-  \e[38;5;24m█▌  ▀▀██▄▄  \e[38;5;74m▐█
-  \e[38;5;24m█▌  \e[38;5;74m▄▄  \e[38;5;24m▀▀  \e[38;5;74m▐█   \e[39mN  E  R  V  E  S
-  \e[38;5;24m█▌  \e[38;5;74m▀▀██▄▄  ▐█
-  \e[38;5;24m███▌    \e[38;5;74m▀▀████\e[0m
-  """
-
   alias Nerves.Runtime.KV
   alias NervesMOTD.Utils
 
@@ -53,6 +45,9 @@ defmodule NervesMOTD do
 
   * `:logo` - a custom logo to display instead of the default Nerves logo. Pass
     an empty logo (`""`) to remove it completely.
+  * `:nerves_logo_scheme` - if not passing `:logo`, this is the color
+    scheme for the Nerves logo. Call `NervesMOTD.nerves_logo_color_schemes/0` for
+    options.
   * `:extra_rows` - a list of custom rows or a callback for returning rows.
     The callback can be a 0-arity function reference or MFArgs tuple.
   """
@@ -86,7 +81,67 @@ defmodule NervesMOTD do
 
   @spec logo([option()]) :: IO.ANSI.ansidata()
   defp logo(opts) do
-    Keyword.get(opts, :logo, @logo)
+    opts[:logo] || nerves_logo(opts[:nerves_logo_scheme])
+  end
+
+  defp schemes() do
+    %{
+      gray: [7, 15, 7],
+      nerves: [24, 74, 7],
+      nerves_hub: [52, 88, 7],
+      rainbow: [24, 74, 196, 202, 226, 46, 27, 201],
+      pumpkin: [208, 214, 7],
+      valentine: [201, 213, 7],
+      christmas: [28, 34, 196, 34, 196, 34, 196, 34],
+      purple: [128, 134, 7],
+      hot_dog: [196, 11, 7],
+      ocean: [24, 74, 14, 24, 74, 14, 24, 74]
+    }
+  end
+
+  @doc """
+  Return known Nerves logo color schemes
+
+  In addition to the ones returned, `:random` will pick a random one.
+  """
+  @spec nerves_logo_color_schemes() :: [atom()]
+  def nerves_logo_color_schemes() do
+    schemes() |> Map.keys()
+  end
+
+  def all_logos() do
+    nerves_logo_color_schemes()
+    |> Enum.sort()
+    |> Enum.each(fn name ->
+      IO.puts("\n#{name}")
+      nerves_logo(name) |> IO.ANSI.format() |> IO.puts()
+    end)
+  end
+
+  defp logo_colors(:random), do: schemes() |> Enum.random() |> elem(1) |> logo_colors()
+  defp logo_colors(s) when is_atom(s), do: logo_colors(schemes()[s] || schemes()[:nerves])
+  defp logo_colors([c1, c2, t1]), do: logo_colors([c1, c2, t1, t1, t1, t1, t1, t1])
+
+  defp logo_colors(colors) when is_list(colors) and length(colors) == 8 do
+    expand_colors(colors, -1)
+  end
+
+  defp expand_colors([h | t], h), do: [[] | expand_colors(t, h)]
+  defp expand_colors([h | t], _), do: [IO.ANSI.color(h) | expand_colors(t, h)]
+  defp expand_colors([], _), do: []
+
+  def nerves_logo(scheme \\ :nerves) do
+    [c1, c2, t1, t2, t3, t4, t5, t6] = logo_colors(scheme)
+
+    [
+      [c1, "████▄▄    ", c2, "▐███\n"],
+      [c1, "█▌  ▀▀██▄▄  ", c2, "▐█\n"],
+      [c1, "█▌  ", c2, "▄▄  ", c1, "▀▀  ", c2, "▐█   "],
+      [t1, "N  ", t2, "E  ", t3, "R  ", t4, "V  ", t5, "E  ", t6, "S\n"],
+      [c1, "█▌  ", c2, "▀▀██▄▄  ▐█\n"],
+      [c1, "███▌    ", c2, "▀▀████\n"],
+      IO.ANSI.default_color()
+    ]
   end
 
   @spec rows(map(), list()) :: [[cell()]]
