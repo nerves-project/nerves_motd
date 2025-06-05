@@ -15,17 +15,16 @@ defmodule NervesMOTD.MixProject do
       package: package(),
       deps: deps(),
       aliases: aliases(),
-      dialyzer: dialyzer(),
-      preferred_cli_env: %{
-        docs: :docs,
-        "hex.publish": :docs,
-        "hex.build": :docs
-      }
+      dialyzer: dialyzer()
     ]
   end
 
   def application do
     []
+  end
+
+  def cli do
+    [preferred_envs: %{docs: :docs, "hex.publish": :docs, "hex.build": :docs}]
   end
 
   defp elixirc_paths(:test), do: ["lib", "test/support"]
