@@ -5,15 +5,15 @@
 defmodule Mix.Tasks.NervesMotd.Install.Docs do
   @moduledoc false
 
-  def short_doc do
+  def short_doc() do
     "Installs nerves_motd in your Nerves project."
   end
 
-  def example do
+  def example() do
     "mix igniter.install nerves_motd"
   end
 
-  def long_doc do
+  def long_doc() do
     """
     #{short_doc()}
 

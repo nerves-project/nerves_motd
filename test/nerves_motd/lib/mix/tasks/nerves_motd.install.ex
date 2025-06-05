@@ -3,6 +3,7 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 defmodule Mix.Tasks.NervesMotd.InstallTest do
+  @moduledoc false
   use ExUnit.Case, async: true
 
   import Igniter.Test
