@@ -34,21 +34,14 @@ defmodule NervesMOTD.MixProject do
     [
       {:nerves_runtime, "~> 0.8"},
       {:nerves_time, "~> 0.4", optional: true},
+      {:nerves_time_zones, "~> 0.1", optional: true},
       {:credo, "~> 1.5", only: [:dev, :test], runtime: false},
       {:dialyxir, "~> 1.1", only: :dev, runtime: false},
       {:ex_doc, "~> 0.25", only: :docs, runtime: false},
       {:mix_test_watch, "~> 1.1", only: :dev, runtime: false},
       {:igniter, "~> 0.5", only: [:dev, :test], optional: true, runtime: false},
       {:mox, "~> 1.0", only: :test}
-    ] ++ maybe_nerves_time_zones()
-  end
-
-  if Version.match?(System.version(), ">= 1.11.0") do
-    defp maybe_nerves_time_zones() do
-      [{:nerves_time_zones, "~> 0.1", optional: true}]
-    end
-  else
-    defp maybe_nerves_time_zones(), do: []
+    ]
   end
 
   defp docs do
