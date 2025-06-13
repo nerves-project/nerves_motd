@@ -40,15 +40,13 @@ defmodule NervesMOTDTest do
     assert capture_motd("bad option") =~ ~r/Could not print MOTD: .*/
   end
 
-  @nerves_logo_regex ~r/N  E  R  V  E  S/
-
   test "Default logo" do
     NervesMOTD.MockRuntime
     |> Mox.expect(:applications, 1, default_applications_code())
     |> Mox.expect(:active_partition, 1, fn -> "A" end)
     |> Mox.expect(:firmware_validity, 1, fn -> :valid end)
 
-    assert capture_motd() =~ @nerves_logo_regex
+    assert capture_motd() =~ ~r/N  E  R  V  E  S/
   end
 
   test "Custom logo" do
@@ -58,7 +56,7 @@ defmodule NervesMOTDTest do
     |> Mox.expect(:firmware_validity, 1, fn -> :valid end)
 
     assert capture_motd(logo: "custom logo") =~ ~r/custom logo/
-    refute capture_motd(logo: "custom logo") =~ @nerves_logo_regex
+    refute capture_motd(logo: "custom logo") =~ ~r/N  E  R  V  E  S/
   end
 
   test "Custom logo via Application environment" do
@@ -79,7 +77,7 @@ defmodule NervesMOTDTest do
     |> Mox.expect(:active_partition, 1, fn -> "A" end)
     |> Mox.expect(:firmware_validity, 1, fn -> :valid end)
 
-    refute capture_motd(logo: "") =~ @nerves_logo_regex
+    refute capture_motd(logo: "") =~ ~r/N  E  R  V  E  S/
   end
 
   test "Custom rows" do
