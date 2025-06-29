@@ -64,10 +64,15 @@ defmodule NervesMOTD do
     if ready?(apps) do
       [
         logo(combined_opts),
-        IO.ANSI.reset(),
+        :reset,
         uname(),
-        "\n",
-        Enum.map(rows(apps, combined_opts), &format_row/1),
+        "\n\n",
+        Tablet.render(info(opts),
+          column_widths: %{key: 14, value: :expand},
+          wrap_across: 2,
+          wrap_direction: :horizontal,
+          style: :kv
+        ),
         "\n",
         """
         Nerves CLI help: https://hexdocs.pm/nerves/iex-with-nerves.html
@@ -89,20 +94,25 @@ defmodule NervesMOTD do
     Keyword.get(opts, :logo, @logo)
   end
 
-  @spec rows(map(), list()) :: [[cell()]]
-  defp rows(apps, opts) do
+  defp info(opts) do
+    blank = %{key: "", value: ""}
+
     [
-      [{"Serial", serial_number()}],
-      [{"Uptime", uptime()}],
-      [clock_cell()],
-      temperature_row(),
-      [],
-      [firmware_cell(), applications_cell(apps)],
-      [memory_usage_cell(), active_application_partition_cell()],
-      [{"Hostname", hostname()}, {"Load average", load_average()}],
-      []
-    ] ++
-      ip_address_rows() ++ extra_rows(opts)
+      %{key: "Serial", value: serial_number()},
+      %{key: "CPU Temp", value: temperature()},
+      %{key: "Uptime", value: uptime()},
+      %{key: "Clock", value: clock()},
+      blank,
+      blank,
+      %{key: "Firmware", value: firmware_slot()},
+      %{key: "Applications", value: applications(runtime_mod().applications())},
+      %{key: "Memory usage", value: memory_usage()},
+      %{key: "Part usage", value: active_application_partition()},
+      %{key: "Hostname", value: hostname()},
+      %{key: "Load average", value: load_average()},
+      blank,
+      blank
+    ] ++ ip_address_rows() ++ extra_rows(opts)
   end
 
   @spec extra_rows([option()]) :: IO.ANSI.ansidata()
@@ -118,104 +128,60 @@ defmodule NervesMOTD do
       [[{[:red, ":extra_rows failed"], ["failed (", inspect(err), ") - ", inspect(msg)]}]]
   end
 
-  @spec format_row([cell()]) :: iolist()
-  # A blank line
-  defp format_row([]), do: ["\n"]
-
-  # A row with full width
-  defp format_row([{label, value}]) do
-    ["  ", format_cell_label(label), " : ", value, "\n", :reset]
-  end
-
-  # A row with two columns
-  defp format_row([col0, col1]) do
-    ["  ", format_cell(col0, 0), format_cell(col1, 1), "\n"]
-  end
-
-  defp format_row(nil), do: []
-
-  @spec temperature_row() :: [cell()] | nil
-  defp temperature_row() do
+  defp temperature() do
     case runtime_mod().cpu_temperature() do
-      {:ok, temperature_c} ->
-        [{"Temperature", [:erlang.float_to_binary(temperature_c, decimals: 1), "°C"]}]
-
-      _ ->
-        nil
+      {:ok, temperature_c} -> [:erlang.float_to_binary(temperature_c, decimals: 1), "°C"]
+      _ -> "Unavailable"
     end
   end
 
-  @spec format_cell(cell(), 0 | 1) :: IO.ANSI.ansidata()
-  defp format_cell({label, value}, column_index) do
-    [format_cell_label(label), " : ", format_cell_value(value, column_index, 24), :reset]
+  defp clock() do
+    if runtime_mod().time_synchronized?() do
+      Utils.formatted_local_time()
+    else
+      [:yellow, Utils.formatted_local_time(), " (unsynchronized)", :default_color]
+    end
   end
 
-  @spec format_cell_label(IO.ANSI.ansidata()) :: IO.ANSI.ansidata()
-  defp format_cell_label(label), do: Utils.fit_ansidata(label, 12)
-
-  @spec format_cell_value(IO.ANSI.ansidata(), 0 | 1, pos_integer()) :: IO.ANSI.ansidata()
-  defp format_cell_value(value, 0, width), do: Utils.fit_ansidata(value, width)
-  defp format_cell_value(value, 1, _width), do: value
-
-  @spec clock_cell() :: cell()
-  defp clock_cell() do
-    formatted_clock =
-      if runtime_mod().time_synchronized?() do
-        Utils.formatted_local_time()
-      else
-        [:yellow, Utils.formatted_local_time(), " (unsynchronized)", :reset]
-      end
-
-    {"Clock", formatted_clock}
-  end
-
-  @spec firmware_cell() :: cell()
-  defp firmware_cell() do
+  defp firmware_slot() do
     fw_active = runtime_mod().active_partition()
 
-    status =
-      case runtime_mod().firmware_validity() do
-        :valid -> [:green, "Valid (#{fw_active})"]
-        :invalid -> [:red, "Not validated (#{fw_active})"]
-        _ -> fw_active
-      end
-
-    {"Firmware", status}
+    case runtime_mod().firmware_validity() do
+      :valid -> [:green, "Valid (#{fw_active})", :default_color]
+      :invalid -> [:red, "Not validated (#{fw_active})", :default_color]
+      _ -> fw_active
+    end
   end
 
-  @spec applications_cell(%{loaded: list(), started: list()}) :: cell()
-  defp applications_cell(apps) do
+  defp applications(apps) do
     started_count = length(apps[:started])
     loaded_count = length(apps[:loaded])
 
     if started_count == loaded_count do
-      {"Applications", "#{started_count} started"}
+      "#{started_count} started"
     else
       not_started = Enum.join(apps[:loaded] -- apps[:started], ", ")
-      {"Applications", [:yellow, "#{started_count} started (#{not_started} not started)"]}
+      [:yellow, "#{started_count} started (#{not_started} not started)", :default_color]
     end
   end
 
-  @spec memory_usage_cell() :: cell()
-  defp memory_usage_cell() do
+  defp memory_usage() do
     case runtime_mod().memory_stats() do
       {:ok, stats} ->
         text = :io_lib.format("~p MB (~p%)", [stats.used_mb, stats.used_percent])
 
         if stats.used_percent < 85 do
-          {"Memory usage", text}
+          text
         else
-          {"Memory usage", [:red, text]}
+          [:red, text, :default_color]
         end
 
       :error ->
-        {"Memory usage", [:red, "not available"]}
+        [:red, "not available", :default_color]
     end
   end
 
-  @spec active_application_partition_cell() :: cell()
-  defp active_application_partition_cell() do
-    label = "Part usage"
+  defp active_application_partition() do
     app_partition_path = KV.get_active("nerves_fw_application_part0_devpath")
 
     with true <- devpath_specified?(app_partition_path),
@@ -223,13 +189,12 @@ defmodule NervesMOTD do
       text = :io_lib.format("~p MB (~p%)", [stats.used_mb, stats.used_percent])
 
       if stats.used_percent < 85 do
-        {label, text}
+        text
       else
-        {label, [:red, text]}
+        [:red, text, :default_color]
       end
     else
-      _ ->
-        {label, [:red, "not available"]}
+      _ -> [:red, "not available", :default_color]
     end
   end
 
@@ -285,11 +250,11 @@ defmodule NervesMOTD do
     {:ok, if_addresses} = :inet.getifaddrs()
 
     if_addresses
-    |> Enum.map(&ip_address_row/1)
+    |> Enum.flat_map(&ip_address_row/1)
     |> Enum.reject(fn row -> row == [] end)
+    |> Enum.sort_by(& &1.key)
   end
 
-  @spec ip_address_row({charlist(), keyword()}) :: [cell()]
   defp ip_address_row({name, ifaddrs}) when name not in @excluded_ifnames do
     case Utils.extract_ifaddr_addresses(ifaddrs) do
       [] ->
@@ -301,9 +266,9 @@ defmodule NervesMOTD do
         formatted_list =
           addresses
           |> Enum.map(&Utils.ip_address_mask_to_string/1)
-          |> Enum.intersperse(", ")
+          |> Enum.intersperse("\n")
 
-        [{name, formatted_list}]
+        [%{key: name, value: formatted_list}]
     end
   end
 
