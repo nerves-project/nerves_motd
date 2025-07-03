@@ -20,7 +20,7 @@ defmodule NervesMOTD.MixProject do
   end
 
   def application do
-    []
+    [extra_applications: [:os_mon]]
   end
 
   def cli do
