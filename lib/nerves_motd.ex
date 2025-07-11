@@ -98,9 +98,9 @@ defmodule NervesMOTD do
     blank = %{key: "", value: ""}
 
     [
-      %{key: "Serial", value: serial_number()},
+      # %{key: "Serial", value: serial_number()},
       %{key: "CPU Temp", value: temperature()},
-      %{key: "Uptime", value: uptime()},
+      #  %{key: "Uptime", value: uptime()},
       %{key: "Clock", value: clock()},
       blank,
       blank,
@@ -108,8 +108,8 @@ defmodule NervesMOTD do
       %{key: "Applications", value: applications(runtime_mod().applications())},
       %{key: "Memory usage", value: memory_usage()},
       %{key: "Part usage", value: active_application_partition()},
-      %{key: "Hostname", value: hostname()},
-      %{key: "Load average", value: load_average()},
+      #  %{key: "Hostname", value: hostname()},
+      # %{key: "Load average", value: load_average()},
       blank,
       blank
     ] ++ ip_address_rows() ++ extra_rows(opts)
@@ -140,6 +140,16 @@ defmodule NervesMOTD do
       Utils.formatted_local_time()
     else
       [:yellow, Utils.formatted_local_time(), " (unsynchronized)", :default_color]
+    end
+  end
+
+  defp format_uptime(seconds) do
+    {d, {h, m, _s}} = :calendar.seconds_to_daystime(seconds)
+
+    cond do
+      d > 0 -> "#{d}d#{h}h#{m}m"
+      h > 0 -> "#{h}h#{m}m"
+      true -> "#{m}m"
     end
   end
 
@@ -210,39 +220,6 @@ defmodule NervesMOTD do
     fw_version = KV.get_active("nerves_fw_version")
     fw_uuid = KV.get_active("nerves_fw_uuid")
     [fw_product, " ", fw_version, " (", fw_uuid, ") ", fw_architecture, " ", fw_platform]
-  end
-
-  # https://github.com/erlang/otp/blob/1c63b200a677ec7ac12202ddbcf7710884b16ff2/lib/stdlib/src/c.erl#L1118
-  @spec uptime() :: IO.chardata()
-  defp uptime() do
-    {uptime, _} = :erlang.statistics(:wall_clock)
-    {d, {h, m, s}} = :calendar.seconds_to_daystime(div(uptime, 1000))
-    days = if d > 0, do: :io_lib.format("~b days, ", [d]), else: []
-    hours = if d + h > 0, do: :io_lib.format("~b hours, ", [h]), else: []
-    minutes = if d + h + m > 0, do: :io_lib.format("~b minutes and ", [m]), else: []
-    seconds = :io_lib.format("~b", [s])
-    millis = if d + h + m == 0, do: :io_lib.format(".~3..0b", [rem(uptime, 1000)]), else: []
-
-    [days, hours, minutes, seconds, millis, " seconds"]
-  end
-
-  @spec load_average() :: IO.chardata()
-  defp load_average() do
-    case runtime_mod().load_average() do
-      [a, b, c | _] -> [a, " ", b, " ", c]
-      _ -> "error"
-    end
-  end
-
-  @spec serial_number() :: String.t()
-  defp serial_number() do
-    Nerves.Runtime.serial_number()
-  end
-
-  @spec hostname() :: [byte()]
-  defp hostname() do
-    {:ok, hostname} = :inet.gethostname()
-    hostname
   end
 
   @spec ip_address_rows() :: [[cell()]]

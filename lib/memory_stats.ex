@@ -77,6 +77,69 @@ defmodule MemoryStats do
     end
   end
 
+  def show_cpu_utilization() do
+    _ = :cpu_sup.util()
+    Process.sleep(100)
+    {cpus, busy, non_busy, _misc} = :cpu_sup.util([:detailed])
+    cpu_count = length(cpus)
+
+    load_averages = %{
+      cpu_avg1: :cpu_sup.avg1() / 256,
+      cpu_avg5: :cpu_sup.avg5() / 256,
+      cpu_avg15: :cpu_sup.avg15() / 256
+    }
+
+    speed = round(cpu_speed_khz() / 1000)
+    render_cpu_utilization(cpu_count, busy, non_busy, load_averages, speed)
+  end
+
+  defp render_cpu_utilization(cpu_count, busy, non_busy, load_averages, speed) do
+    segments = [
+      {"Nice", :yellow, busy[:nice_user]},
+      {"User", :blue, busy[:user]},
+      {"Kernel", :magenta, busy[:kernel]},
+      {"Idle", :light_black, non_busy[:idle]}
+    ]
+
+    legend = [
+      [
+        "CPU: ",
+        draw_bars(segments, 16),
+        " #{round(100 - non_busy[:idle])}% #{cpu_count}@#{speed} MHz\n"
+      ],
+      [
+        "LAV: ",
+        ftb(load_averages.cpu_avg1, 1),
+        " ",
+        ftb(load_averages.cpu_avg5, 1),
+        " ",
+        ftb(load_averages.cpu_avg15, 1),
+        "\n"
+      ]
+    ]
+
+    IO.puts(IO.ANSI.format(legend))
+  end
+
+  def read_int(path) do
+    case File.read(path) do
+      {:ok, contents} -> String.trim(contents) |> String.to_integer()
+      _ -> nil
+    end
+  end
+
+  def cpu_speed_khz() do
+    Path.wildcard("/sys/devices/system/cpu/cpu[0-9]*/cpufreq/scaling_cur_freq")
+    |> Enum.map(&read_int/1)
+    |> Enum.reject(&is_nil/1)
+    |> average()
+  end
+
+  defp average([]), do: 0.0
+  defp average(list), do: Enum.sum(list) / length(list)
+
+  defp ftb(v, d), do: :erlang.float_to_binary(v, decimals: d)
+
   defp render_system_memory(system_memory) do
     # Extract system memory categories
     total = Keyword.get(system_memory, :total_memory, 0)
@@ -97,7 +160,7 @@ defmodule MemoryStats do
 
     legend = [
       draw_bars(segments, 20),
-      " #{format(available)}/#{format(total)} #{round(available / total * 100)}%\n\n",
+      " #{format(total - available)}/#{format(total)} #{round((total - available) / total * 100)}%\n\n",
       draw_legend(segments)
     ]
 
@@ -114,10 +177,10 @@ defmodule MemoryStats do
     cond do
       bytes < 1000 -> {bytes, "~4B B "}
       bytes < 1024 * 100 -> {bytes / 1024, "~4.1f KB"}
-      bytes < 1024 * 1024 -> {round(bytes / 1024), "~4B KB"}
+      bytes < 1_048_576 -> {round(bytes / 1024), "~4B KB"}
       bytes < 1_048_576 * 100 -> {bytes / 1_048_576, "~4.1f MB"}
-      bytes < 1024 * 1024 * 1024 -> {round(bytes / (1024 * 1024)), "~4B MB"}
-      true -> {bytes / (1024 * 1024 * 1024), "~4.1f GB"}
+      bytes < 1_073_741_824 -> {round(bytes / 1_048_576), "~4B MB"}
+      true -> {bytes / 1_073_741_824, "~4.1f GB"}
     end
   end
 end
