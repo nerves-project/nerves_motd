@@ -177,10 +177,16 @@ defmodule NervesMOTD do
       case runtime_mod().firmware_validity() do
         :valid -> [:green, "Valid (#{fw_active})"]
         :invalid -> [:red, "Not validated (#{fw_active})"]
-        _ -> fw_active
+        _ -> [fw_active]
       end
 
-    {"Firmware", status}
+    reverted =
+      case runtime_mod().firmware_reverted?() do
+        true -> [:red, " [Reverted]"]
+        false -> []
+      end
+
+    {"Firmware", status ++ reverted}
   end
 
   @spec applications_cell(%{loaded: list(), started: list()}) :: cell()

@@ -221,6 +221,16 @@ defmodule NervesMOTDTest do
     assert capture_motd() =~ ~r/Firmware     : A/
   end
 
+  test "Previous firmware was reverted" do
+    NervesMOTD.MockRuntime
+    |> Mox.expect(:applications, 1, default_applications_code())
+    |> Mox.expect(:active_partition, 1, fn -> "A" end)
+    |> Mox.expect(:firmware_validity, 1, fn -> :valid end)
+    |> Mox.expect(:firmware_reverted?, 1, fn -> true end)
+
+    assert capture_motd() =~ ~r/Firmware     : Valid \(A\) \[Reverted\]/
+  end
+
   test "Applications when all apps started" do
     apps = %{started: [:a, :b, :nerves_runtime], loaded: [:a, :b, :nerves_runtime]}
 

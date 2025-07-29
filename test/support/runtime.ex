@@ -48,5 +48,8 @@ defmodule NervesMOTD.Runtime.Host do
   def firmware_validity(), do: :valid
 
   @impl NervesMOTD.Runtime
+  def firmware_reverted?(), do: false
+
+  @impl NervesMOTD.Runtime
   def active_partition(), do: "A"
 end

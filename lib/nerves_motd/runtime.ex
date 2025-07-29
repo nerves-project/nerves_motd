@@ -10,6 +10,7 @@ defmodule NervesMOTD.Runtime do
   @callback cpu_temperature() :: {:ok, float()} | :error
   @callback active_partition() :: String.t()
   @callback firmware_validity() :: :valid | :invalid | :unknown
+  @callback firmware_reverted?() :: boolean()
   @callback load_average() :: [String.t()]
   @callback memory_stats() ::
               {:ok,
@@ -70,6 +71,15 @@ defmodule NervesMOTD.Runtime.Target do
   @impl NervesMOTD.Runtime
   def firmware_validity() do
     if Nerves.Runtime.firmware_valid?(), do: :valid, else: :invalid
+  end
+
+  @impl NervesMOTD.Runtime
+  def firmware_reverted?() do
+    if Module.defines?(Nerves.Runtime, {:firmware_reverted?, 0}) do
+      apply(Nerves.Runtime, :firmware_reverted?, [])
+    else
+      false
+    end
   end
 
   @impl NervesMOTD.Runtime
