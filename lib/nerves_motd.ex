@@ -244,7 +244,12 @@ defmodule NervesMOTD do
     fw_product = KV.get_active("nerves_fw_product")
     fw_version = KV.get_active("nerves_fw_version")
     fw_uuid = KV.get_active("nerves_fw_uuid")
+
     [fw_product, " ", fw_version, " (", fw_uuid, ") ", fw_architecture, " ", fw_platform, "\n"]
+    |> Enum.map(fn
+      nil -> "**UNKNOWN**"
+      value -> value
+    end)
   end
 
   # https://github.com/erlang/otp/blob/1c63b200a677ec7ac12202ddbcf7710884b16ff2/lib/stdlib/src/c.erl#L1118
