@@ -127,14 +127,14 @@ defmodule NervesMOTDTest do
     assert capture_motd(extra_rows: bad_fun) =~ ~r/:extra_rows  : failed \(:error\) -/
   end
 
-  test "Uname" do
+  test "firmware_designation" do
     NervesMOTD.MockRuntime
     |> Mox.expect(:applications, 1, default_applications_code())
     |> Mox.expect(:active_partition, 1, fn -> "A" end)
     |> Mox.expect(:firmware_validity, 1, fn -> :valid end)
 
     assert capture_motd() =~
-             ~r/nerves_livebook 0.2.17 \(0540f0cd-f95a-5596-d152-221a70c078a9\) arm rpi4/
+             ~r/nerves_livebook 0.2.17 - energy-bid \(53233641-82a4-5576-b75d-d227a234c626\)/
   end
 
   test "Serial number" do
