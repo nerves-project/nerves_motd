@@ -49,4 +49,9 @@ defmodule NervesMOTD.Runtime.Host do
 
   @impl NervesMOTD.Runtime
   def active_partition(), do: "A"
+
+  @impl NervesMOTD.Runtime
+  def firmware_id() do
+    "energy-bid (53233641-82a4-5576-b75d-d227a234c626)"
+  end
 end

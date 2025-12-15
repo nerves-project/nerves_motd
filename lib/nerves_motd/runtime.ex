@@ -6,6 +6,7 @@
 #
 defmodule NervesMOTD.Runtime do
   @moduledoc false
+
   @callback applications() :: %{started: [atom()], expected: [atom()], loaded: [atom()]}
   @callback cpu_temperature() :: {:ok, float()} | :error
   @callback active_partition() :: String.t()
@@ -28,6 +29,7 @@ defmodule NervesMOTD.Runtime do
                }}
               | :error
   @callback time_synchronized?() :: boolean()
+  @callback firmware_id() :: String.t()
 end
 
 defmodule NervesMOTD.Runtime.Target do
@@ -35,6 +37,7 @@ defmodule NervesMOTD.Runtime.Target do
   @behaviour NervesMOTD.Runtime
 
   alias Nerves.Runtime.KV
+  alias NervesMOTD.Word34567
 
   @impl NervesMOTD.Runtime
   def applications() do
@@ -84,6 +87,35 @@ defmodule NervesMOTD.Runtime.Target do
   @impl NervesMOTD.Runtime
   def firmware_validity() do
     if Nerves.Runtime.firmware_valid?(), do: :valid, else: :invalid
+  end
+
+  @impl NervesMOTD.Runtime
+  def firmware_id() do
+    case KV.get_active("nerves_fw_uuid") do
+      nil -> "unknown"
+      uuid -> format_uuid(uuid)
+    end
+  end
+
+  @doc false
+  @spec format_uuid(String.t()) :: String.t()
+  def format_uuid(uuid) do
+    nickname = uuid_to_nickname(uuid)
+    "#{nickname} (#{uuid})"
+  end
+
+  # Convert a UUID to a nickname using the fwup algorithm
+  defp uuid_to_nickname(uuid) do
+    # Remove hyphens from UUID and convert to binary
+    uuid_binary =
+      uuid
+      |> String.replace("-", "")
+      |> Base.decode16!(case: :mixed)
+
+    # Get the first two bytes (most significant)
+    <<first::8, second::8, _rest::binary>> = uuid_binary
+
+    "#{Word34567.word(first)}-#{Word34567.word(second)}"
   end
 
   @impl NervesMOTD.Runtime

@@ -65,7 +65,7 @@ defmodule NervesMOTD do
       [
         logo(combined_opts),
         IO.ANSI.reset(),
-        uname(),
+        firmware_designation(),
         "\n",
         Enum.map(rows(apps, combined_opts), &format_row/1),
         "\n",
@@ -237,19 +237,13 @@ defmodule NervesMOTD do
   defp devpath_specified?(""), do: false
   defp devpath_specified?(path) when is_binary(path), do: true
 
-  @spec uname() :: IO.chardata()
-  defp uname() do
-    fw_architecture = KV.get_active("nerves_fw_architecture")
-    fw_platform = KV.get_active("nerves_fw_platform")
-    fw_product = KV.get_active("nerves_fw_product")
-    fw_version = KV.get_active("nerves_fw_version")
-    fw_uuid = KV.get_active("nerves_fw_uuid")
+  @spec firmware_designation() :: IO.ANSI.ansidata()
+  defp firmware_designation() do
+    fw_product = KV.get_active("nerves_fw_product") || "unknown"
+    fw_version = KV.get_active("nerves_fw_version") || "0.0.0"
+    fw_id = runtime_mod().firmware_id()
 
-    [fw_product, " ", fw_version, " (", fw_uuid, ") ", fw_architecture, " ", fw_platform, "\n"]
-    |> Enum.map(fn
-      nil -> "**UNKNOWN**"
-      value -> value
-    end)
+    [fw_product, " ", fw_version, " - ", fw_id, "\n"]
   end
 
   # https://github.com/erlang/otp/blob/1c63b200a677ec7ac12202ddbcf7710884b16ff2/lib/stdlib/src/c.erl#L1118
