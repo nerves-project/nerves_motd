@@ -1,0 +1,24 @@
+fhunleth@sprint:~/.../erlang/otp$ free                                                                                                      maint*
+               total        used        free      shared  buff/cache   available
+Mem:        63341028    16017572     6141072      371340    42269816    47323456
+Swap:       67108860        6144    67102716
+fhunleth@sprint:~/.../erlang/otp$ erl
+Erlang/OTP 25 [erts-13.1.4] [source-a09fbd07f3] [64-bit] [smp:32:32] [ds:32:32:10] [async-threads:1] [jit:ns]
+
+Eshell V13.1.4  (abort with ^G)
+1> application:ensure_all_started(os_mon).
+{ok,[sasl,os_mon]}
+2> =INFO REPORT==== 5-Jul-2025::21:09:28.116007 ===
+    alarm_handler: {set,{system_memory_high_watermark,[]}}
+
+2> memsup:get_memory_data().
+{64861212672,58639036416,{<0.67.0>,12116800}}
+3> memsup:get_system_memory_data().
+[{available_memory,48489840640},
+ {buffered_memory,2488115200},
+ {cached_memory,40793567232},
+ {free_memory,6318649344},
+ {free_swap,68713181184},
+ {system_total_memory,64861212672},
+ {total_memory,64861212672},
+ {total_swap,68719472640}]
