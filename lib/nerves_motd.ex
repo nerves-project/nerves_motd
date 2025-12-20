@@ -183,16 +183,16 @@ defmodule NervesMOTD do
     {"Firmware", status}
   end
 
-  @spec applications_cell(%{loaded: list(), started: list()}) :: cell()
+  @spec applications_cell(%{expected: list(), started: list(), loaded: list()}) :: cell()
   defp applications_cell(apps) do
+    not_started = apps[:expected] -- apps[:started]
     started_count = length(apps[:started])
-    loaded_count = length(apps[:loaded])
 
-    if started_count == loaded_count do
+    if not_started == [] do
       {"Applications", "#{started_count} started"}
     else
-      not_started = Enum.join(apps[:loaded] -- apps[:started], ", ")
-      {"Applications", [:yellow, "#{started_count} started (#{not_started} not started)"]}
+      {"Applications",
+       [:yellow, "#{started_count} started (#{Enum.join(not_started, ", ")} not started)"]}
     end
   end
 

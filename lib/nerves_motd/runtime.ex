@@ -6,7 +6,7 @@
 #
 defmodule NervesMOTD.Runtime do
   @moduledoc false
-  @callback applications() :: %{started: [atom()], loaded: [atom()]}
+  @callback applications() :: %{started: [atom()], expected: [atom()], loaded: [atom()]}
   @callback cpu_temperature() :: {:ok, float()} | :error
   @callback active_partition() :: String.t()
   @callback firmware_validity() :: :valid | :invalid | :unknown
@@ -41,7 +41,21 @@ defmodule NervesMOTD.Runtime.Target do
     started = Enum.map(Application.started_applications(), &elem(&1, 0))
     loaded = Enum.map(Application.loaded_applications(), &elem(&1, 0))
 
-    %{started: started, loaded: loaded}
+    # If getting the expected apps fails, just return the loaded ones since
+    # that will be close.
+    expected = expected_started_apps() || loaded
+
+    %{started: started, loaded: loaded, expected: expected}
+  end
+
+  defp expected_started_apps() do
+    {:ok, [[boot]]} = :init.get_argument(:boot)
+    contents = File.read!("#{boot}.boot")
+    {:script, _name, instructions} = :erlang.binary_to_term(contents)
+
+    for {:apply, {:application, :start_boot, [app | _]}} <- instructions, do: app
+  rescue
+    _ -> nil
   end
 
   @impl NervesMOTD.Runtime

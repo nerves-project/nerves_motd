@@ -29,7 +29,9 @@ defmodule NervesMOTDTest do
   end
 
   defp default_applications_code() do
-    fn -> %{started: [:nerves_runtime], loaded: []} end
+    fn ->
+      %{started: [:nerves_runtime], expected: [:nerves_runtime], loaded: [:nerves_runtime]}
+    end
   end
 
   test "print" do
@@ -222,7 +224,8 @@ defmodule NervesMOTDTest do
   end
 
   test "Applications when all apps started" do
-    apps = %{started: [:a, :b, :nerves_runtime], loaded: [:a, :b, :nerves_runtime]}
+    all_apps = [:a, :b, :nerves_runtime]
+    apps = %{started: all_apps, expected: all_apps, loaded: all_apps}
 
     NervesMOTD.MockRuntime
     |> Mox.expect(:applications, 1, fn -> apps end)
@@ -233,7 +236,8 @@ defmodule NervesMOTDTest do
   end
 
   test "Applications when not all apps started" do
-    apps = %{started: [:nerves_runtime], loaded: [:a, :b, :nerves_runtime]}
+    all_apps = [:a, :b, :nerves_runtime]
+    apps = %{started: [:nerves_runtime], expected: all_apps, loaded: all_apps}
 
     NervesMOTD.MockRuntime
     |> Mox.expect(:applications, 1, fn -> apps end)
@@ -349,7 +353,7 @@ defmodule NervesMOTDTest do
 
   test "Doesn't print if nerves_runtime isn't started" do
     NervesMOTD.MockRuntime
-    |> Mox.expect(:applications, 1, fn -> %{started: [], loaded: []} end)
+    |> Mox.expect(:applications, 1, fn -> %{started: [], loaded: [], expected: []} end)
 
     assert capture_motd() == ""
   end
