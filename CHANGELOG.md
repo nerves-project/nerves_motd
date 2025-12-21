@@ -2,6 +2,20 @@
 
 This project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## v0.1.16 - 2025-12-20
+
+This release requires Elixir 1.14 or later.
+
+* Fixes
+  * Fix started application field to not warn on applications that are
+    intentionally not started in the release.
+
+* Improvements
+  * Copyright and licensing has been updated to follow the REUSE standard
+  * Support installation using Igniter. While this isn't necessary currently
+    since `nerves_motd` is installed via `mix nerves.new`, in the future when
+    more Nerves libraries support Igniter, the plan is to trim `nerves.new`.
+
 ## v0.1.15 - 2024-07-19
 
 This release requires Elixir 1.13 or later. Previous versions became hard to
