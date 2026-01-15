@@ -13,6 +13,9 @@ defmodule NervesMOTD do
   your Nerves project.
   """
 
+  alias Nerves.Runtime.KV
+  alias NervesMOTD.Utils
+
   @logo """
   \e[38;5;24m████▄▄    \e[38;5;74m▐███
   \e[38;5;24m█▌  ▀▀██▄▄  \e[38;5;74m▐█
@@ -20,9 +23,6 @@ defmodule NervesMOTD do
   \e[38;5;24m█▌  \e[38;5;74m▀▀██▄▄  ▐█
   \e[38;5;24m███▌    \e[38;5;74m▀▀████\e[0m
   """
-
-  alias Nerves.Runtime.KV
-  alias NervesMOTD.Utils
 
   @excluded_ifnames [~c"lo", ~c"lo0"]
 

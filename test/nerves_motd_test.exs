@@ -9,9 +9,10 @@ defmodule NervesMOTDTest do
   use ExUnit.Case
   doctest NervesMOTD
 
-  alias Nerves.Runtime.KV
   import ExUnit.CaptureIO
   import Mox
+
+  alias Nerves.Runtime.KV
 
   # https://hexdocs.pm/mox/Mox.html#module-global-mode
   setup :set_mox_from_context
