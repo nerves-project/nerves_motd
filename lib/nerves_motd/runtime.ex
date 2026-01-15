@@ -78,10 +78,8 @@ defmodule NervesMOTD.Runtime.Target do
 
   @impl NervesMOTD.Runtime
   def active_partition() do
-    case KV.get("nerves_fw_active") do
-      nil -> "unknown"
-      partition -> String.upcase(partition)
-    end
+    slots = Nerves.Runtime.firmware_slots()
+    String.upcase(slots.active)
   end
 
   @impl NervesMOTD.Runtime
