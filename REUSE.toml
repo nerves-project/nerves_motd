@@ -1,19 +1,13 @@
 version = 1
 
 [[annotations]]
-path = ["README.md"]
-precedence = "aggregate"
-SPDX-FileCopyrightText = "2021 Masatoshi Nishiguchi"
-SPDX-License-Identifier = "CC-BY-4.0"
-
-[[annotations]]
-path = [".gitignore", ".github/dependabot.yml", ".circleci/config.yml", "REUSE.toml"]
+path = ["REUSE.toml"]
 precedence = "aggregate"
 SPDX-FileCopyrightText = "None"
 SPDX-License-Identifier = "CC0-1.0"
 
 [[annotations]]
-path = [".formatter.exs", "mix.lock", ".credo.exs", "mix.exs", "CHANGELOG.md", "NOTICE"]
+path = ["mix.lock", "mix.exs", "NOTICE"]
 precedence = "aggregate"
 SPDX-FileCopyrightText = "None"
 SPDX-License-Identifier = "CC0-1.0"

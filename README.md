@@ -1,3 +1,7 @@
+<!--
+  SPDX-FileCopyrightText: 2021 Masatoshi Nishiguchi
+  SPDX-License-Identifier: CC-BY-4.0
+-->
 # nerves_motd
 
 [![Hex version](https://img.shields.io/hexpm/v/nerves_motd.svg "Hex version")](https://hex.pm/packages/nerves_motd)
