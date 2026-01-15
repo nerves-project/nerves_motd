@@ -73,6 +73,7 @@ defmodule NervesMOTD do
         Nerves CLI help: https://hexdocs.pm/nerves/iex-with-nerves.html
         """
       ]
+      |> Utils.make_safe()
       |> IO.ANSI.format()
       |> IO.puts()
     end

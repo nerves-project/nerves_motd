@@ -54,6 +54,22 @@ defmodule NervesMOTD.Utils do
     "#{:inet.ntoa(address)}/#{subnet_mask_to_prefix(mask)}"
   end
 
+  @spec make_safe(IO.ANSI.ansidata()) :: IO.ANSI.ansidata()
+  def make_safe(data) do
+    Enum.map(data, fn item ->
+      case item do
+        items when is_list(items) ->
+          make_safe(items)
+
+        nil ->
+          "-missing-"
+
+        item ->
+          item
+      end
+    end)
+  end
+
   @doc """
   Convert a subnet mask tuple to a prefix length
 

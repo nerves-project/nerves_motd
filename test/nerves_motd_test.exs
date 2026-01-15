@@ -110,6 +110,15 @@ defmodule NervesMOTDTest do
     assert capture_motd(extra_rows: {__MODULE__, :extra_rows_callback, []}) =~ ~r/hello/
   end
 
+  test "nil values should provide good error information" do
+    NervesMOTD.MockRuntime
+    |> Mox.expect(:applications, 1, default_applications_code())
+    |> Mox.expect(:active_partition, 1, fn -> "A" end)
+    |> Mox.expect(:firmware_validity, 1, fn -> :valid end)
+
+    assert capture_motd(extra_rows: [[{"custom row", nil}]]) =~ ~r/-missing-/
+  end
+
   @doc false
   @spec extra_rows_callback() :: list()
   def extra_rows_callback() do
