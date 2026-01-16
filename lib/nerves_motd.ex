@@ -95,11 +95,11 @@ defmodule NervesMOTD do
       [{"Serial", serial_number()}],
       [{"Uptime", uptime()}],
       [clock_cell()],
-      temperature_row(),
       [],
       [firmware_cell(), applications_cell(apps)],
       [memory_usage_cell(), active_application_partition_cell()],
-      [{"Hostname", hostname()}, {"Load average", load_average()}],
+      [{"Load average", load_average()}, {"Temperature", temperature()}],
+      [{"Hostname", hostname()}, {"Platform", platform()}],
       []
     ] ++
       ip_address_rows() ++ extra_rows(opts)
@@ -133,17 +133,6 @@ defmodule NervesMOTD do
   end
 
   defp format_row(nil), do: []
-
-  @spec temperature_row() :: [cell()] | nil
-  defp temperature_row() do
-    case runtime_mod().cpu_temperature() do
-      {:ok, temperature_c} ->
-        [{"Temperature", [:erlang.float_to_binary(temperature_c, decimals: 1), "°C"]}]
-
-      _ ->
-        nil
-    end
-  end
 
   @spec format_cell(cell(), 0 | 1) :: IO.ANSI.ansidata()
   defp format_cell({label, value}, column_index) do
@@ -307,6 +296,20 @@ defmodule NervesMOTD do
   end
 
   defp ip_address_row(_), do: []
+
+  defp temperature() do
+    case runtime_mod().cpu_temperature() do
+      {:ok, temperature_c} -> [:erlang.float_to_binary(temperature_c, decimals: 1), "°C"]
+      _ -> "N/A"
+    end
+  end
+
+  defp platform() do
+    fw_platform = KV.get_active("nerves_fw_platform") || "unknown"
+    fw_architecture = KV.get_active("nerves_fw_architecture") || ""
+
+    [fw_platform, " ", fw_architecture]
+  end
 
   defp runtime_mod() do
     Application.get_env(:nerves_motd, :runtime_mod, NervesMOTD.Runtime.Target)
