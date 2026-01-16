@@ -194,7 +194,7 @@ defmodule NervesMOTDTest do
     |> Mox.expect(:firmware_validity, 1, fn -> :valid end)
     |> Mox.expect(:cpu_temperature, 1, fn -> :error end)
 
-    refute capture_motd() =~ ~r/Temperature/
+    assert capture_motd() =~ ~r/Temperature  : N\/A/
   end
 
   test "Firmware when valid" do
