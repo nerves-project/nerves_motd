@@ -7,6 +7,21 @@
 
 This project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## v0.1.17 - 2026-01-18
+
+* Improvements
+  * Add firmware nickname to top line describing the firmware version. This
+    makes it easier to check when the firmware UUID changes. Support is ongoing
+    other places in Nerves to make the nickname more visible.
+
+  * Use `Nerves.firmware_slots/0` to determine the active firmware slot to
+    support firmware slot changes that aren't represented in the KV. This is for
+    Raspberry Pi tryboot support.
+
+* Bug fixes
+  * Fix cases where `nil`s returned when porting Nerves could crash the MOTD
+    print out.
+
 ## v0.1.16 - 2025-12-20
 
 This release requires Elixir 1.14 or later.
