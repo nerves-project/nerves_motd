@@ -12,7 +12,7 @@
 `nerves_motd` prints a ["message of the
 day"](https://en.wikipedia.org/wiki/Motd_(Unix)) on Nerves devices.
 
-![](https://user-images.githubusercontent.com/7563926/202566900-942f3963-ff0e-48c2-9e13-03f96dd9a0d0.png)
+![](https://github.com/user-attachments/assets/ea33518b-ca93-4ca8-bb08-6beb93c5322f)
 
 ## Usage
 
