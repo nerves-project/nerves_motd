@@ -5,7 +5,7 @@
 # nerves_motd
 
 [![Hex version](https://img.shields.io/hexpm/v/nerves_motd.svg "Hex version")](https://hex.pm/packages/nerves_motd)
-[![API docs](https://img.shields.io/hexpm/v/nerves_motd.svg?label=hexdocs "API docs")](https://hexdocs.pm/nerves_motd/NervesMOTD.html)
+[![API docs](https://img.shields.io/hexpm/v/nerves_motd.svg?label=hexdocs "API docs")](https://nerves-motd.hexdocs.pm/NervesMOTD.html)
 [![CircleCI](https://dl.circleci.com/status-badge/img/gh/nerves-project/nerves_motd/tree/main.svg?style=svg)](https://dl.circleci.com/status-badge/redirect/gh/nerves-project/nerves_motd/tree/main)
 [![REUSE status](https://api.reuse.software/badge/github.com/nerves-project/nerves_motd)](https://api.reuse.software/info/github.com/nerves-project/nerves_motd)
 
@@ -75,9 +75,9 @@ def deps do
 end
 ```
 
-You can also install it using [Igniter](https://hexdocs.pm/igniter/) with `mix igniter.install nerves_motd`.
+You can also install it using [Igniter](https://igniter.hexdocs.pm/) with `mix igniter.install nerves_motd`.
 
-For details, see [API reference](https://hexdocs.pm/nerves_motd/api-reference.html).
+For details, see [API reference](https://nerves-motd.hexdocs.pm/api-reference.html).
 
 ## License
 

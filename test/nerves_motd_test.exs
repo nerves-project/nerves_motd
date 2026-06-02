@@ -14,10 +14,10 @@ defmodule NervesMOTDTest do
 
   alias Nerves.Runtime.KV
 
-  # https://hexdocs.pm/mox/Mox.html#module-global-mode
+  # https://mox.hexdocs.pm/Mox.html#module-global-mode
   setup :set_mox_from_context
 
-  # https://hexdocs.pm/mox/Mox.html#verify_on_exit!/1
+  # https://mox.hexdocs.pm/Mox.html#verify_on_exit!/1
   setup :verify_on_exit!
 
   setup do
