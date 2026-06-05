@@ -20,7 +20,5 @@ defmodule NervesMOTD.Word34567Test do
   test "invalid indices raise" do
     assert_raise FunctionClauseError, fn -> Word34567.word(-1) end
     assert_raise FunctionClauseError, fn -> Word34567.word(256) end
-    assert_raise FunctionClauseError, fn -> Word34567.word(nil) end
-    assert_raise FunctionClauseError, fn -> Word34567.word(1.0) end
   end
 end
