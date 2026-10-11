@@ -6,6 +6,7 @@
 
 [![Hex version](https://img.shields.io/hexpm/v/nerves_motd.svg "Hex version")](https://hex.pm/packages/nerves_motd)
 [![API docs](https://img.shields.io/hexpm/v/nerves_motd.svg?label=hexdocs "API docs")](https://nerves-motd.hexdocs.pm/NervesMOTD.html)
+[![Nerves compatibility](https://compatibility.nerves-project.org/badge/nerves_motd.svg)](https://compatibility.nerves-project.org/packages/nerves_motd)
 [![CircleCI](https://dl.circleci.com/status-badge/img/gh/nerves-project/nerves_motd/tree/main.svg?style=svg)](https://dl.circleci.com/status-badge/redirect/gh/nerves-project/nerves_motd/tree/main)
 [![REUSE status](https://api.reuse.software/badge/github.com/nerves-project/nerves_motd)](https://api.reuse.software/info/github.com/nerves-project/nerves_motd)
 
