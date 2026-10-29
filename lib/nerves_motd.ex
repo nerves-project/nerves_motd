@@ -110,6 +110,12 @@ defmodule NervesMOTD do
     logo_colors(scheme)
   end
 
+  defp logo_colors(:random) do
+    for({_name, %{colors: c}} <- schemes(), do: c)
+    |> Enum.random()
+    |> logo_colors()
+  end
+
   defp logo_colors(s) when is_atom(s) do
     scheme = schemes()[s] || schemes()[:nerves]
     logo_colors(scheme.colors)

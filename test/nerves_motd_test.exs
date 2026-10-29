@@ -69,6 +69,11 @@ defmodule NervesMOTDTest do
     end
   end
 
+  test "random logo scheme" do
+    picks = for _ <- 1..100, uniq: true, do: NervesMOTD.nerves_logo(:random)
+    assert length(picks) > 1
+  end
+
   test "Print defaults to the daily scheme and permits an explicit override" do
     stub(Date, :utc_today, fn -> ~D[2026-10-31] end)
 
