@@ -1,5 +1,7 @@
 <!--
+  SPDX-FileCopyrightText: 2021 Frank Hunleth
   SPDX-FileCopyrightText: 2021 Masatoshi Nishiguchi
+  SPDX-FileCopyrightText: 2023 Jon Carstens
   SPDX-License-Identifier: CC-BY-4.0
 -->
 # nerves_motd
