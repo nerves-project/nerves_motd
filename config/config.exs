@@ -35,6 +35,5 @@ config :nerves_runtime,
 config :nerves_time_zones, default_time_zone: "Asia/Tokyo"
 
 if Mix.env() == :test do
-  config :nerves_motd, runtime_mod: NervesMOTD.MockRuntime
   config :elixir, ansi_enabled: false
 end

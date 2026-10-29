@@ -9,7 +9,6 @@ defmodule NervesMOTD.MixProject do
       app: :nerves_motd,
       version: @version,
       elixir: "~> 1.15",
-      elixirc_paths: elixirc_paths(Mix.env()),
       docs: docs(),
       description: description(),
       package: package(),
@@ -27,9 +26,6 @@ defmodule NervesMOTD.MixProject do
     [preferred_envs: %{docs: :docs, "hex.publish": :docs, "hex.build": :docs}]
   end
 
-  defp elixirc_paths(:test), do: ["lib", "test/support"]
-  defp elixirc_paths(_), do: ["lib"]
-
   defp deps do
     [
       {:nerves_runtime, "~> 0.13.9"},
@@ -40,7 +36,7 @@ defmodule NervesMOTD.MixProject do
       {:ex_doc, "~> 0.25", only: :docs, runtime: false},
       {:mix_test_watch, "~> 1.1", only: :dev, runtime: false},
       {:igniter, "~> 0.5", only: [:dev, :test], optional: true, runtime: false},
-      {:mox, "~> 1.0", only: :test}
+      {:mimic, "~> 2.0", only: :test}
     ]
   end
 

@@ -14,6 +14,7 @@ defmodule NervesMOTD do
   """
 
   alias Nerves.Runtime.KV
+  alias NervesMOTD.Model
   alias NervesMOTD.Utils
 
   @logo """
@@ -59,7 +60,7 @@ defmodule NervesMOTD do
   @spec print([option()]) :: :ok
   def print(opts \\ []) do
     combined_opts = Application.get_all_env(:nerves_motd) |> Keyword.merge(opts)
-    apps = runtime_mod().applications()
+    apps = Model.applications()
 
     if ready?(apps) do
       [
@@ -149,7 +150,7 @@ defmodule NervesMOTD do
   @spec clock_cell() :: cell()
   defp clock_cell() do
     formatted_clock =
-      if runtime_mod().time_synchronized?() do
+      if Model.time_synchronized?() do
         Utils.formatted_local_time()
       else
         [:yellow, Utils.formatted_local_time(), " (unsynchronized)", :reset]
@@ -160,13 +161,12 @@ defmodule NervesMOTD do
 
   @spec firmware_cell() :: cell()
   defp firmware_cell() do
-    fw_active = runtime_mod().active_partition()
+    fw_active = Model.active_partition()
 
     status =
-      case runtime_mod().firmware_validity() do
+      case Model.firmware_validity() do
         :valid -> [:green, "Valid (#{fw_active})"]
         :invalid -> [:red, "Not validated (#{fw_active})"]
-        _ -> fw_active
       end
 
     {"Firmware", status}
@@ -187,7 +187,7 @@ defmodule NervesMOTD do
 
   @spec memory_usage_cell() :: cell()
   defp memory_usage_cell() do
-    case runtime_mod().memory_stats() do
+    case Model.memory_stats() do
       {:ok, stats} ->
         text = :io_lib.format("~p MB (~p%)", [stats.used_mb, stats.used_percent])
 
@@ -208,7 +208,7 @@ defmodule NervesMOTD do
     app_partition_path = KV.get_active("nerves_fw_application_part0_devpath")
 
     with true <- devpath_specified?(app_partition_path),
-         {:ok, stats} <- runtime_mod().filesystem_stats(app_partition_path) do
+         {:ok, stats} <- Model.filesystem_stats(app_partition_path) do
       text = :io_lib.format("~p MB (~p%)", [stats.used_mb, stats.used_percent])
 
       if stats.used_percent < 85 do
@@ -230,7 +230,7 @@ defmodule NervesMOTD do
   defp firmware_designation() do
     fw_product = KV.get_active("nerves_fw_product") || "unknown"
     fw_version = KV.get_active("nerves_fw_version") || "0.0.0"
-    fw_id = runtime_mod().firmware_id()
+    fw_id = Model.firmware_id()
 
     [fw_product, " ", fw_version, " - ", fw_id, "\n"]
   end
@@ -251,7 +251,7 @@ defmodule NervesMOTD do
 
   @spec load_average() :: IO.chardata()
   defp load_average() do
-    case runtime_mod().load_average() do
+    case Model.load_average() do
       [a, b, c | _] -> [a, " ", b, " ", c]
       _ -> "error"
     end
@@ -298,7 +298,7 @@ defmodule NervesMOTD do
   defp ip_address_row(_), do: []
 
   defp temperature() do
-    case runtime_mod().cpu_temperature() do
+    case Model.cpu_temperature() do
       {:ok, temperature_c} -> [:erlang.float_to_binary(temperature_c, decimals: 1), "°C"]
       _ -> "N/A"
     end
@@ -309,9 +309,5 @@ defmodule NervesMOTD do
     fw_architecture = KV.get_active("nerves_fw_architecture") || ""
 
     [fw_platform, " ", fw_architecture]
-  end
-
-  defp runtime_mod() do
-    Application.get_env(:nerves_motd, :runtime_mod, NervesMOTD.Runtime.Target)
   end
 end

@@ -4,42 +4,12 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 #
-defmodule NervesMOTD.Runtime do
+defmodule NervesMOTD.Model do
   @moduledoc false
-
-  @callback applications() :: %{started: [atom()], expected: [atom()], loaded: [atom()]}
-  @callback cpu_temperature() :: {:ok, float()} | :error
-  @callback active_partition() :: String.t()
-  @callback firmware_validity() :: :valid | :invalid | :unknown
-  @callback load_average() :: [String.t()]
-  @callback memory_stats() ::
-              {:ok,
-               %{
-                 size_mb: non_neg_integer(),
-                 used_mb: non_neg_integer(),
-                 used_percent: non_neg_integer()
-               }}
-              | :error
-  @callback filesystem_stats(String.t()) ::
-              {:ok,
-               %{
-                 size_mb: non_neg_integer(),
-                 used_mb: non_neg_integer(),
-                 used_percent: non_neg_integer()
-               }}
-              | :error
-  @callback time_synchronized?() :: boolean()
-  @callback firmware_id() :: String.t()
-end
-
-defmodule NervesMOTD.Runtime.Target do
-  @moduledoc false
-  @behaviour NervesMOTD.Runtime
 
   alias Nerves.Runtime.KV
   alias NervesMOTD.Word34567
 
-  @impl NervesMOTD.Runtime
   def applications() do
     started = Enum.map(Application.started_applications(), &elem(&1, 0))
     loaded = Enum.map(Application.loaded_applications(), &elem(&1, 0))
@@ -61,7 +31,6 @@ defmodule NervesMOTD.Runtime.Target do
     _ -> nil
   end
 
-  @impl NervesMOTD.Runtime
   def cpu_temperature() do
     # Read the file /sys/class/thermal/thermal_zone0/temp. The file content is
     # an integer in millidegree Celsius, which looks like:
@@ -76,18 +45,15 @@ defmodule NervesMOTD.Runtime.Target do
     end
   end
 
-  @impl NervesMOTD.Runtime
   def active_partition() do
     slots = Nerves.Runtime.firmware_slots()
     String.upcase(slots.active)
   end
 
-  @impl NervesMOTD.Runtime
   def firmware_validity() do
     if Nerves.Runtime.firmware_valid?(), do: :valid, else: :invalid
   end
 
-  @impl NervesMOTD.Runtime
   def firmware_id() do
     case KV.get_active("nerves_fw_uuid") do
       nil -> "unknown"
@@ -116,7 +82,6 @@ defmodule NervesMOTD.Runtime.Target do
     "#{Word34567.word(first)}-#{Word34567.word(second)}"
   end
 
-  @impl NervesMOTD.Runtime
   def load_average() do
     case File.read("/proc/loadavg") do
       {:ok, data_str} -> String.split(data_str, " ")
@@ -124,7 +89,6 @@ defmodule NervesMOTD.Runtime.Target do
     end
   end
 
-  @impl NervesMOTD.Runtime
   def memory_stats() do
     # Use free to determine memory statistics. free's output looks like:
     #
@@ -146,7 +110,6 @@ defmodule NervesMOTD.Runtime.Target do
     _error -> :error
   end
 
-  @impl NervesMOTD.Runtime
   def filesystem_stats(filename) when is_binary(filename) do
     # Use df to determine filesystem statistics. df's output looks like:
     #
@@ -168,11 +131,9 @@ defmodule NervesMOTD.Runtime.Target do
 
   case Code.ensure_compiled(NervesTime) do
     {:module, _} ->
-      @impl NervesMOTD.Runtime
       def time_synchronized?(), do: NervesTime.synchronized?()
 
     _ ->
-      @impl NervesMOTD.Runtime
       def time_synchronized?(), do: true
   end
 end

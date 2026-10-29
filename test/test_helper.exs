@@ -11,7 +11,6 @@ exclude =
     _ -> [has_nerves_time_zones: true]
   end
 
-# Define dynamic mocks
-Mox.defmock(NervesMOTD.MockRuntime, for: NervesMOTD.Runtime)
+Mimic.copy(NervesMOTD.Model)
 
 ExUnit.start(exclude: exclude)
