@@ -7,6 +7,12 @@
 
 This project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## v0.1.18 - 2026-10-29
+
+* Improvements
+  * Support more festive Nerves logos
+  * Simplify code for a small size reduction
+
 ## v0.1.17 - 2026-01-18
 
 * Improvements
