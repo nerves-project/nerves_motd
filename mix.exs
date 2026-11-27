@@ -38,7 +38,7 @@ defmodule NervesMOTD.MixProject do
       {:dialyxir, "~> 1.1", only: :dev, runtime: false},
       {:ex_doc, "~> 0.25", only: :docs, runtime: false},
       {:mix_test_watch, "~> 1.1", only: :dev, runtime: false},
-      {:igniter, "~> 0.5", only: [:dev, :test], optional: true, runtime: false},
+      {:igniter, "~> 0.6", optional: true, runtime: false},
       {:mimic, "~> 2.0", only: :test}
     ]
   end
@@ -86,7 +86,7 @@ defmodule NervesMOTD.MixProject do
   defp dialyzer() do
     [
       flags: [:missing_return, :extra_return, :unmatched_returns, :error_handling, :underspecs],
-      plt_add_apps: [:nerves_time_zones, :igniter, :mix, :sourceror]
+      plt_add_apps: [:nerves_time_zones, :igniter, :mix, :rewrite, :sourceror]
     ]
   end
 end

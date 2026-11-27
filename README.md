@@ -79,7 +79,20 @@ def deps do
 end
 ```
 
-You can also install it using [Igniter](https://igniter.hexdocs.pm/) with `mix igniter.install nerves_motd`.
+### Igniter
+
+You can also install it using [Igniter](https://igniter.hexdocs.pm/):
+
+```sh
+mix igniter.install nerves_motd
+```
+
+This adds the dependency and appends `NervesMOTD.print()` to
+`rootfs_overlay/etc/iex.exs`, creating the file if needed. Nothing is changed
+if the file already calls `NervesMOTD.print/1`. Options:
+
+* `--file` or `-f` - path to the `iex.exs` file to update. Defaults to
+  `rootfs_overlay/etc/iex.exs`
 
 For details, see [API reference](https://nerves-motd.hexdocs.pm/api-reference.html).
 
